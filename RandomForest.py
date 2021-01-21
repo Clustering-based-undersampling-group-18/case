@@ -18,7 +18,7 @@ frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 X = frame[['totalPrice', 'quantityOrdered', 'cntDistinctCaseIds']]
 Y = frame['noCancellation']
 X[np.isnan(X)] = 0
-train_X, test_X, train_Y, test_Y = train_test_split(X, y, test_size=0.3, random_state=1234)
+train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
 # Initializes variables and cross-validation
 kf = KFold()
