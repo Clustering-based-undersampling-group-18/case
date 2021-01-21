@@ -17,6 +17,8 @@ frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'cntDistinctCaseIds']]
 Y = frame['noCancellation']
+X = X.to_numpy()
+Y = Y.to_numpy()
 X[np.isnan(X)] = 0
 train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
@@ -26,12 +28,11 @@ n_cv = kf.get_n_splits()
 bestScore = 0
 bestDepth = -1
 
-# Grid search for the max depth of the tree
+# Grid search for the max depth of the trees
 for i in [5, 10, 15]:
     score = 0
 
-    # 5-fold cross validation, split in train and validation set to find a decent max_depth for DT, RF and MIRCO
-    # Also stores average scores, rules and missed points by MIRCO
+    # 5-fold cross validation, split in train and validation set to find a decent max_depth and stores the average score
     for train_index, test_index in kf.split(train_X, train_Y):
         X_train, val_X = X[train_index], X[test_index]
         Y_train, val_Y = Y[train_index], Y[test_index]
@@ -44,10 +45,10 @@ for i in [5, 10, 15]:
         bestScore = score
         bestDepth = i
 
-    # Prints the average score and average number of rules for max depth i
-    print("Max depth:", i, ", RF prediction accuracy:", score/n_cv)
+    # Prints the average score for max depth i
+    print("Max depth:", i, ", RF average prediction accuracy:", score/n_cv)
 
-# Prints the best average score and max depth for the methods
+# Prints the best average score and max depth
 print("Best average score and depth RF:", bestScore/n_cv, bestDepth)
 
 # Fits the methods on the whole training set and predicts the test set, using the best max depth from the K-fold CV
@@ -55,7 +56,7 @@ RF = RandomForestClassifier(random_state=1, max_depth=bestDepth)
 RF.fit(train_X, train_Y)
 score = RF.score(test_X, test_Y)
 
-# Prints the accuracy of the prediction, the number of rules of the test set and the number of points missed by MIRCO
+# Prints the accuracy of the prediction
 print("RF prediction accuracy:", score)
 
 
