@@ -12,7 +12,7 @@ frame_2019 = pd.read_csv("data/data_2019.csv")  # 2110338
 frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 random.seed(1234)
-frame = frame.sample(n=1000)
+frame = frame.sample(n=10000)
 
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode']]
@@ -24,13 +24,7 @@ Y = frame['noReturn']
 Y = Y.to_numpy()
 train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
-# Initializes variables and cross-validation
-kf = KFold()
-n_cv = kf.get_n_splits()
-bestScore = 0
-bestDepth = -1
-
-# Grid search for the max depth of the trees
+# Hyperparameter sets
 hyperparam = {
     'bootstrap': [True],
     'max_depth': [80, 90, 100, 110],
@@ -39,6 +33,8 @@ hyperparam = {
     'min_samples_split': [8, 10, 12],
     'n_estimators': [100, 200, 300, 1000]
 }
+
+# Grid search for the hyperparameters
 RF = RandomForestClassifier()
 grid_search = GridSearchCV(estimator=RF, param_grid=hyperparam, cv=3, n_jobs=-1, verbose=2)
 grid_search.fit(train_X, train_Y)
