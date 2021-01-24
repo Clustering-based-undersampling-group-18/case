@@ -3,12 +3,16 @@ from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
 from sklearn.tree import export_graphviz
+from sklearn.model_selection import GridSearchCV
 import pydot
+import random
 
 # Importing data
 frame_2019 = pd.read_csv("data/data_2019.csv")  # 2110338
 frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
+random.seed(1234)
+frame = frame.sample(n=1000)
 
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode']]
@@ -27,31 +31,23 @@ bestScore = 0
 bestDepth = -1
 
 # Grid search for the max depth of the trees
-for i in [5, 10, 15]:
-    score = 0
+hyperparam = {
+    'bootstrap': [True],
+    'max_depth': [80, 90, 100, 110],
+    'max_features': [2, 3],
+    'min_samples_leaf': [3, 4, 5],
+    'min_samples_split': [8, 10, 12],
+    'n_estimators': [100, 200, 300, 1000]
+}
+RF = RandomForestClassifier()
+grid_search = GridSearchCV(estimator=RF, param_grid=hyperparam, cv=3, n_jobs=-1, verbose=2)
+grid_search.fit(train_X, train_Y)
 
-    # 5-fold cross validation, split in train and validation set to find a decent max_depth and stores the average score
-    for train_index, test_index in kf.split(train_X, train_Y):
-        X_train, val_X = X[train_index], X[test_index]
-        Y_train, val_Y = Y[train_index], Y[test_index]
-        RF = RandomForestClassifier(random_state=1, max_depth=i)
-        forest = RF.fit(X_train, Y_train)
-        score = score + RF.score(val_X, val_Y)
+# Prints the best hyperparameters
+print("Best hyperparameter values:", grid_search.best_params_)
 
-    # Stores the best score yet and its corresponding parameter
-    if score > bestScore:
-        bestScore = score
-        bestDepth = i
-
-    # Prints the average score for max depth i
-    print("Max depth:", i, ", RF average prediction accuracy:", score/n_cv)
-
-# Prints the best average score and max depth
-print("Best average score and depth RF:", bestScore/n_cv, bestDepth)
-
-# Fits the methods on the whole training set and predicts the test set, using the best max depth from the K-fold CV
-RF = RandomForestClassifier(random_state=1, max_depth=bestDepth)
-RF.fit(train_X, train_Y)
+# Predicts the test set using the best model from the grid search
+RF = grid_search.best_estimator_
 score = RF.score(test_X, test_Y)
 
 # Prints the accuracy of the prediction
