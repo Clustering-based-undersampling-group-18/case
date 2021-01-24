@@ -1,7 +1,6 @@
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.model_selection import KFold
 from sklearn.tree import export_graphviz
 from sklearn.model_selection import GridSearchCV
 import pydot
