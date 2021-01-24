@@ -1,13 +1,9 @@
 import pandas as pd
-import numpy as np
-import matplotlib.pyplot as plt
-from sklearn.tree import DecisionTreeRegressor, export_graphviz
-from io import StringIO
-from IPython.display import Image
-import pydotplus
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
+from sklearn.tree import export_graphviz
+import pydot
 
 # Importing data
 frame_2019 = pd.read_csv("data/data_2019.csv")  # 2110338
@@ -15,11 +11,13 @@ frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 
 # Splitting data
-X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'productGroup']]
-Y = frame['noReturn']
+X = frame[['totalPrice', 'quantityOrdered', 'countryCode']]
+X = pd.get_dummies(X)
+features = list(X.columns)
 X = X.to_numpy()
-Y = Y.to_numpy()
 # X[np.isnan(X)] = 0
+Y = frame['noReturn']
+Y = Y.to_numpy()
 train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
 # Initializes variables and cross-validation
@@ -58,6 +56,12 @@ score = RF.score(test_X, test_Y)
 
 # Prints the accuracy of the prediction
 print("RF prediction accuracy:", score)
+
+# Visualizing a tree
+tree = RF.estimators_[5]
+export_graphviz(tree, out_file='tree.dot', feature_names=features, rounded=True, precision=1)
+(graph, ) = pydot.graph_from_dot_file('tree.dot')
+graph.write_png('tree.png')
 
 
 
