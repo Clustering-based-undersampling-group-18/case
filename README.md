@@ -59,17 +59,17 @@ However, we do want to encourage you to deliver the best possible analyses and/o
 | totalPrice  					| Product price times quantity ordered |
 | quantityOrdered  				| Quantity Ordered from that product |
 | countryCode  					| Country of customer |
-| cancellationDate  			| If available, cancellation date |
-| cancellationCode  			| Internal cancellation logging code |
-| promisedDeliveryDate  		| The day the customer should receive the package |
+| cancellationDate  				| If available, cancellation date |
+| cancellationCode  				| Internal cancellation logging code |
+| promisedDeliveryDate  			| The day the customer should receive the package |
 | shipmentDate  				| Date when the partner confirmed the shipment. Note that partners can also confirm the shipment after package was sent. If we do not know the shipment date, delivery will be unknown and so will the column onTimeDelivery be null  |
-| transporterCode               | Transporter code |
-| transporterName               | Transporter name |
-| transporterNameOther          | Transporter name other |
-| dateTimeFirstDeliveryMoment	| The datetime the carrier delivered the package (either to customers home, parcel point or neighbor). If this variable <= promisedDeliveryDate then we consider the delivery as on time. This datetime is based on the delivery scan of the transporters |
+| transporterCode               		| Transporter code |
+| transporterName               		| Transporter name |
+| transporterNameOther          		| Transporter name other |
+| dateTimeFirstDeliveryMoment			| The datetime the carrier delivered the package (either to customers home, parcel point or neighbor). If this variable <= promisedDeliveryDate then we consider the delivery as on time. This datetime is based on the delivery scan of the transporters |
 | fulfilmentType  				| FBB means Fulfilment By Bol.com By Bol.com (Bol.com takes care of storage & shipment). See https://www.bol.com/nl/m/logistiek/ for more information. FBR means Fulfilment By Retailer, which means partners take care of storage and shipment themselves |
 | startDateCase  				| If available, date when customer case was made |
-| cntDistinctCaseIds  			| Amount of unique cases |
+| cntDistinctCaseIds  				| Amount of unique cases |
 | returnDateTime  				| If available, date when return was registered |
 | quantityReturn  				| Quantity that was returned |
 | returnCode  					| Internal return logging code |
@@ -78,24 +78,24 @@ However, we do want to encourage you to deliver the best possible analyses and/o
 | chunkName       				| Chunk name. Some kind of product classification |
 | productGroup  				| Product group |
 | productSubGroup  				| Product sub group |
-| productSubSubGroup  			| Product sub sub group |
-| registrationDateSeller  		| Date when the partner was registered at bol.com |
-| countryOfOriginSeller         | Country of origin from partner |
-| currentCountryAvailability    | Current country/countries the partner ships to. NL, BE or ALL (= NL + BE) |
-| calculationDefinitive  		| Boolean whether 30 days after the order date have passed |
+| productSubSubGroup  				| Product sub sub group |
+| registrationDateSeller  			| Date when the partner was registered at bol.com |
+| countryOfOriginSeller         		| Country of origin from partner |
+| currentCountryAvailability    		| Current country/countries the partner ships to. NL, BE or ALL (= NL + BE) |
+| calculationDefinitive  			| Boolean whether 30 days after the order date have passed |
 
 The columns below rely on the look back periods mentioned on top of this file and these columns can be used for supervised prediction. Note that noCancellation, onTimeDelivery, noCase, hasOneCase, hasMoreCases & noReturn all contribute to the final match classification (generalMatchClassification and detailedMatchClassification). Therefore, you should not include one of the columns below as predicting feature(s).
 
 | Column name   		 		| Description   |
 | ------------- 				| ------------- |
-| noCancellation  			    | Boolean whether there was a cancellation within 10 days after the order date that we want to take into account |
+| noCancellation  			    	| Boolean whether there was a cancellation within 10 days after the order date that we want to take into account |
 | onTimeDelivery  				| True, False or null. If False, the order was classified late within 13 days, if True the order was classified on time within 13 days and if null the order was classified as unknown within 13 days in terms of delivery |
-| noCase  						| Boolean whether there was a case within 30 days after the order date that we want to take into account |
+| noCase  					| Boolean whether there was a case within 30 days after the order date that we want to take into account |
 | hasOneCase  					| Boolean whether there was one case within 30 days after the order date that we want to take into account |
 | hasMoreCases  				| Boolean whether there were more cases within 30 days after the order date that we want to take into account |
 | noReturn  					| Boolean whether there was a return within 30 days after the order date that we want to take into account |
-| generalMatchClassification  	| General Happy Match classification based on decision rules that can be HAPPY, UNHAPPY or UNKNOWN  |
-| detailedMatchClassification  	| Detailed Happy Match classification based on decision rules that can be HAPPY, MILDLY UNHAPPY, MEDIUM UNHAPPY, HEAVILY UNHAPPY and UNKNOWN |
+| generalMatchClassification  			| General Happy Match classification based on decision rules that can be HAPPY, UNHAPPY or UNKNOWN  |
+| detailedMatchClassification  			| Detailed Happy Match classification based on decision rules that can be HAPPY, MILDLY UNHAPPY, MEDIUM UNHAPPY, HEAVILY UNHAPPY and UNKNOWN |
 
 Good luck and we are looking forward to you conclusions!
 
