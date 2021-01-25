@@ -14,13 +14,13 @@ frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 
 # Splitting data
-X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode']]
+X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
 X = pd.get_dummies(X)
 features = list(X.columns)
 X = X.to_numpy()
-# X[np.isnan(X)] = 0
-Y = frame['noReturn', 'noCancellation']
+Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
 Y = Y.to_numpy()
+Y[np.isnan(Y)] = 0.5
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
 
@@ -28,11 +28,11 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.
 # Hyperparameter sets
 hyperparam = {
     'bootstrap': [True],
-    'max_depth': [80, 90, 100, 110],
-    'max_features': [2, 3],
-    'min_samples_leaf': [3, 4, 5],
-    'min_samples_split': [8, 10, 12],
-    'n_estimators': [100, 200, 300, 1000]
+    'max_depth': [10, 80, 90, 100],
+    'max_features': [2, 3, 10],
+    'min_samples_leaf': [3, 4, 5, 10],
+    'min_samples_split': [2, 8, 10, 12],
+    'n_estimators': [10, 100, 200, 300]
 }
 
 # Grid search for the hyperparameters
