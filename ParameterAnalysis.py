@@ -31,9 +31,9 @@ max_features = list(range(1, frame.shape[1]))
 # Grid Search
 train_results = []
 test_results = []
-grid = min_samples_leafs
+grid = n_estimators
 for value in grid:
-    RF = RandomForestClassifier(min_samples_leaf=value, n_jobs=-1)
+    RF = RandomForestClassifier(n_estimators=value, n_jobs=-1)
     RF.fit(X_val, Y_val)
     acc = RF.score(X_val, Y_val)
     print('Accuracy train:', acc)
