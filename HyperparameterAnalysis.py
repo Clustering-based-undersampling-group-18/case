@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import KFold
@@ -11,14 +12,39 @@ frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 
 # Splitting data
-X = frame[['totalPrice', 'quantityOrdered', 'countryCode']]
+X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
 X = pd.get_dummies(X)
 features = list(X.columns)
 X = X.to_numpy()
-# X[np.isnan(X)] = 0
-Y = frame['noReturn']
+Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
 Y = Y.to_numpy()
-train_X, test_X, train_Y, test_Y = train_test_split(X, Y, test_size=0.3, random_state=1234)
+Y[np.isnan(Y)] = 0.5
+X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
+
+
+n_estimators = [1, 2, 4, 8, 16, 32, 64, 100, 200]
+train_results = []
+test_results = []
+for estimator in n_estimators:
+   rf = RandomForestClassifier(n_estimators=estimator, n_jobs=-1)
+   rf.fit(x_train, y_train)
+   train_pred = rf.predict(x_train)
+   false_positive_rate, true_positive_rate, thresholds = roc_curve(y_train, train_pred)
+   roc_auc = auc(false_positive_rate, true_positive_rate)
+   train_results.append(roc_auc)
+   y_pred = rf.predict(x_test)
+   false_positive_rate, true_positive_rate, thresholds = roc_curve(y_test, y_pred)
+   roc_auc = auc(false_positive_rate, true_positive_rate)
+   test_results.append(roc_auc)
+from matplotlib.legend_handler import HandlerLine2D
+line1, = plt.plot(n_estimators, train_results, ‘b’, label=”Train AUC”)
+line2, = plt.plot(n_estimators, test_results, ‘r’, label=”Test AUC”)
+plt.legend(handler_map={line1: HandlerLine2D(numpoints=2)})
+plt.ylabel(‘AUC score’)
+plt.xlabel(‘n_estimators’)
+plt.show()
+
+
 
 # Initializes variables and cross-validation
 kf = KFold()
