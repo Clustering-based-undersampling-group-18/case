@@ -11,14 +11,20 @@ frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 
 # Splitting data
-X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
-X = pd.get_dummies(X, columns=['sellerId', 'countryCode', 'productGroup'])
-print(X[['sellerId_892683']])
+X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'productGroup']]
+X = pd.get_dummies(X, columns=['countryCode', 'productGroup'])
 features = list(X.columns)
 X = X.to_numpy()
-Y = frame[['noCancellation', 'noReturn', 'noCase']]
+Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
+Y['onTimeDelivery'] = Y['onTimeDelivery'].mask([True], [True, False, False])
+Y['onTimeDelivery'] = Y['onTimeDelivery'].mask([False], [False, True, False])
 Y = Y.to_numpy()
-# Y[np.isnan(Y)] = 2
+# Y[np.where(Y[:, 1] == True)] = [True, False, False]
+# Y[np.where(Y[:, 1] == False)] = [False, True, False]
+# Y = np.where(Y[:, 1] == True, [True, 0, 0], Y[:, 1])
+# Y = np.where(Y[:, 1] == False, [0, True, 0], Y[:, 1])
+Y[np.isnan(Y)] = [False, False, True]
+print(Y)
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
 
