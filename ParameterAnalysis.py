@@ -13,7 +13,7 @@ frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
 X = pd.get_dummies(X, columns=['sellerId', 'countryCode', 'productGroup'])
-print(X[['sellerId']])
+print(X[['sellerId_892683']])
 features = list(X.columns)
 X = X.to_numpy()
 Y = frame[['noCancellation', 'noReturn', 'noCase']]
