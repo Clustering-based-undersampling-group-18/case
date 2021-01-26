@@ -28,11 +28,11 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.
 # Hyperparameter sets
 hyperparam = {
     'bootstrap': [True],
-    'max_depth': [10, 80, 90, 100],
-    'max_features': [2, 3, 10],
-    'min_samples_leaf': [3, 4, 5, 10],
-    'min_samples_split': [2, 8, 10, 12],
-    'n_estimators': [10, 100, 200, 300]
+    'max_depth': [80, 90, 100],
+    'max_features': [2, 3, 4],
+    'min_samples_leaf': [3, 4, 5],
+    'min_samples_split': [8, 10, 12],
+    'n_estimators': [100, 200, 300]
 }
 
 # Grid search for the hyperparameters

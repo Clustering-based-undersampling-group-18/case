@@ -12,7 +12,8 @@ frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
 
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
-X = pd.get_dummies(X)
+X = pd.get_dummies(X, columns=['sellerId', 'countryCode', 'productGroup'])
+print(X[['sellerId']])
 features = list(X.columns)
 X = X.to_numpy()
 Y = frame[['noCancellation', 'noReturn', 'noCase']]
@@ -31,11 +32,11 @@ max_features = list(range(1, frame.shape[1]))
 # Grid Search
 train_results = []
 test_results = []
-grid = n_estimators
+grid = max_depths
 for value in grid:
-    RF = RandomForestClassifier(n_estimators=value, n_jobs=-1)
-    RF.fit(X_val, Y_val)
-    acc = RF.score(X_val, Y_val)
+    RF = RandomForestClassifier(max_depth=value, n_jobs=-1)
+    RF.fit(X_train, Y_train)
+    acc = RF.score(X_train, Y_train)
     print('Accuracy train:', acc)
     train_results.append(acc)
     acc = RF.score(X_test, Y_test)
