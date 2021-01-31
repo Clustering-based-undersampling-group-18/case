@@ -34,8 +34,8 @@ hyper_param = {'n_estimators': stats.randint(150, 1000),
 
 # Grid search for the hyperparameters
 RF = XGBClassifier()
-cv = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=5, n_iter=5, scoring='roc_auc',
-                        error_score=0, verbose=3, n_jobs=-1)
+cv = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=5, n_iter=5, scoring='roc_auc', error_score=0,
+                        verbose=3, n_jobs=-1)
 random_search = cv.fit(X_val, Y_val)
 
 # Prints the best hyperparameters
