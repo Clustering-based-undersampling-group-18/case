@@ -3,14 +3,13 @@ import numpy as np
 from scipy import stats
 from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import export_graphviz
 from sklearn.model_selection import GridSearchCV
 import pydot
 import random
 
 # Importing data
-# random.seed(1234)
+random.seed(1234)
 frame_2019 = pd.read_csv("data/data_2019.csv")  # 2110338
 frame_2020 = pd.read_csv("data/data_2020.csv")  # 2645037
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4755375
