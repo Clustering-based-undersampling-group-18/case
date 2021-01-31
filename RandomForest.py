@@ -1,5 +1,7 @@
 import pandas as pd
 import numpy as np
+from scipy import stats
+from xgboost import XGBClassifier
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.tree import export_graphviz
@@ -26,25 +28,23 @@ X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.
 
 
 # Hyperparameter sets
-hyperparam = {
-    'bootstrap': [True],
-    'max_depth': [80, 90, 100],
-    'max_features': [2, 3, 4],
-    'min_samples_leaf': [3, 4, 5],
-    'min_samples_split': [8, 10, 12],
-    'n_estimators': [100, 200, 300]
-}
+hyper_param = {'n_estimators': stats.randint(150, 1000),
+               'learning_rate': stats.uniform(0.01, 0.6),
+               'subsample': stats.uniform(0.3, 0.9),
+               'max_depth': [3, 4, 5, 6, 7, 8, 9],
+               'colsample_bytree': stats.uniform(0.5, 0.9),
+               'min_child_weight': [1, 2, 3, 4]}
 
 # Grid search for the hyperparameters
-RF = RandomForestClassifier()
-grid_search = GridSearchCV(estimator=RF, param_grid=hyperparam, cv=3, n_jobs=-1, verbose=2)
+RF = XGBClassifier()
+grid_search = GridSearchCV(estimator=RF, param_grid=hyper_param, cv=3, n_jobs=-1, verbose=2)
 grid_search.fit(X_val, Y_val)
 
 # Prints the best hyperparameters
 print("Best hyperparameter values:", grid_search.best_params_)
 
 # Predicts the test set using the best model from the grid search
-RF = RandomForestClassifier(**grid_search.best_params_)
+RF = XGBClassifier(**grid_search.best_params_)
 RF.fit(X_train, Y_train)
 score = RF.score(X_test, Y_test)
 
