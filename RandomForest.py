@@ -15,7 +15,9 @@ random.seed(1234)
 frame = pd.read_csv("data/frame.csv")
 
 # Splitting data
-X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
+X = frame[['sellerId', 'totalPrice', 'quantityOrdered', 'countryCode', 'transporterCode', 'transporterName',
+           'transporterNameOther', 'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'productSubGroup',
+           'productSubSubGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
 X = pd.get_dummies(columns=['sellerId', 'countryCode', 'productGroup'])
 features = list(X.columns)
 X = X.to_numpy()
