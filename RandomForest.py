@@ -16,7 +16,7 @@ frame = pd.read_csv("data/frame.csv")
 
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'sellerId', 'countryCode', 'productGroup']]
-X = pd.get_dummies(X)
+X = pd.get_dummies(columns=['sellerId', 'countryCode', 'productGroup'])
 features = list(X.columns)
 X = X.to_numpy()
 Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
@@ -38,6 +38,8 @@ RF = XGBClassifier()
 cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
 RSCV = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=cv, n_iter=5, scoring='roc_auc', error_score=0,
                           verbose=3, n_jobs=-1)
+print(X_val)
+print(Y_val)
 random_search = RSCV.fit(X_val, Y_val)
 
 # Prints the best hyperparameters
@@ -51,7 +53,7 @@ score = RF.score(X_test, Y_test)
 # Prints the accuracy of the prediction
 print("RF prediction accuracy:", score)
 
-# Visualizing a tree
+# Visualizes the fifth tree
 tree = RF.estimators_[5]
 export_graphviz(tree, out_file='tree.dot', feature_names=features, rounded=True, precision=1)
 (graph, ) = pydot.graph_from_dot_file('tree.dot')
