@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.tree import export_graphviz
 from sklearn.model_selection import RandomizedSearchCV
 from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import RepeatedStratifiedKFold
 import pydot
 import random
 
@@ -34,9 +35,10 @@ hyper_param = {'n_estimators': stats.randint(150, 1000),
 
 # Grid search for the hyperparameters
 RF = XGBClassifier()
-cv = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=5, n_iter=5, scoring='roc_auc', error_score=0,
-                        verbose=3, n_jobs=-1)
-random_search = cv.fit(X_val, Y_val)
+cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
+RSCV = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=cv, n_iter=5, scoring='roc_auc', error_score=0,
+                          verbose=3, n_jobs=-1)
+random_search = RSCV.fit(X_val, Y_val)
 
 # Prints the best hyperparameters
 print("Best hyperparameter values:", random_search.best_params_)
