@@ -16,9 +16,11 @@ frame = pd.read_csv("data/frame.csv")
 
 # Splitting data
 X = frame[['sellerId', 'totalPrice', 'quantityOrdered', 'countryCode', 'transporterCode', 'transporterName',
-           'transporterNameOther', 'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'productSubGroup',
-           'productSubSubGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
-X = pd.get_dummies(columns=['sellerId', 'countryCode', 'productGroup'])
+           'transporterNameOther', 'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'registrationDateSeller',
+           'countryOriginSeller', 'currentCountryAvailabilitySeller']]
+X = pd.get_dummies(X, columns=['sellerId', 'countryCode', 'transporterCode', 'transporterName', 'transporterNameOther',
+                               'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'registrationDateSeller',
+                               'countryOriginSeller', 'currentCountryAvailabilitySeller'])
 features = list(X.columns)
 X = X.to_numpy()
 Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
