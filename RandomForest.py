@@ -27,7 +27,8 @@ Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
 Y = Y.to_numpy()
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
-
+print(X_val)
+print(Y_val)
 
 # Hyperparameter sets
 hyper_param = {'n_estimators': stats.randint(150, 1000),
@@ -42,8 +43,6 @@ RF = XGBClassifier()
 cv = RepeatedStratifiedKFold(n_splits=10, n_repeats=3, random_state=1)
 RSCV = RandomizedSearchCV(RF, param_distributions=hyper_param, cv=cv, n_iter=5, scoring='roc_auc', error_score=0,
                           verbose=3, n_jobs=-1)
-print(X_val)
-print(Y_val)
 random_search = RSCV.fit(X_val, Y_val)
 
 # Prints the best hyperparameters
