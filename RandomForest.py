@@ -12,7 +12,11 @@ import random
 
 # Importing data
 random.seed(1234)
-frame = pd.read_csv("data/frame.csv")
+missing_value_formats = ["n.a.", "?", "NA", "n/a", "na", "--", "NaN", " ", ""]
+frame = pd.read_csv("data/frame.csv", na_values=missing_value_formats,
+                    dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
+                           'transporterNameOther': object, 'cancellationReasonCode': object})  # 2110338
+
 
 # Splitting data
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
