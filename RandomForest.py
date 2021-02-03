@@ -17,16 +17,22 @@ frame = pd.read_csv("data/frame.csv", na_values=missing_value_formats,
                     dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
                            'transporterNameOther': object, 'cancellationReasonCode': object})  # 2110338
 
+# Preparing dependent variables
+Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
+Y = pd.get_dummies(Y, columns=['onTimeDelivery'])
+Y = Y.replace(to_replace=True, value=1)
+Y = Y.replace(to_replace=False, value=0)
+Y = Y.to_numpy()
 
-# Splitting data
+# Preparing explanatory variables
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
            'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
 X = pd.get_dummies(X, columns=['countryCode', 'fulfilmentType', 'productGroup', 'countryOriginSeller',
                                'currentCountryAvailabilitySeller'])
 features = list(X.columns)
 X = X.to_numpy()
-Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
-Y = Y.to_numpy()
+
+# Splitting the data
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
 print(X_val)
