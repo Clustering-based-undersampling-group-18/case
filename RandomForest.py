@@ -15,12 +15,10 @@ random.seed(1234)
 frame = pd.read_csv("data/frame.csv")
 
 # Splitting data
-X = frame[['sellerId', 'totalPrice', 'quantityOrdered', 'countryCode', 'transporterCode', 'transporterName',
-           'transporterNameOther', 'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'registrationDateSeller',
-           'countryOriginSeller', 'currentCountryAvailabilitySeller']]
-X = pd.get_dummies(X, columns=['sellerId', 'countryCode', 'transporterCode', 'transporterName', 'transporterNameOther',
-                               'fulfilmentType', 'brickName', 'chunkName', 'productGroup', 'registrationDateSeller',
-                               'countryOriginSeller', 'currentCountryAvailabilitySeller'])
+X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
+           'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
+X = pd.get_dummies(X, columns=['countryCode', 'fulfilmentType', 'productGroup', 'countryOriginSeller',
+                               'currentCountryAvailabilitySeller'])
 features = list(X.columns)
 X = X.to_numpy()
 Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
@@ -61,7 +59,3 @@ tree = RF.estimators_[5]
 export_graphviz(tree, out_file='tree.dot', feature_names=features, rounded=True, precision=1)
 (graph, ) = pydot.graph_from_dot_file('tree.dot')
 graph.write_png('tree.png')
-
-
-
-
