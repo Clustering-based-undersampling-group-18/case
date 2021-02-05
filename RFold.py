@@ -62,7 +62,7 @@ for depend in Y.T:
     score = RF.score(X_test, Y_test)
 
     # Prints the accuracy of the prediction
-    print("RF prediction accuracy:", score)
+    print("RF prediction ROC AUC:", score)
 
 # Visualizes the fifth tree
 tree = RF.estimators_[5]

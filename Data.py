@@ -1,5 +1,6 @@
 import pandas as pd
 from RandomForest import RandomForest
+from sklearn.model_selection import train_test_split
 import random
 
 # Importing data
@@ -27,6 +28,10 @@ X = X.to_numpy()
 
 for depend in Y.T:
     depend = depend.T
-    RandomForest(X, Y)
 
+    # Splitting the data
+    X_train, X_test, Y_train, Y_test = train_test_split(X, depend, test_size=0.3, random_state=1234)
 
+    # Predicting dependent variable with XGBoost Random Forest
+    RF = RandomForest(X_train, X_test, Y_train, Y_test)
+    print("RF prediction ROC AUC:", RF.score)
