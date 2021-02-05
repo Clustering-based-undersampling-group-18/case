@@ -18,11 +18,11 @@ Y = Y.replace(to_replace=False, value=0)
 Y = Y.to_numpy()
 
 # Preparing explanatory variables
+# 'frequencySeller', 'dayOfTheWeek', 'monthOfTheYear'
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
-           'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller',
-           'frequencySeller', 'dayOfTheWeek', 'monthOfTheYear']]
+           'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
 X = pd.get_dummies(X, columns=['countryCode', 'fulfilmentType', 'productGroup', 'countryOriginSeller',
-                               'currentCountryAvailabilitySeller', 'dayOfTheWeek', 'monthOfTheYear'])
+                               'currentCountryAvailabilitySeller'])
 features = list(X.columns)
 X = X.to_numpy()
 
