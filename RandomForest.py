@@ -11,20 +11,20 @@ class RandomForest:
         X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
 
         # Hyperparameter sets
-        hyper_param = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
+        hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
                        'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
                        'subsample': hp.uniform('subsample', 0.3, 0.9),
                        'max_depth': scope.int(hp.quniform('max_depth', 5, 15, 1)),
                        'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
                        'min_child_weight': scope.int(hp.uniform('min_child_weight', 1, 5, 1))}
 
-        def objective_function(params):
+        def obj_func(params):
             clf = XGBClassifier(**params)
             auc = cross_val_score(clf, X_train, Y_train, cv=5, scoring='roc_auc').mean()
             return {'loss': -auc, 'status': STATUS_OK}
 
         trials = Trials()
-        self.best_param = fmin(objective_function, hyper_param, max_evals=75, algo=tpe.suggest, trials=trials,
+        self.best_param = fmin(obj_func, hyperparams, max_evals=75, algo=tpe.suggest, trials=trials,
                                rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
