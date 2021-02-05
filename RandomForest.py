@@ -1,9 +1,8 @@
 from sklearn.ensemble import RandomForestClassifier
-from xgboost import XGBClassifier
 from sklearn.model_selection import cross_val_score
-import numpy as np
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
+import numpy as np
 
 
 class RandomForest:
