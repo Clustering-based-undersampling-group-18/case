@@ -16,7 +16,7 @@ class RandomForest:
                        'subsample': hp.uniform('subsample', 0.3, 0.9),
                        'max_depth': scope.int(hp.quniform('max_depth', 5, 15, 1)),
                        'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
-                       'min_child_weight': scope.int(hp.uniform('min_child_weight', 1, 5, 1))}
+                       'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
         def obj_func(params):
             clf = XGBClassifier(**params)
