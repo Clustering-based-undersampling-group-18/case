@@ -31,8 +31,9 @@ X = X.to_numpy()
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
 # Predicting dependent variable with XGBoost Random Forest
-for column in Y:
-    RF = RandomForest(X, Y)
+for depend in Y.T:
+    depend = depend.T
+    RF = RandomForest(X, depend)
     print("RF best parameters: ", RF.best_param)
     print("RF prediction accuracy: ", RF.score)
 

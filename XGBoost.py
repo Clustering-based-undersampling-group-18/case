@@ -1,5 +1,5 @@
 from xgboost import XGBClassifier
-import DataImbalance as di
+# import DataImbalance as di
 from sklearn.model_selection import cross_val_score, train_test_split, KFold
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
@@ -22,7 +22,7 @@ class RandomForest:
                        'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
         def obj_func(params):
-            clf = XGBClassifier(**params, objective="binary:logistic")
+            clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='error')
             kf = KFold(n_splits=5)
             auc = cross_val_score(clf, X_train, Y_train, cv=kf, scoring='roc_auc').mean()
             # clf.fit(X_train1, Y_train1)
@@ -39,7 +39,7 @@ class RandomForest:
             return {'loss': -auc, 'status': STATUS_OK}
 
         trials = Trials()
-        self.best_param = fmin(obj_func, hyperparams, max_evals=75, algo=tpe.suggest, trials=trials,
+        self.best_param = fmin(obj_func, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
