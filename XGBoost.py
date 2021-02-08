@@ -7,7 +7,6 @@ import numpy as np
 
 class RandomForest:
     def __init__(self, X_train, X_test, Y_train, Y_test):
-
         # Hyperparameter sets
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
                        'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
