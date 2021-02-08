@@ -11,7 +11,7 @@ class RandomForest:
         # Data preparation
         X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
         # X_train1, X_train2, X_train3, X_train4, X_train5, X_val1, X_val2, X_val3, X_val4, X_val5, Y_train1, \
-        # Y_train2, Y_train3, Y_train4, Y_train5, Y_val1, Y_val2, Y_val3, Y_val4, Y_val5 = di.run()
+        # Y_train2, Y_train3, Y_train4, Y_train5, Y_val1, Y_val2, Y_val3, Y_val4, Y_val5 = p
 
         # Hyperparameter sets
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
