@@ -1,5 +1,5 @@
 import pandas as pd
-from RandomForest import RandomForest
+from XGBoost import RandomForest
 from sklearn.model_selection import train_test_split
 import random
 
@@ -18,11 +18,12 @@ Y = Y.replace(to_replace=False, value=0)
 Y = Y.to_numpy()
 
 # Preparing explanatory variables
-# 'frequencySeller', 'dayOfTheWeek', 'monthOfTheYear'
+# 'frequencySeller'
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
-           'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller']]
+           'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller',
+           'day_of_week', 'month_of_year']]
 X = pd.get_dummies(X, columns=['countryCode', 'fulfilmentType', 'productGroup', 'countryOriginSeller',
-                               'currentCountryAvailabilitySeller'])
+                               'currentCountryAvailabilitySeller', 'day_of_week', 'month_of_year'])
 features = list(X.columns)
 X = X.to_numpy()
 
@@ -30,6 +31,8 @@ X = X.to_numpy()
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
 
 # Predicting dependent variable with XGBoost Random Forest
-RF = RandomForest(X_train, X_test, Y_train, Y_test)
-print("RF best parameters: ", RF.best_param)
-print("RF prediction ROC AUC: ", RF.score)
+for column in Y:
+    RF = RandomForest(X, Y)
+    print("RF best parameters: ", RF.best_param)
+    print("RF prediction accuracy: ", RF.score)
+
