@@ -2,7 +2,7 @@
 import pandas as pd
 import numpy as np
 from scipy.spatial import distance
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import KMeans, MiniBatchKMeans
 import pickle
@@ -65,8 +65,10 @@ def frequency_seller(train_data, test_data):
     """ This function adds a new column containing the total amount of orders a seller receives"""
     # compute frequency for training, add those number to test set (if seller not known in train then add 0 for test)
     temp_count_dict = pd.Series.to_dict(train_data.groupby('sellerId')['orderDate'].nunique())
-    train_data['frequencySeller'] = train_data['sellerId'].map(temp_count_dict)
-    test_data['frequencySeller'] = test_data['sellerId'].map(temp_count_dict)
+    train_data.insert(loc=len(train_data.columns), column="frequencySeller",
+                      value=train_data['sellerId'].map(temp_count_dict))
+    test_data.insert(loc=len(test_data.columns), column="frequencySeller",
+                     value=test_data['sellerId'].map(temp_count_dict))
 
     return train_data, test_data
 
@@ -99,7 +101,6 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
 
     # step 5.2: perform kmeans clustering
     n = len(minority_class)  # = number of minority class variables
-    print(n)
     if n == 0:
         logging.warning("There are no observations in the minority class!")
         empty_frame = pd.DataFrame([])
@@ -107,7 +108,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
         return empty_frame, empty_frame, empty_series
 
     print(time.perf_counter())
-    #n = 5 # EVEN HANDMATIG OP 10 GEZET, ANDERS te lange running time ivm testen
+    # n = 5 # EVEN HANDMATIG OP 10 GEZET, ANDERS te lange running time ivm testen
     majority_data_stdz = standardized_data_x.loc[majority_rows, :]
     majority_data = normal_data_x.loc[majority_rows, :]
     kmeans = MiniBatchKMeans(n_clusters=n, batch_size=n).fit(majority_data_stdz)
@@ -155,14 +156,25 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
 def run():
     # Step 1: load and prep the data
     X_frame, Y_frame = load_data()
-    # Step 2: obtain train and test sets by performing 5-fold cv
+    X_train, X_test, Y_train, Y_test = train_test_split(X_frame, Y_frame, test_size=0.3, random_state=1234,
+                                                        shuffle=True)
+
+    # Step 2: compute frequency seller and add to frame, note test is not included in calculation:
+    X_train, X_test = frequency_seller(X_train, X_test)
+    X_frame = X_train.reset_index()
+    Y_frame = Y_train.reset_index()
+
+    # * write final test set to csv
+    file_name_final_test_x = "data/train_test_frames/final_test_x.csv"
+    X_test.to_csv(file_name_final_test_x)
+    file_name_final_test_y = "data/train_test_frames/final_test_y.csv"
+    Y_test.to_csv(file_name_final_test_y)
+
+    # Step 3: obtain train and test sets by performing 5-fold cv
     train_indices, test_indices = five_fold_cv(X_frame)
 
     for i in range(0, len(train_indices)):
         X_train, X_test = X_frame.loc[train_indices[i], :], X_frame.loc[test_indices[i], :]
-
-        # Step 3: compute frequency seller and add to frame, note test is not included in calculation:
-        X_train, X_test = frequency_seller(X_train, X_test)
 
         Y_train, Y_test = Y_frame.loc[train_indices[i], :], Y_frame.loc[test_indices[i], :]
 
