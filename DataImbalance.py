@@ -8,8 +8,6 @@ from sklearn.cluster import KMeans, MiniBatchKMeans
 import pickle
 import logging
 import time
-from numba import jit
-import faiss
 
 
 def load_data():
