@@ -18,7 +18,6 @@ Y = Y.replace(to_replace=False, value=0)
 Y = Y.to_numpy()
 
 # Preparing explanatory variables
-# 'frequencySeller'
 X = frame[['totalPrice', 'quantityOrdered', 'countryCode', 'fulfilmentType', 'promisedDeliveryDate',
            'productGroup', 'registrationDateSeller', 'countryOriginSeller', 'currentCountryAvailabilitySeller',
            'day_of_week', 'month_of_year']]
