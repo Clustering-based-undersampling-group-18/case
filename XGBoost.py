@@ -1,5 +1,4 @@
 from xgboost import XGBClassifier
-from sklearn.model_selection import cross_val_score, train_test_split, KFold
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
 import numpy as np
@@ -44,9 +43,7 @@ class RandomForest:
                        'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
         def obj_func(params):
-            # kf = KFold(n_splits=5)
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='error')
-            # auc = cross_val_score(clf, final_train_x, final_train_y, cv=kf, scoring='roc_auc').mean()
             clf.fit(train_x_fold_1, train_y_fold_1)
             pred_y_fold_1 = clf.predict(val_x_fold_1)
             auc = roc_auc_score(val_y_fold_1, pred_y_fold_1)

@@ -1,10 +1,9 @@
 # load modules and packages
 import pandas as pd
 import numpy as np
-from scipy.spatial import distance
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
-from sklearn.cluster import KMeans, MiniBatchKMeans
+from sklearn.cluster import MiniBatchKMeans
 import pickle
 import logging
 import time
@@ -21,7 +20,6 @@ def load_data():
                      'currentCountryAvailabilitySeller', 'totalPrice', 'quantityOrdered', 'promisedDeliveryDate',
                      'registrationDateSeller', 'day_of_week', 'month_of_year']]
 
-    X = frame_X.head(1000000)
     X = frame_X
 
     categorical_variables = ['countryCode', 'fulfilmentType', 'productGroup', 'countryOriginSeller',
@@ -30,7 +28,6 @@ def load_data():
 
     frame_Y = frame[['noCancellation', 'onTimeDelivery', 'noReturn', 'noCase']]
 
-    Y = frame_Y.head(1000000)
     Y = frame_Y
 
     Y = Y.replace(to_replace=True, value=np.float(1))
@@ -100,57 +97,46 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     print(len(minority_rows))
 
     # step 5.2: perform kmeans clustering
-    n = len(minority_class)  # = number of minority class variables
-    if n == 0:
+    N = len(minority_class)  # = number of minority class variables
+    if N == 0:
         logging.warning("There are no observations in the minority class!")
         empty_frame = pd.DataFrame([])
         empty_series = pd.Series([])
         return empty_frame, empty_frame, empty_series
 
     print(time.perf_counter())
-    # n = 5 # EVEN HANDMATIG OP 10 GEZET, ANDERS te lange running time ivm testen
+    n_c = 10000
     majority_data_stdz = standardized_data_x.loc[majority_rows, :]
     majority_data = normal_data_x.loc[majority_rows, :]
-    kmeans = MiniBatchKMeans(n_clusters=n, batch_size=n).fit(majority_data_stdz)
+    kmeans = MiniBatchKMeans(n_clusters=n_c, batch_size=N).fit(majority_data_stdz)
     print(time.perf_counter())
     majority_data['cluster'] = kmeans.predict(majority_data_stdz)
-    print(majority_data)
     print(time.perf_counter())
 
     # step 5.2.2: print some count information about the clusters
-    # print('Summary:')
-    summary = majority_data.groupby(['cluster']).mean()
+    # summary = majority_data.groupby(['cluster']).mean()
     # summary['count'] = majority_data['cluster'].value_counts()
     # summary = summary.sort_values(by='count', ascending=False)
-    print(summary)
-    print(time.perf_counter())
-    # step 5.3: find the values for first strategy
+
+    # step 5.3: find the new values
+    M = len(majority_rows)
     minority_data = normal_data_x.loc[minority_rows, :]
-    strategy_1_X = minority_data.append(majority_data.groupby(['cluster']).mean(), ignore_index=True)
-    print(time.perf_counter())
+    new_X = minority_data
 
-    # step 5.4: find the values for the second strategy
-    # compute nearest neighbor of a given cluster within that cluster instead of entire sample
-    def nearest_neighbor(data, center, cluster_number):
-        """ This function finds the nearest neighbor given a frame and a cluster center"""
-        data = data[data["cluster"] == cluster_number]
+    count = 0
+    for c in range(0, n_c):
+        data = majority_data[majority_data["cluster"] == c]
         data = data.drop(columns={'cluster'})
-        # print(data.keys() == center.keys()) columns should be the same and respective positions identical
-
-        distances = distance.cdist(pd.DataFrame.to_numpy(data), [np.array(center)], metric='euclidean')
-        result = np.where(distances == np.amin(distances))[0]
-        nn = data.iloc[result, :]
-        return nn
-
+        obs_from_c = round((len(data)/M)*N)
+        count = count + obs_from_c
+        random_majors_in_c = data.sample(n=obs_from_c, random_state = 1234)
+        new_X = new_X.append(random_majors_in_c, ignore_index=True)
     print(time.perf_counter())
-    strategy_2_X = minority_data
-    for c in range(0, n):
-        n_c = nearest_neighbor(majority_data, summary.loc[c, :], c)
-        strategy_2_X = strategy_2_X.append(n_c, ignore_index=True)
+    new_Y = pd.Series([0] * N + [1] * count) # expect count = N, but it is possible that it differs by like 1 or 2
+    print(new_X)
+    print(new_Y)
 
-    both_strategies_Y = pd.Series([0] * n + [1] * n)
-    print(time.perf_counter())
-    return strategy_1_X, strategy_2_X, both_strategies_Y
+    return new_X, new_Y
 
 
 def run():
@@ -190,45 +176,20 @@ def run():
         standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        for criteria in ["noCancellation", "noReturn", "noCase"]:
-            train_x_1, train_x_2, train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
+        for criteria in ["noCase", "noReturn"]:
+            new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
-            file_name_1 = "data/train_test_frames/train_x_str1_fold_{0}_{1}.csv".format(i + 1, criteria)
-            train_x_1.to_csv(file_name_1)
+            file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
+            new_train_x.to_csv(file_name_1)
 
-            file_name_2 = "data/train_test_frames/train_x_str2_fold_{0}_{1}.csv".format(i + 1, criteria)
-            train_x_2.to_csv(file_name_2)
+            file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria)
+            new_train_y.to_csv(file_name_2)
 
-            file_name_3 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria)
-            train_y.to_csv(file_name_3)
+        file_name_3 = "data/train_test_frames/val_x_fold_{0}.csv".format(i + 1)
+        X_test.to_csv(file_name_3)
 
-        file_name_4 = "data/train_test_frames/test_x_fold_{0}.csv".format(i + 1)
-        X_test.to_csv(file_name_4)
-
-        file_name_5 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1)
-        Y_test.to_csv(file_name_5)
-
-        # the criterion onTimeDelivery there is a third variable (unknown) this class is predicted before using any
-        # of the algorithms, hence the KMeans strategies are not needed for the unknown class, only for the boolean
-        # cases
-        train_x_1, train_x_2, train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, "onTimeDelivery",
-                                                                    X_train)
-        unknown_y = Y_train[Y_train["onTimeDelivery"] == "Unknown"]
-        unknown_indices = list(unknown_y.index.values)
-        unknown_observations = X_train.loc[unknown_indices, :]
-
-        train_y = pd.Series(["Unknown"] * len(unknown_y) + list(train_y))
-        train_x_1 = unknown_observations.append(train_x_1, ignore_index=True)
-        train_x_2 = unknown_observations.append(train_x_2, ignore_index=True)
-
-        file_name_1 = "data/train_test_frames/train_x_str1_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
-        train_x_1.to_csv(file_name_1)
-
-        file_name_2 = "data/train_test_frames/train_x_str2_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
-        train_x_2.to_csv(file_name_2)
-
-        file_name_3 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
-        train_y.to_csv(file_name_3)
+        file_name_4 = "data/train_test_frames/val_y_fold_{0}.csv".format(i + 1)
+        Y_test.to_csv(file_name_4)
 
 
 run()
