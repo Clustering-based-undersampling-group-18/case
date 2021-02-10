@@ -111,7 +111,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     # n = 5 # EVEN HANDMATIG OP 10 GEZET, ANDERS te lange running time ivm testen
     majority_data_stdz = standardized_data_x.loc[majority_rows, :]
     majority_data = normal_data_x.loc[majority_rows, :]
-    kmeans = MiniBatchKMeans(n_clusters=n, batch_size=n).fit(majority_data_stdz)
+    kmeans = MiniBatchKMeans(n_clusters=13000, batch_size=n).fit(majority_data_stdz)
     print(time.perf_counter())
     majority_data['cluster'] = kmeans.predict(majority_data_stdz)
     print(majority_data)
