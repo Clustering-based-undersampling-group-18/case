@@ -111,7 +111,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     # n = 5 # EVEN HANDMATIG OP 10 GEZET, ANDERS te lange running time ivm testen
     majority_data_stdz = standardized_data_x.loc[majority_rows, :]
     majority_data = normal_data_x.loc[majority_rows, :]
-    kmeans = MiniBatchKMeans(n_clusters=13000, batch_size=n).fit(majority_data_stdz)
+    kmeans = MiniBatchKMeans(n_clusters=n, batch_size=n).fit(majority_data_stdz)
     print(time.perf_counter())
     majority_data['cluster'] = kmeans.predict(majority_data_stdz)
     print(majority_data)
@@ -164,7 +164,12 @@ def run():
     X_frame = X_train.reset_index()
     Y_frame = Y_train.reset_index()
 
-    # * write final test set to csv
+    # * write final train and test set to csv
+    file_name_final_train_x = "data/train_test_frames/final_train_x.csv"
+    X_frame.to_csv(file_name_final_train_x)
+    file_name_final_train_y = "data/train_test_frames/final_train_y.csv"
+    Y_frame.to_csv(file_name_final_train_y)
+
     file_name_final_test_x = "data/train_test_frames/final_test_x.csv"
     X_test.to_csv(file_name_final_test_x)
     file_name_final_test_y = "data/train_test_frames/final_test_y.csv"
