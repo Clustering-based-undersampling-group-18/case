@@ -4,14 +4,29 @@ from sklearn.model_selection import cross_val_score, train_test_split, KFold
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
 import numpy as np
+import importLib as im
 
 
 class RandomForest:
-    def __init__(self, X, Y):
+    def __init__(self, X_train, X_test, Y_train, Y_test):
         # Data preparation
-        X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
-        # X_train1, X_train2, X_train3, X_train4, X_train5, X_val1, X_val2, X_val3, X_val4, X_val5, Y_train1, \
-        # Y_train2, Y_train3, Y_train4, Y_train5, Y_val1, Y_val2, Y_val3, Y_val4, Y_val5 = p
+        myList = {''}
+        criteria = Y_train.dtype.names[0]
+        for i in range(1, 5):
+            myList.add('train_x_str1_fold_{0}_{1}'.format(i, criteria))
+            myList.add('train_x_str2_fold_{0}_{1}'.format(i, criteria))
+            myList.add('train_y_fold_{0}_{1}'.format(i, criteria))
+            myList.add('test_x_fold_{0}'.format(i))
+            myList.add('test_y_fold_{0}'.format(i))
+
+        gbl = globals()
+        for toImport in myList:
+            file = "data.train_test_frames." + toImport
+            gbl[file] = pd.read_csv(file)
+
+        # X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
+        X_train1, X_train2, X_train3, X_train4, X_train5, X_val1, X_val2, X_val3, X_val4, X_val5 = [0 for _ in range(10)]
+        Y_train1, Y_train2, Y_train3, Y_train4, Y_train5, Y_val1, Y_val2, Y_val3, Y_val4, Y_val5 = [0 for _ in range(10)]
 
         # Hyperparameter sets
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
@@ -24,7 +39,7 @@ class RandomForest:
         def obj_func(params):
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='error')
             kf = KFold(n_splits=5)
-            auc = cross_val_score(clf, X_train, Y_train, cv=kf, scoring='roc_auc').mean()
+            auc = cross_val_score(clf, final_train_x, final_train_y, cv=kf, scoring='roc_auc').mean()
             # clf.fit(X_train1, Y_train1)
             # auc = clf.score(X_val1, Y_val1)
             # clf.fit(X_train2, Y_train2)

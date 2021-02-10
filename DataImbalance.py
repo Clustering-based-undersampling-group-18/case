@@ -205,7 +205,7 @@ def run():
         file_name_4 = "data/train_test_frames/test_x_fold_{0}.csv".format(i + 1)
         X_test.to_csv(file_name_4)
 
-        file_name_5 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1, )
+        file_name_5 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1)
         Y_test.to_csv(file_name_5)
 
         # the criterion onTimeDelivery there is a third variable (unknown) this class is predicted before using any
