@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 from XGBoost import RandomForest
 
 # Importing data
@@ -35,13 +36,14 @@ for i in range(0, 4):
 
         # WORK IN PROGRESS
         # RF2 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
-        # print("XGB best parameters for {0}: ", RF2.best_param).format(criteria)
-        # print("XGB prediction accuracy for {0}: ", RF2.score).format(criteria)
-
+        # print("XGB best parameters for {0}: ".format(criteria), RF2.best_param)
+        # print("XGB prediction accuracy for {0}: ".format(criteria), RF2.score)
     else:
+        depend_train = depend_train.astype(np.float64)
+        depend_test = depend_test.astype(np.float64)
         RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
-        print("XGB best parameters for {0}: ", RF.best_param).format(criteria)
-        print("XGB prediction accuracy for {0}: ", RF.score).format(criteria)
+        print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
+        print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
 
     # Predicting dependent variable with Neural Network
     # NN = NeuralNetwork(X_train, X_test, depend_train, depend_test)

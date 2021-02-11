@@ -70,13 +70,14 @@ class RandomForest:
                                rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
-        RF_best = XGBClassifier(n_estimators=best_param_values[0], learning_rate=best_param_values[1],
-                                subsample=best_param_values[2], max_depth=best_param_values[3],
-                                colsample_bytree=best_param_values[4], min_child_weight=best_param_values[5])
+        RF_best = XGBClassifier(n_estimators=int(best_param_values[4]), learning_rate=best_param_values[1],
+                                subsample=best_param_values[5], max_depth=int(best_param_values[2]),
+                                colsample_bytree=best_param_values[0], min_child_weight=int(best_param_values[3]),
+                                use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
 
         RF_best.fit(X_train, Y_train)
         self.prediction = RF_best.predict(X_test)
-        prediction = pd.DataFrame(self.prediction)
+        frame = pd.DataFrame(self.prediction)
         file_name = "data/predictions/prediction_{0}.csv".format(criteria)
-        prediction.to_csv(file_name)
-        self.score = f1_score(Y_test, prediction)
+        frame.to_csv(file_name)
+        self.score = f1_score(Y_test, self.prediction)
