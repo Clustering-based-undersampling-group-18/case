@@ -2,10 +2,15 @@ import pandas as pd
 from XGBoost import RandomForest
 
 # Importing data
-X_train = pd.read_csv("data/train_test_frames/final_train_x.csv").to_numpy()
+X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
+X_train = X_train.drop(columns={'index', 'sellerId', 'orderDate', 'Unnamed: 0'})
+X_train.to_numpy()
+X_test = pd.read_csv("data/train_test_frames/final_test_x.csv")
+X_test = X_test.drop(columns={'index', 'sellerId', 'orderDate', 'Unnamed: 0'})
+X_test.to_numpy()
 Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv").to_numpy()
-X_test = pd.read_csv("data/train_test_frames/final_test_x.csv").to_numpy()
 Y_test = pd.read_csv("data/train_test_frames/final_test_y.csv").to_numpy()
+
 
 # For loop over all dependent variables
 for (depend_train, depend_test) in (Y_train.T, Y_test.T):
