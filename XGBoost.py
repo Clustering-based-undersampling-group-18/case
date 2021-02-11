@@ -1,7 +1,7 @@
 from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
-from sklearn.metrics import roc_auc_score
+from sklearn.metrics import roc_auc_score, f1_score
 import numpy as np
 import pandas as pd
 
@@ -47,7 +47,7 @@ class RandomForest:
                        'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
         def obj_func(params):
-            clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='error')
+            clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
             clf.fit(files.get('train_x_fold_1'), files.get('train_y_fold_1'))
             pred_y_fold_1 = clf.predict(files.get('val_x_fold_1'))
             auc = roc_auc_score(files.get('val_y_fold_1'), pred_y_fold_1)
@@ -77,6 +77,6 @@ class RandomForest:
         RF_best.fit(X_train, Y_train)
         self.prediction = RF_best.predict(X_test)
         prediction = pd.DataFrame(self.prediction)
-        file_name = "data/prediction/prediction_{0}.csv".format(criteria)
+        file_name = "data/predictions/prediction_{0}.csv".format(criteria)
         prediction.to_csv(file_name)
-        self.score = RF_best.score(X_test, Y_test)
+        self.score = f1_score(Y_test, prediction)
