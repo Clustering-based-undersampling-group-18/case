@@ -27,9 +27,22 @@ for i in range(0, 4):
     depend_test = Y_test[:, i]
 
     # Predicting dependent variable with XGBoost Random Forest
-    RF = RandomForest(X_train, X_test, depend_train, depend_test, 'no')
-    print("XGB best parameters for {0}: ", RF.best_param).format(criteria)
-    print("XGB prediction accuracy for {0}: ", RF.score).format(criteria)
+    if criteria == 'onTimeDelivery':
+        depend_train[depend_train == 0] = 1
+        depend_train[depend_train == 'Unknown'] = 0
+        depend_test[depend_test == 0] = 1
+        depend_test[depend_test == 'Unknown'] = 1
+        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+
+        # WORK IN PROGRESS
+        RF2 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        print("XGB best parameters for {0}: ", RF.best_param).format(criteria)
+        print("XGB prediction accuracy for {0}: ", RF.score).format(criteria)
+
+    else:
+        RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        print("XGB best parameters for {0}: ", RF.best_param).format(criteria)
+        print("XGB prediction accuracy for {0}: ", RF.score).format(criteria)
 
     # Predicting dependent variable with Neural Network
     # NN = NeuralNetwork(X_train, X_test, depend_train, depend_test)

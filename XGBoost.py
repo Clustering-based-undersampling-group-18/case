@@ -1,6 +1,7 @@
 from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
+from sklearn.metrics import roc_auc_score
 import numpy as np
 import pandas as pd
 
@@ -9,33 +10,33 @@ class RandomForest:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
 
         # Data preparation
-        myList = []
+        names = []
         for i in range(1, 6):
-            myList.append('train_x_fold_{0}_{1}'.format(i, criteria))
-            myList.append('train_y_fold_{0}_{1}'.format(i, criteria))
-            myList.append('val_x_fold_{0}'.format(i))
-            myList.append('val_y_fold_{0}'.format(i))
+            names.append('train_x_fold_{0}_{1}'.format(i, criteria))
+            names.append('train_y_fold_{0}_{1}'.format(i, criteria))
+            names.append('val_x_fold_{0}'.format(i))
+            names.append('val_y_fold_{0}'.format(i))
 
         i = 1
         files = {}
-        for toImport in myList:
+        for toImport in names:
             file = "data/train_test_frames/" + toImport + ".csv"
             temp = pd.read_csv(file)
             temp = temp.drop(columns={'Unnamed: 0'})
-            temp = temp.iloc[:, 1:]
             if toImport.startswith('train'):
                 if toImport.startswith('train_x'):
+                    temp = temp.iloc[:, 1:]
                     files['train_x_fold_{0}'.format(i)] = temp
                 else:
                     files['train_y_fold_{0}'.format(i)] = temp
                     i = i + 1
             else:
-                files[toImport] = temp
-
-        print(files.get('train_x_fold_1'))
-        print(files.get('train_y_fold_1'))
-        print(files.get('val_x_fold_1'))
-        print(files.get('val_y_fold_1'))
+                temp = temp.iloc[:, 1:]
+                if toImport.startswith('val_y'):
+                    temp = temp[criteria]
+                    files[toImport] = temp
+                else:
+                    files[toImport] = temp
 
         # Hyperparameter sets
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
@@ -74,8 +75,8 @@ class RandomForest:
                                 colsample_bytree=best_param_values[4], min_child_weight=best_param_values[5])
 
         RF_best.fit(X_train, Y_train)
-        prediction = RF_best.predict(X_test)
-        prediction = pd.DataFrame(prediction)
+        self.prediction = RF_best.predict(X_test)
+        prediction = pd.DataFrame(self.prediction)
         file_name = "data/prediction/prediction_{0}.csv".format(criteria)
         prediction.to_csv(file_name)
         self.score = RF_best.score(X_test, Y_test)
