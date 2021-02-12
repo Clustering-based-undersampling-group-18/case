@@ -30,6 +30,7 @@ def standardize_data(X):
 
 class NNmodel:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
+
         # Data preparation
         names = []
         for i in range(1, 6):

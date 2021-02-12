@@ -80,4 +80,5 @@ class RandomForest:
         frame = pd.DataFrame(self.prediction)
         file_name = "data/predictions/XGB_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = f1_score(Y_test, self.prediction)
+        if criteria != 'onTimeDelivery':
+            self.score = f1_score(Y_test, self.prediction)
