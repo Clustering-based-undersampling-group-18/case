@@ -91,7 +91,7 @@ for i in range(0, 4):
         # Results
         depend_test = Y_test[:, i]
         print("XGB prediction accuracy for {0}: ".format(criteria), f1_score(depend_test, final_pred_RF))
-        print("NN prediction accuracy for {0}: ".format(criteria), f1_score(depend_test, final_pred_NN))
+        print("NN weighted F1 score for {0}: ".format(criteria), f1_score(depend_test, final_pred_NN))
 
     else:
         # Importing train data
@@ -110,7 +110,7 @@ for i in range(0, 4):
         # Predicting dependent variable with XGBoost Random Forest
         RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
         print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
-        print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
+        print("XGB weighted F1 score for {0}: ".format(criteria), RF.score)
 
         # Predicting dependent variable with Neural Network
         #NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria)
