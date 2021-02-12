@@ -176,7 +176,7 @@ def run():
         standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        for criteria in ["noCancellation"]:
+        for criteria in ["noCancellation", "noReturn", "noCase"]:
             new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
             file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
