@@ -31,9 +31,6 @@ def standardize_data(X):
 class NNmodel:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
         # Data preparation
-        X_train = standardize_data(X_train)
-        X_test = standardize_data(X_test)
-
         names = []
         for i in range(1, 6):
             names.append('train_x_fold_{0}_{1}'.format(i, criteria))
@@ -125,7 +122,8 @@ class NNmodel:
             return {'loss': -roc_auc, 'status': STATUS_OK}
 
         trials = Trials()
-        self.best = fmin(objective_function, space, algo=tpe.suggest, max_evals=1, trials=trials)
+        self.best = fmin(objective_function, space, algo=tpe.suggest, max_evals=100, trials=trials,
+                         rstate=np.random.RandomState(1))
         print('best: ', self.best)
 
         batch1 = int(len(X_train) / 100)

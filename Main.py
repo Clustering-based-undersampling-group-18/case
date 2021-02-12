@@ -1,15 +1,17 @@
 import pandas as pd
 import numpy as np
-from NeuralNetwork import NNmodel
+import NeuralNetwork
 from XGBoost import RandomForest
 
 # Importing data
 X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
 X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
 X_train = X_train.iloc[:, 1:]
+X_train_stand = NeuralNetwork.standardize_data(X_train)
 X_train = X_train.to_numpy()
 X_test = pd.read_csv("data/train_test_frames/final_test_x.csv")
 X_test = X_test.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
+X_test_stand = NeuralNetwork.standardize_data(X_test)
 X_test = X_test.to_numpy()
 Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv")
 Y_train = Y_train.drop(columns={'Unnamed: 0'})
@@ -42,8 +44,8 @@ for i in range(0, 4):
         # print("XGB prediction accuracy for {0}: ".format(criteria), RF2.score)
 
     else:
-        depend_train = depend_train.astype(np.float64)
-        depend_test = depend_test.astype(np.float64)
+        depend_train = depend_train.astype(np.float32)
+        depend_test = depend_test.astype(np.float32)
 
         # Predicting dependent variable with XGBoost Random Forest
         #RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
@@ -51,6 +53,6 @@ for i in range(0, 4):
         #print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
 
         # Predicting dependent variable with Neural Network
-        NN = NNmodel(X_train, X_test, depend_train, depend_test, criteria)
+        NN = NeuralNetwork.NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria)
         print("NN best parameters for {0}: ", NN.best).format(depend_train.dtype.names[0])
         print("NN prediction accuracy for {0}: ", NN.score).format(depend_train.dtype.names[0])
