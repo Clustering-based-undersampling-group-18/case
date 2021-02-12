@@ -2,6 +2,7 @@ from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
 from sklearn.metrics import roc_auc_score, f1_score
+from DataImbalance import standardize_data, k_means_plus_two_strategies
 import numpy as np
 import pandas as pd
 
