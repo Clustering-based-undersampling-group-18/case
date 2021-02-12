@@ -79,6 +79,6 @@ class RandomForest:
         RF_best.fit(X_train, Y_train)
         self.prediction = RF_best.predict(X_test)
         frame = pd.DataFrame(self.prediction)
-        file_name = "data/predictions/prediction_{0}.csv".format(criteria)
+        file_name = "data/predictions/XGB_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
         self.score = f1_score(Y_test, self.prediction)

@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+from NeuralNetwork import NNmodel
 from XGBoost import RandomForest
 
 # Importing data
@@ -25,8 +26,9 @@ for i in range(0, 4):
     depend_train = Y_train[:, i]
     depend_test = Y_test[:, i]
 
-    # Predicting dependent variable with XGBoost Random Forest
+    # Two-step binary classification of onTimeDelivery
     if criteria == 'onTimeDelivery':
+        continue
         depend_train[depend_train == 0] = 1
         depend_train[depend_train == 'Unknown'] = 0
         depend_test[depend_test == 0] = 1
@@ -34,20 +36,21 @@ for i in range(0, 4):
         RF1 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
         pred_known = RF1.prediction
 
-
         # WORK IN PROGRESS
         # RF2 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
         # print("XGB best parameters for {0}: ".format(criteria), RF2.best_param)
         # print("XGB prediction accuracy for {0}: ".format(criteria), RF2.score)
+
     else:
         depend_train = depend_train.astype(np.float64)
         depend_test = depend_test.astype(np.float64)
-        RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
-        print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
-        print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
 
-    # Predicting dependent variable with Neural Network
-    # NN = NeuralNetwork(X_train, X_test, depend_train, depend_test)
-    # print("NN best parameters for {0}: ", NN.best_param).format(depend_train.dtype.names[0])
-    # print("NN prediction accuracy for {0}: ", NN.score).format(depend_train.dtype.names[0])
+        # Predicting dependent variable with XGBoost Random Forest
+        #RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        #print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
+        #print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
 
+        # Predicting dependent variable with Neural Network
+        NN = NNmodel(X_train, X_test, depend_train, depend_test, criteria)
+        print("NN best parameters for {0}: ", NN.best).format(depend_train.dtype.names[0])
+        print("NN prediction accuracy for {0}: ", NN.score).format(depend_train.dtype.names[0])

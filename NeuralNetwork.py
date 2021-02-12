@@ -6,17 +6,34 @@ Created on Wed Jan 27 14:57:24 2021
 """
 
 import tensorflow as tf
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
+from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 import sys
 
 
+def standardize_data(X):
+    """ This function standardized/ normalizes the data, required for the KMeans algorithm"""
+    columns_to_standardize = ['totalPrice', 'quantityOrdered', 'promisedDeliveryDate', 'registrationDateSeller',
+                              'frequencySeller']
+
+    data_to_standardize = X[columns_to_standardize]
+
+    scaler = StandardScaler().fit(data_to_standardize)
+    standardized_data = X.copy()
+    standardized_columns = scaler.transform(data_to_standardize)
+    standardized_data[columns_to_standardize] = standardized_columns
+    return standardized_data
+
+
 class NNmodel:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
         # Data preparation
+        X_train = standardize_data(X_train)
+        X_test = standardize_data(X_test)
+
         names = []
         for i in range(1, 6):
             names.append('train_x_fold_{0}_{1}'.format(i, criteria))
@@ -33,6 +50,7 @@ class NNmodel:
             if toImport.startswith('train'):
                 if toImport.startswith('train_x'):
                     temp = temp.iloc[:, 1:]
+                    temp = standardize_data(temp)
                     files['train_x_fold_{0}'.format(i)] = temp
                 else:
                     files['train_y_fold_{0}'.format(i)] = temp
@@ -43,11 +61,12 @@ class NNmodel:
                     temp = temp[criteria]
                     files[toImport] = temp
                 else:
+                    temp = standardize_data(temp)
                     files[toImport] = temp
 
-        batch1 = int(len(Xtrain1) / 100)
-        batch2 = int(len(Xtrain1) / 50)
-        batch3 = int(len(Xtrain1) / 10)
+        batch1 = int(len(files.get('train_x_fold_1')) / 100)
+        batch2 = int(len(files.get('train_x_fold_1')) / 50)
+        batch3 = int(len(files.get('train_x_fold_1')) / 10)
 
         space = {'choice': hp.choice('num_layers',
                                      [{'layers': 'one', },
@@ -146,4 +165,8 @@ class NNmodel:
                                        verbose=0)
 
         loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
-        self.predict = NNmodel.predict_classes(X_test, verbose=0)
+        self.prediction = NNmodel.predict_classes(X_test, verbose=0)
+        frame = pd.DataFrame(self.prediction)
+        file_name = "data/predictions/NN_prediction_{0}.csv".format(criteria)
+        frame.to_csv(file_name)
+        self.score = f1_score(Y_test, self.prediction)
