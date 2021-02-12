@@ -16,13 +16,14 @@ dep_vars = Y_test.columns
 Y_test = Y_test.to_numpy()
 
 # For loop over all dependent variables
-for i in range(1, 4):
+for i in range(0, 4):
     criteria = dep_vars[i]
     print("Dependent variable to be predicted is", criteria)
     depend_test = Y_test[:, i]
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
+        continue
         # Step 1
         # Importing train data
         X_train = pd.read_csv("data/train_test_frames/balanced_train_x_unknown.csv")
@@ -112,6 +113,6 @@ for i in range(1, 4):
         print("XGB prediction accuracy for {0}: ".format(criteria), RF.score)
 
         # Predicting dependent variable with Neural Network
-        NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria)
-        print("NN best parameters for {0}: ".format(criteria), NN.best)
-        print("NN prediction accuracy for {0}: ".format(criteria), NN.score)
+        #NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria)
+        #print("NN best parameters for {0}: ".format(criteria), NN.best)
+        #print("NN prediction accuracy for {0}: ".format(criteria), NN.score)
