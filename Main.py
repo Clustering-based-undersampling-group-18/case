@@ -27,12 +27,13 @@ for i in range(0, 4):
 
     # Predicting dependent variable with XGBoost Random Forest
     if criteria == 'onTimeDelivery':
-        continue
-        # depend_train[depend_train == 0] = 1
-        # depend_train[depend_train == 'Unknown'] = 0
-        # depend_test[depend_test == 0] = 1
-        # depend_test[depend_test == 'Unknown'] = 1
-        # RF1 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        depend_train[depend_train == 0] = 1
+        depend_train[depend_train == 'Unknown'] = 0
+        depend_test[depend_test == 0] = 1
+        depend_test[depend_test == 'Unknown'] = 1
+        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        pred_known = RF1.prediction
+
 
         # WORK IN PROGRESS
         # RF2 = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
