@@ -7,34 +7,12 @@ Created on Wed Jan 27 14:57:24 2021
 
 import tensorflow as tf
 from sklearn.metrics import roc_auc_score
+from sklearn.model_selection import train_test_split
 import numpy as np
+import pandas as pd
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 import sys
 
-
-# frame = pd.read_csv("data/frame.csv")
-#
-# X = frame[['totalPrice',
-#           'quantityOrdered',
-#           'countryCode',
-#           'fulfilmentType',
-#           'promisedDeliveryDate',
-#           'productGroup',
-#           'registrationDateSeller',
-#           'countryOriginSeller',
-#           'currentCountryAvailabilitySeller']]
-#
-# X = pd.get_dummies(X, column   'fulfilmentType',
-#                               'productGroup',
-#                             s=['countryCode',
-#                              'countryOriginSeller',
-#                               'currentCountryAvailabilitySeller'])
-# X = X.to_numpy()
-#
-# Y= frame[["noReturn"]]
-#
-# X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.3, random_state=1234)
-# X_train, X_val, Y_train, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
 
 class NNmodel:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
@@ -67,6 +45,10 @@ class NNmodel:
                 else:
                     files[toImport] = temp
 
+        batch1 = int(len(Xtrain1) / 100)
+        batch2 = int(len(Xtrain1) / 50)
+        batch3 = int(len(Xtrain1) / 10)
+
         space = {'choice': hp.choice('num_layers',
                                      [{'layers': 'one', },
                                       {'layers': 'two',
@@ -78,13 +60,13 @@ class NNmodel:
 
                  'dropout0': hp.uniform('dropout0', 0, .5),
                  'dropout1': hp.uniform('dropout1', 0, .5),
-                 'batch_size': 5,
+                 'batch_size': hp.choice('batch_size', [batch1, batch2, batch3]),
                  'nb_epochs': 100,
                  'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
                  'momentum': hp.loguniform('momentum', np.log(0.01), np.log(1))
                  }
 
-        def create_model(space):
+        def train_model(space, Xt, Yt, Xv, Yv):
             NNmodel = tf.keras.models.Sequential()
             NNmodel.add(tf.keras.layers.Dropout(space['dropout0']))
             NNmodel.add(tf.keras.layers.Dense(space['units1'], activation='relu'))
@@ -98,40 +80,70 @@ class NNmodel:
 
             sgd = tf.keras.optimizers.SGD(lr=space['learning_rate'], momentum=space['momentum'])
             NNmodel.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
-            NNmodel.fit(files.get('train_x_fold_1'), files.get('train_y_fold_1'), epochs=space['nb_epochs'],
-                        batch_size=space['batch_size'], verbose=0)
-            pred_y_fold_1 = NNmodel.predict_proba(files.get('val_x_fold_1'), verbose=0)
-            auc = roc_auc_score(files.get('val_y_fold_1'), pred_y_fold_1)
+            self.history = NNmodel.fit(Xt, Yt,
+                                       epochs=space['nb_epochs'],
+                                       batch_size=space['batch_size'],
+                                       verbose=0)
 
-            NNmodel.fit(files.get('train_x_fold_2'), files.get('train_y_fold_2'), epochs=space['nb_epochs'],
-                        batch_size=space['batch_size'], verbose=0)
-            pred_y_fold_2 = NNmodel.predict_proba(files.get('val_x_fold_2'), verbose=0)
-            auc = auc + roc_auc_score(files.get('val_y_fold_2'), pred_y_fold_2)
+            loss, accuracy = NNmodel.evaluate(Xv, Yv, verbose=0)
+            predict = NNmodel.predict_proba(Xv, verbose=0)
+            return roc_auc_score(Yv, predict)
 
-            NNmodel.fit(files.get('train_x_fold_3'), files.get('train_y_fold_3'), epochs=space['nb_epochs'],
-                        batch_size=space['batch_size'], verbose=0)
-            pred_y_fold_3 = NNmodel.predict_proba(files.get('val_x_fold_3'), verbose=0)
-            auc = auc + roc_auc_score(files.get('val_y_fold_3'), pred_y_fold_3)
-
-            NNmodel.fit(files.get('train_x_fold_4'), files.get('train_y_fold_4'), epochs=space['nb_epochs'],
-                        batch_size=space['batch_size'], verbose=0)
-            pred_y_fold_4 = NNmodel.predict_proba(files.get('val_x_fold_4'), verbose=0)
-            auc = auc + roc_auc_score(files.get('val_y_fold_4'), pred_y_fold_4)
-
-            NNmodel.fit(files.get('train_x_fold_5'), files.get('train_y_fold_5'), epochs=space['nb_epochs'],
-                        batch_size=space['batch_size'], verbose=0)
-            pred_y_fold_5 = NNmodel.predict_proba(files.get('val_x_fold_5'), verbose=0)
-            auc = auc + roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
-
+        def objective_function(space):
+            roc_auc1 = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
+                                   files.get('test_x_fold_1'), files.get('train_y_fold_1'))
+            roc_auc2 = train_model(space, files.get('train_x_fold_2'), files.get('train_y_fold_2'),
+                                   files.get('test_x_fold_2'), files.get('train_y_fold_2'))
+            roc_auc3 = train_model(space, files.get('train_x_fold_3'), files.get('train_y_fold_3'),
+                                   files.get('test_x_fold_3'), files.get('train_y_fold_3'))
+            roc_auc4 = train_model(space, files.get('train_x_fold_4'), files.get('train_y_fold_4'),
+                                   files.get('test_x_fold_4'), files.get('train_y_fold_4'))
+            roc_auc5 = train_model(space, files.get('train_x_fold_5'), files.get('train_y_fold_5'),
+                                   files.get('test_x_fold_5'), files.get('train_y_fold_5'))
+            roc_auc = (roc_auc1 + roc_auc2 + roc_auc3 + roc_auc4 + roc_auc5) / 5
+            print('AUC:', roc_auc)
             sys.stdout.flush()
-            return {'loss': -auc/5, 'status': STATUS_OK}
+            return {'loss': -roc_auc, 'status': STATUS_OK}
 
         trials = Trials()
-        self.best_param = fmin(create_model, space, algo=tpe.suggest, max_evals=100, trials=trials,
-                         rstate=np.random.RandomState(1))
-        best_param_values = [x for x in self.best_param.values()]
+        self.best = fmin(objective_function, space, algo=tpe.suggest, max_evals=1, trials=trials)
+        print('best: ', self.best)
 
-        
+        batch1 = int(len(X_train) / 100)
+        batch2 = int(len(X_train) / 50)
+        batch3 = int(len(X_train) / 10)
 
+        NNmodel = tf.keras.models.Sequential()
+        NNmodel.add(tf.keras.layers.Dropout(self.best['dropout0']))
+        NNmodel.add(tf.keras.layers.Dense(self.best['units1'], activation='relu'))
+        NNmodel.add(tf.keras.layers.Dropout(self.best['dropout1']))
 
+        if self.best['num_layers'] == 1:
+            NNmodel.add(tf.keras.layers.Dense(self.best['units2'], activation='relu'))
+            NNmodel.add(tf.keras.layers.Dropout(self.best['dropout2']))
 
+        NNmodel.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+
+        sgd = tf.keras.optimizers.SGD(lr=self.best['learning_rate'], momentum=self.best['momentum'])
+        NNmodel.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
+        if self.best['batch_size'] == 0:
+            self.history = NNmodel.fit(X_train, Y_train,
+                                       validation_data=(X_test, Y_test),
+                                       epochs=100,
+                                       batch_size=batch1,
+                                       verbose=0)
+        elif self.best['batch_size'] == 1:
+            self.history = NNmodel.fit(X_train, Y_train,
+                                       validation_data=(X_test, Y_test),
+                                       epochs=100,
+                                       batch_size=batch2,
+                                       verbose=0)
+        else:
+            self.history = NNmodel.fit(X_train, Y_train,
+                                       validation_data=(X_test, Y_test),
+                                       epochs=100,
+                                       batch_size=batch3,
+                                       verbose=0)
+
+        loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
+        self.predict = NNmodel.predict_classes(X_test, verbose=0)
