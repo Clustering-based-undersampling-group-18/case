@@ -152,14 +152,14 @@ def run():
 
     # * write final train and test set to csv
     file_name_final_train_x = "data/train_test_frames/final_train_x.csv"
-    X_frame.to_csv(file_name_final_train_x)
+    #X_frame.to_csv(file_name_final_train_x)
     file_name_final_train_y = "data/train_test_frames/final_train_y.csv"
-    Y_frame.to_csv(file_name_final_train_y)
+    #Y_frame.to_csv(file_name_final_train_y)
 
     file_name_final_test_x = "data/train_test_frames/final_test_x.csv"
-    X_test.to_csv(file_name_final_test_x)
+    #X_test.to_csv(file_name_final_test_x)
     file_name_final_test_y = "data/train_test_frames/final_test_y.csv"
-    Y_test.to_csv(file_name_final_test_y)
+    #Y_test.to_csv(file_name_final_test_y)
 
     # Step 3: obtain train and test sets by performing 5-fold cv
     train_indices, test_indices = five_fold_cv(X_frame)
@@ -208,24 +208,40 @@ def run():
         #file_name_4 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1, )
         #Y_test.to_csv(file_name_4)
 
-        if i == 1:
+        if i == 0:
             stand_data_X_test = standardize_data(X_test)
             print("start")
-            for criteria in ["onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
-                new_test_x, new_test_y = k_means_plus_two_strategies(stand_data_X_test, Y_test, criteria, X_test)
-
+            for criteria in ["noCancellation", "noReturn", "noCase"]:
                 if criteria == "onTimeDelivery":
-                    unknown_y = Y_test[Y_test["onTimeDelivery"] == "Unknown"]
+                    # on time delivery prediction consists of two parts unknown/known and known-> true/false
+                    unknown_y = Y_test[Y_test["onTimeDelivery"] != "Unknown"]
                     unknown_indices = list(unknown_y.index.values)
                     unknown_observations = X_test.loc[unknown_indices, :]
 
                     train_y = pd.Series(["Unknown"] * len(unknown_y) + list(new_test_y))
                     train_x_1 = unknown_observations.append(new_test_x, ignore_index=True)
+                    continue
+
+                new_test_x, new_test_y = k_means_plus_two_strategies(stand_data_X_test, Y_test, criteria, X_test)
 
                 file_name_1 = "data/train_test_frames/balanced_test_x_fold_1_{0}.csv".format(criteria)
                 new_test_x.to_csv(file_name_1)
 
                 file_name_2 = "data/train_test_frames/balanced_test_y_fold_1_{0}.csv".format(criteria)
                 new_test_y.to_csv(file_name_2)
+
+                # now combine the balanced test(=validation) of the fold with the balanced training fold
+                train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
+                train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))["0"]
+
+                file_name_3 = "data/train_test_frames/balanced_train_x_{0}.csv".format(criteria)
+                train_x_1 = train_x.append(new_test_x, ignore_index=True)
+                train_x_1.to_csv(file_name_3)
+
+                file_name_4 = "data/train_test_frames/balanced_train_y_{0}.csv".format(criteria)
+                train_y_1 = train_y.append(new_test_y, ignore_index=True)
+                train_y_1.to_csv(file_name_4)
+            return
+
 
 run()
