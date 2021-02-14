@@ -102,21 +102,21 @@ class NNmodel:
                                        batch_size=space['batch_size'],
                                        verbose=0)
 
-            loss, accuracy = NNmodel.evaluate(Xv, Yv, verbose=0)
-            predict = NNmodel.predict_proba(Xv, verbose=0)
+            #loss, accuracy = NNmodel.evaluate(Xv, Yv, verbose=0)
+            predict = NNmodel.predict(Xv, verbose=0)
             return roc_auc_score(Yv, predict)
 
         def objective_function(space):
             roc_auc1 = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
-                                   files.get('test_x_fold_1'), files.get('train_y_fold_1'))
+                                   files.get('val_x_fold_1'), files.get('val_y_fold_1'))
             roc_auc2 = train_model(space, files.get('train_x_fold_2'), files.get('train_y_fold_2'),
-                                   files.get('test_x_fold_2'), files.get('train_y_fold_2'))
+                                   files.get('val_x_fold_2'), files.get('val_y_fold_2'))
             roc_auc3 = train_model(space, files.get('train_x_fold_3'), files.get('train_y_fold_3'),
-                                   files.get('test_x_fold_3'), files.get('train_y_fold_3'))
+                                   files.get('val_x_fold_3'), files.get('val_y_fold_3'))
             roc_auc4 = train_model(space, files.get('train_x_fold_4'), files.get('train_y_fold_4'),
-                                   files.get('test_x_fold_4'), files.get('train_y_fold_4'))
+                                   files.get('val_x_fold_4'), files.get('val_y_fold_4'))
             roc_auc5 = train_model(space, files.get('train_x_fold_5'), files.get('train_y_fold_5'),
-                                   files.get('test_x_fold_5'), files.get('train_y_fold_5'))
+                                   files.get('val_x_fold_5'), files.get('val_y_fold_5'))
             roc_auc = (roc_auc1 + roc_auc2 + roc_auc3 + roc_auc4 + roc_auc5) / 5
             print('AUC:', roc_auc)
             sys.stdout.flush()
@@ -163,9 +163,9 @@ class NNmodel:
                                        batch_size=batch3,
                                        verbose=0)
 
-        loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
+        #loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
         self.prediction = NNmodel.predict_classes(X_test, verbose=0)
         frame = pd.DataFrame(self.prediction)
         file_name = "data/predictions/NN_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = f1_score(Y_test, self.prediction)
+        self.score = f1_score(Y_test, self.prediction, average='weighted')

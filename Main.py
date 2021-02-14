@@ -23,7 +23,6 @@ for i in range(0, 4):
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
-        continue
         # Step 1
         # Importing train data
         X_train = pd.read_csv("data/train_test_frames/balanced_train_x_unknown.csv")
@@ -41,9 +40,9 @@ for i in range(0, 4):
         depend_test[depend_test == 'Unknown'] = 0
 
         # Predicting known or unknown
-        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'unknown')
+        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown')
         print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
-        NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'unknown')
+        NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown')
         print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         RF_pred_known = RF1.prediction
         NN_pred_known = NN1.prediction
