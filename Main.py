@@ -1,4 +1,4 @@
-from sklearn.metrics import f1_score
+from MacroF1 import macro_weighted_f1
 from NeuralNetwork import NNmodel, standardize_data
 from XGBoost import RandomForest
 import pandas as pd
@@ -39,7 +39,6 @@ for i in range(0, 4):
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
-        continue
         # Step 1
         # Importing train data
         if balanced:
@@ -64,9 +63,10 @@ for i in range(0, 4):
         # Predicting known or unknown
         RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
         print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
-        print("XGB weighted F1 score for predicting known/unknown delivery time:", RF1.score)
+        print("XGB macro weighted F1 score for predicting known/unknown delivery time:", RF1.score)
         #NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
         #print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
+        #print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
         RF_pred_known = RF1.prediction
         #NN_pred_known = NN1.prediction
 
@@ -88,8 +88,10 @@ for i in range(0, 4):
         # Predicting whether on time or not
         RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for predicting onTimeDelivery when predicted known:", RF2.best_param)
+        print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", RF2.score)
         #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
+        #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
         RF_pred_onTime = RF2.prediction
         #NN_pred_onTime = NN2.prediction
 
@@ -110,8 +112,11 @@ for i in range(0, 4):
 
         # Results
         depend_test = Y_test[:, i]
-        print("XGB prediction accuracy for {0}: ".format(criteria), f1_score(depend_test, final_pred_RF))
-        #print("NN weighted F1 score for {0}: ".format(criteria), f1_score(depend_test, final_pred_NN))
+        classes = [0, 1, 'Unknown']
+        print("XGB macro weighted F1 score for {0}: ".format(criteria),
+              macro_weighted_f1(depend_test, final_pred_RF, classes))
+        #print("NN macro weighted F1 score for {0}: ".format(criteria),
+        #      macro_weighted_f1(depend_test, final_pred_NN, classes))
 
     else:
         # Importing train data
@@ -130,9 +135,9 @@ for i in range(0, 4):
         # Predicting dependent variable with XGBoost Random Forest
         RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
-        print("XGB weighted F1 score for {0}: ".format(criteria), RF.score)
+        print("XGB macro weighted F1 score for {0}: ".format(criteria), RF.score)
 
         # Predicting dependent variable with Neural Network
         #NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for {0}: ".format(criteria), NN.best)
-        #print("NN prediction accuracy for {0}: ".format(criteria), NN.score)
+        #print("NN macro weighted F1 score for {0}: ".format(criteria), NN.score)

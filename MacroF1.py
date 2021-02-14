@@ -1,9 +1,8 @@
 import numpy as np
 
 
-def macro_weighted_f1(true, predict):
+def macro_weighted_f1(true, predict, classes):
     macro_f1 = 0
-    classes = [0, 1]
     for c in classes:
         # correctly predicted
         true_positives_c = 0
