@@ -127,12 +127,12 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     for c in range(0, n_c):
         data = majority_data[majority_data["cluster"] == c]
         data = data.drop(columns={'cluster'})
-        obs_from_c = round((len(data)/M)*N)
+        obs_from_c = round((len(data) / M) * N)
         count = count + obs_from_c
-        random_majors_in_c = data.sample(n=obs_from_c, random_state = 1234)
+        random_majors_in_c = data.sample(n=obs_from_c, random_state=1234)
         new_X = new_X.append(random_majors_in_c, ignore_index=True)
     print(time.perf_counter())
-    new_Y = pd.Series([0] * N + [1] * count) # expect count = N, but it is possible that it differs by like 1 or 2
+    new_Y = pd.Series([0] * N + [1] * count)  # expect count = N, but it is possible that it differs by like 1 or 2
     print(new_X)
     print(new_Y)
 
@@ -152,14 +152,14 @@ def run():
 
     # * write final train and test set to csv
     file_name_final_train_x = "data/train_test_frames/final_train_x.csv"
-    #X_frame.to_csv(file_name_final_train_x)
+    # X_frame.to_csv(file_name_final_train_x)
     file_name_final_train_y = "data/train_test_frames/final_train_y.csv"
-    #Y_frame.to_csv(file_name_final_train_y)
+    # Y_frame.to_csv(file_name_final_train_y)
 
     file_name_final_test_x = "data/train_test_frames/final_test_x.csv"
-    #X_test.to_csv(file_name_final_test_x)
+    # X_test.to_csv(file_name_final_test_x)
     file_name_final_test_y = "data/train_test_frames/final_test_y.csv"
-    #Y_test.to_csv(file_name_final_test_y)
+    # Y_test.to_csv(file_name_final_test_y)
 
     # Step 3: obtain train and test sets by performing 5-fold cv
     train_indices, test_indices = five_fold_cv(X_frame)
@@ -169,55 +169,89 @@ def run():
 
         Y_train, Y_test = Y_frame.loc[train_indices[i], :], Y_frame.loc[test_indices[i], :]
 
-        #X_train = X_train.drop(columns={'sellerId', 'orderDate'})
+        # X_train = X_train.drop(columns={'sellerId', 'orderDate'})
         X_test = X_test.drop(columns={'sellerId', 'orderDate'})
 
         # Step 4: standardize the data (dummy columns should not be standardized)
-        #standardized_data_X = standardize_data(X_train)
+        # standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        #for criteria in ["noCancellation", "noReturn", "noCase"]:
-            #new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
+        # for criteria in ["noCancellation", "noReturn", "noCase"]:
+        # new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
-            #file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
-            #new_train_x.to_csv(file_name_1)
+        # file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
+        # new_train_x.to_csv(file_name_1)
 
-            #file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria)
-            #new_train_y.to_csv(file_name_2)
+        # file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria)
+        # new_train_y.to_csv(file_name_2)
 
         # the criterion onTimeDelivery there is a third variable (unknown) this class is predicted before using any
         # of the algorithms, hence the KMeans strategies are not needed for the unknown class, only for the boolean
         # cases
-        #new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, "onTimeDelivery", X_train)
-        #unknown_y = Y_train[Y_train["onTimeDelivery"] == "Unknown"]
-        #unknown_indices = list(unknown_y.index.values)
-        #unknown_observations = X_train.loc[unknown_indices, :]
+        # new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, "onTimeDelivery", X_train)
+        # unknown_y = Y_train[Y_train["onTimeDelivery"] == "Unknown"]
+        # unknown_indices = list(unknown_y.index.values)
+        # unknown_observations = X_train.loc[unknown_indices, :]
 
-        #train_y = pd.Series(["Unknown"] * len(unknown_y) + list(new_train_y))
-        #train_x_1 = unknown_observations.append(new_train_x, ignore_index=True)
+        # train_y = pd.Series(["Unknown"] * len(unknown_y) + list(new_train_y))
+        # train_x_1 = unknown_observations.append(new_train_x, ignore_index=True)
 
-        #file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
-        #train_x_1.to_csv(file_name_1)
+        # file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
+        # train_x_1.to_csv(file_name_1)
 
-        #file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
-        #train_y.to_csv(file_name_2)
+        # file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery")
+        # train_y.to_csv(file_name_2)
 
-        #file_name_3 = "data/train_test_frames/test_x_fold_{0}.csv".format(i + 1)
-        #X_test.to_csv(file_name_3)
+        # file_name_3 = "data/train_test_frames/test_x_fold_{0}.csv".format(i + 1)
+        # X_test.to_csv(file_name_3)
 
-        #file_name_4 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1, )
-        #Y_test.to_csv(file_name_4)
+        # file_name_4 = "data/train_test_frames/test_y_fold_{0}.csv".format(i + 1, )
+        # Y_test.to_csv(file_name_4)
 
         if i == 0:
             stand_data_X_test = standardize_data(X_test)
             print("start")
-            for criteria in ["onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
+            for criteria in ["Unknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
+                if criteria == "Unknown":
+                    train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
+                    train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))
+                    print(train_y["0"].value_counts(ascending=True))
+
+                    Y_test = Y_test.replace(to_replace="0", value=np.float(1))
+                    Y_test = Y_test.replace(to_replace=0, value=np.float(1))
+                    Y_test = Y_test.replace(to_replace="1", value=np.float(1))
+                    Y_test = Y_test.replace(to_replace=1, value=np.float(1))
+                    Y_test = Y_test.replace(to_replace="Unknown",
+                                              value=np.float(0))
+
+                    print(Y_train["onTimeDelivery"].value_counts(ascending=True))
+                    print(Y_test["onTimeDelivery"].value_counts(ascending=True))
+
+                    new_test_x, new_test_y = k_means_plus_two_strategies(stand_data_X_test, Y_test,
+                                                                           "onTimeDelivery", X_test)
+
+                    file_name_1 = "data/train_test_frames/balanced_test_x_fold_1_{0}.csv".format(criteria)
+                    new_test_x.to_csv(file_name_1)
+
+                    file_name_2 = "data/train_test_frames/balanced_test_y_fold_1_{0}.csv".format(criteria)
+                    new_test_y.to_csv(file_name_2)
+
+                    file_name_3 = "data/train_test_frames/balanced_train_x_{0}.csv".format(criteria)
+                    train_x_1 = train_x.append(new_test_x, ignore_index=True)
+                    train_x_1.to_csv(file_name_3)
+
+                    file_name_4 = "data/train_test_frames/balanced_train_y_{0}.csv".format(criteria)
+                    train_y_1 = train_y["0"].append(new_test_y, ignore_index=True)
+                    train_y_1.to_csv(file_name_4)
+
+                    return
+
                 if criteria == "onTimeDelivery":
                     # on time delivery prediction consists of two parts unknown/known and known-> true/false
                     # now combine the balanced test(=validation) of the fold with the balanced training fold
                     train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
                     train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))
-                    train_y = train_y[train_y["0"]!="Unknown"]
+                    train_y = train_y[train_y["0"] != "Unknown"]
                     known_indices = list(train_y.index.values)
                     known_x = train_x.loc[known_indices, :]
 
