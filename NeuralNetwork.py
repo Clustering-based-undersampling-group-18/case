@@ -56,7 +56,10 @@ class NNmodel:
                 else:
                     temp = temp.iloc[:, 1:]
                     if toImport.startswith('val_y'):
-                        temp = temp[criteria]
+                        if criteria == 'Unknown':
+                            temp = temp['onTimeDelivery']
+                        else:
+                            temp = temp[criteria]
                         files[toImport] = temp
                     else:
                         files[toImport] = temp
@@ -106,13 +109,13 @@ class NNmodel:
                                        batch_size=space['batch_size'],
                                        verbose=0)
 
-            #loss, accuracy = NNmodel.evaluate(Xv, Yv, verbose=0)
+            # loss, accuracy = NNmodel.evaluate(Xv, Yv, verbose=0)
             predict = NNmodel.predict(Xv, verbose=0)
             return roc_auc_score(Yv, predict)
 
         def obj_func_imb(space):
 
-            return 0
+            return {'loss': -roc_auc, 'status': STATUS_OK}
 
         def obj_func_bal(space):
             roc_auc1 = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
@@ -157,27 +160,21 @@ class NNmodel:
         sgd = tf.keras.optimizers.SGD(lr=self.best['learning_rate'], momentum=self.best['momentum'])
         NNmodel.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
         if self.best['batch_size'] == 0:
-            self.history = NNmodel.fit(X_train, Y_train,
-                                       validation_data=(X_test, Y_test),
-                                       epochs=100,
-                                       batch_size=batch1,
-                                       verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
+                                       batch_size=batch1, verbose=0)
         elif self.best['batch_size'] == 1:
-            self.history = NNmodel.fit(X_train, Y_train,
-                                       validation_data=(X_test, Y_test),
-                                       epochs=100,
-                                       batch_size=batch2,
-                                       verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
+                                       batch_size=batch2, verbose=0)
         else:
-            self.history = NNmodel.fit(X_train, Y_train,
-                                       validation_data=(X_test, Y_test),
-                                       epochs=100,
-                                       batch_size=batch3,
-                                       verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
+                                       batch_size=batch3, verbose=0)
 
-        #loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
+        # loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
         self.prediction = NNmodel.predict_classes(X_test, verbose=0)
         frame = pd.DataFrame(self.prediction)
-        file_name = "data/predictions/NN_prediction_{0}.csv".format(criteria)
+        if balanced:
+            file_name = "data/predictions/XGB_balanced_prediction_{0}.csv".format(criteria)
+        else:
+            file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
         self.score = f1_score(Y_test, self.prediction, average='weighted')

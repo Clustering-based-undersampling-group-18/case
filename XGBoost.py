@@ -35,7 +35,12 @@ class RandomForest:
                 else:
                     temp = temp.iloc[:, 1:]
                     if toImport.startswith('val_y'):
-                        temp = temp[criteria]
+                        if criteria == 'Unknown':
+                            temp = temp['onTimeDelivery']
+                            temp = temp.replace(0, 1)
+                            temp = temp.replace({'Unknown': 0})
+                        else:
+                            temp = temp[criteria]
                         files[toImport] = temp
                     else:
                         files[toImport] = temp
@@ -90,7 +95,10 @@ class RandomForest:
         RF_best.fit(X_train, Y_train)
         self.prediction = RF_best.predict(X_test)
         frame = pd.DataFrame(self.prediction)
-        file_name = "data/predictions/XGB_prediction_{0}.csv".format(criteria)
+        if balanced:
+            file_name = "data/predictions/XGB_balanced_prediction_{0}.csv".format(criteria)
+        else:
+            file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
         # if criteria != 'onTimeDelivery':
         self.score = f1_score(Y_test, self.prediction, average='weighted')

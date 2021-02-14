@@ -4,45 +4,62 @@ from XGBoost import RandomForest
 import pandas as pd
 import numpy as np
 
+# Data settings
+balanced = False
+
+# Importing train data
+if not balanced:
+    X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
+    X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
+    Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv")
+    Y_train = Y_train.drop(columns={'Unnamed: 0'})
+    Y_train = Y_train.iloc[:, 1:]
+else:
+    # Depends on the predicted variable
+    X_train = 0
+    Y_train = 0
+
 # Importing test data
 X_test = pd.read_csv("data/train_test_frames/final_test_x.csv")
 X_test = X_test.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
 X_test_stand = standardize_data(X_test)
-X_test_stand = X_test_stand.to_numpy()
-X_test = X_test.to_numpy()
 Y_test = pd.read_csv("data/train_test_frames/final_test_y.csv")
 Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
-Y_test = Y_test.to_numpy()
 
 # For loop over all dependent variables
-balanced = False
 for i in range(0, 4):
     criteria = dep_vars[i]
-    depend_test = Y_test[:, i]
+    depend_test = Y_test[criteria]
     print("Dependent variable to be predicted is", criteria)
     if balanced:
-        print('The data that is used is balanced')
+        print('Data that is used is balanced')
     else:
-        print('The data that is used is imbalanced')
+        print('Data that is used is imbalanced')
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
+        continue
         # Step 1
         # Importing train data
-        X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
-        X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+        if balanced:
+            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
+            X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+            depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
+            depend_train = depend_train.drop(columns={'Unnamed: 0'})
+        else:
+            # Preparing train data
+            depend_train = Y_train[criteria]
+            depend_train = depend_train.replace(0, 1)
+            depend_train = depend_train.replace({'Unknown': 0})
         X_train = X_train.iloc[:, 1:]
         X_train_stand = standardize_data(X_train)
-        X_train_stand = X_train_stand.to_numpy()
-        X_train = X_train.to_numpy()
-        depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
-        depend_train = depend_train.drop(columns={'Unnamed: 0'})
-        depend_train = depend_train.to_numpy()
 
         # Preparing test data
-        depend_test[depend_test == 0] = 1
-        depend_test[depend_test == 'Unknown'] = 0
+        depend_test = depend_test.replace(0, 1)
+        depend_test = depend_test.replace({'Unknown': 0})
+        depend_train = depend_train.astype(np.float32)
+        depend_test = depend_test.astype(np.float32)
 
         # Predicting known or unknown
         RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
@@ -58,11 +75,8 @@ for i in range(0, 4):
         X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
         X_train = X_train.iloc[:, 1:]
         X_train_stand = standardize_data(X_train)
-        X_train_stand = X_train_stand.to_numpy()
-        X_train = X_train.to_numpy()
         depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
         depend_train = depend_train.drop(columns={'Unnamed: 0'})
-        depend_train = depend_train.to_numpy()
 
         # Preparing test data
         depend_test = Y_test[:, i][RF_pred_known == 1]
@@ -99,15 +113,15 @@ for i in range(0, 4):
 
     else:
         # Importing train data
-        X_train = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
-        X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+        if balanced:
+            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
+            X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+            depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
+            depend_train = depend_train.drop(columns={'Unnamed: 0'})
+        else:
+            depend_train = Y_train[criteria]
         X_train = X_train.iloc[:, 1:]
         X_train_stand = standardize_data(X_train)
-        X_train_stand = X_train_stand.to_numpy()
-        X_train = X_train.to_numpy()
-        depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
-        depend_train = depend_train.drop(columns={'Unnamed: 0'})
-        depend_train = depend_train.to_numpy()
         depend_train = depend_train.astype(np.float32)
         depend_test = depend_test.astype(np.float32)
 
