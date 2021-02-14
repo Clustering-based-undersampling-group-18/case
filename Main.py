@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # Data settings
-balanced = False
+balanced = True
 
 # Importing train data
 if not balanced:
@@ -28,7 +28,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(2, 4):
+for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("Dependent variable to be predicted is", criteria)
@@ -52,7 +52,7 @@ for i in range(2, 4):
             depend_train = depend_train.replace(0, 1)
             depend_train = depend_train.replace({'Unknown': 0})
         X_train = X_train.iloc[:, 1:]
-        X_train_stand = standardize_data(X_train)
+        #X_train_stand = standardize_data(X_train)
 
         # Preparing test data
         depend_test = depend_test.replace(0, 1)
@@ -63,10 +63,11 @@ for i in range(2, 4):
         # Predicting known or unknown
         RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
         print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
-        NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
-        print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
+        print("XGB weighted F1 score for predicting known/unknown delivery time:", RF1.score)
+        #NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
+        #print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         RF_pred_known = RF1.prediction
-        NN_pred_known = NN1.prediction
+        #NN_pred_known = NN1.prediction
 
         # Step 2
         # Importing train data
@@ -78,37 +79,38 @@ for i in range(2, 4):
         depend_train = depend_train.drop(columns={'Unnamed: 0'})
 
         # Preparing test data
-        depend_test = Y_test[:, i][RF_pred_known == 1]
-        X_test_RF = X_test[RF_pred_known == 1]
-        X_test_stand_NN = X_test_stand[NN_pred_known == 1]
+        depend_test = Y_test[criteria].to_numpy()
+        depend_test = depend_test[RF_pred_known == 1]
+        X_test_RF = X_test.to_numpy()[RF_pred_known == 1]
+        #X_test_stand_NN = X_test_stand[NN_pred_known == 1]
 
         # Predicting whether on time or not
         RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for predicting onTimeDelivery when predicted known:", RF2.best_param)
-        NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
-        print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
+        #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
+        #print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
         RF_pred_onTime = RF2.prediction
-        NN_pred_onTime = NN2.prediction
+        #NN_pred_onTime = NN2.prediction
 
         # Combining the two predictions
         final_pred_RF = RF_pred_known
         final_pred_RF[RF_pred_known == 0] = 'Unknown'
-        final_pred_NN = NN_pred_known
-        final_pred_NN[NN_pred_known == 0] = 'Unknown'
+        #final_pred_NN = NN_pred_known
+        #final_pred_NN[NN_pred_known == 0] = 'Unknown'
         k = 0
         m = 0
         for j in range(0, len(final_pred_RF)):
             if final_pred_RF[j] == 1:
                 final_pred_RF[j] = RF_pred_onTime[k]
                 k = k + 1
-            if final_pred_NN[j] == 1:
-                final_pred_NN[j] = NN_pred_onTime[m]
-                m = m + 1
+            #if final_pred_NN[j] == 1:
+                #final_pred_NN[j] = NN_pred_onTime[m]
+                #m = m + 1
 
         # Results
         depend_test = Y_test[:, i]
         print("XGB prediction accuracy for {0}: ".format(criteria), f1_score(depend_test, final_pred_RF))
-        print("NN weighted F1 score for {0}: ".format(criteria), f1_score(depend_test, final_pred_NN))
+        #print("NN weighted F1 score for {0}: ".format(criteria), f1_score(depend_test, final_pred_NN))
 
     else:
         # Importing train data

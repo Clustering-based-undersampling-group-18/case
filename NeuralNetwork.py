@@ -37,8 +37,12 @@ class NNmodel:
             for i in range(1, 6):
                 names.append('train_x_fold_{0}_{1}'.format(i, criteria))
                 names.append('train_y_fold_{0}_{1}'.format(i, criteria))
-                names.append('val_x_fold_{0}'.format(i))
-                names.append('val_y_fold_{0}'.format(i))
+                if criteria == 'onTimeDelivery':
+                    names.append('val_x_fold_{0}_{1}'.format(i, criteria))
+                    names.append('val_y_fold_{0}_{1}'.format(i, criteria))
+                else:
+                    names.append('val_x_fold_{0}'.format(i))
+                    names.append('val_y_fold_{0}'.format(i))
 
             i = 1
             files = {}
@@ -58,20 +62,22 @@ class NNmodel:
                     if toImport.startswith('val_y'):
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
+                            temp = temp.replace(0, 1)
+                            temp = temp.replace({'Unknown': 0})
+                            temp = temp.astype('float32')
                         else:
                             temp = temp[criteria]
                         files[toImport] = temp
                     else:
                         files[toImport] = temp
 
-            batch1 = int(len(files.get('train_x_fold_1')) / 100)
-            batch2 = int(len(files.get('train_x_fold_1')) / 50)
-            batch3 = int(len(files.get('train_x_fold_1')) / 10)
+        #batch1 = int(len(files.get('train_x_fold_1')) / 100)
+        #batch2 = int(len(files.get('train_x_fold_1')) / 50)
+        #batch3 = int(len(files.get('train_x_fold_1')) / 10)
 
-        else:
-            batch1 = int(len(X_train)/5 / 100)
-            batch2 = int(len(X_train)/5 / 50)
-            batch3 = int(len(X_train)/5 / 10)
+        batch1 = int((len(X_train)*0.8) / 100)
+        batch2 = int((len(X_train)*0.8) / 50)
+        batch3 = int((len(X_train)*0.8) / 10)
 
         space = {'choice': hp.choice('num_layers',
                                      [{'layers': 'one', },

@@ -16,8 +16,12 @@ class RandomForest:
             for i in range(1, 6):
                 names.append('train_x_fold_{0}_{1}'.format(i, criteria))
                 names.append('train_y_fold_{0}_{1}'.format(i, criteria))
-                names.append('val_x_fold_{0}'.format(i))
-                names.append('val_y_fold_{0}'.format(i))
+                if criteria == 'onTimeDelivery':
+                    names.append('val_x_fold_{0}_{1}'.format(i, criteria))
+                    names.append('val_y_fold_{0}_{1}'.format(i, criteria))
+                else:
+                    names.append('val_x_fold_{0}'.format(i))
+                    names.append('val_y_fold_{0}'.format(i))
 
             i = 1
             files = {}
@@ -39,6 +43,7 @@ class RandomForest:
                             temp = temp['onTimeDelivery']
                             temp = temp.replace(0, 1)
                             temp = temp.replace({'Unknown': 0})
+                            temp = temp.astype('float32')
                         else:
                             temp = temp[criteria]
                         files[toImport] = temp
@@ -80,7 +85,7 @@ class RandomForest:
 
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
             self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
@@ -100,5 +105,4 @@ class RandomForest:
         else:
             file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        # if criteria != 'onTimeDelivery':
         self.score = f1_score(Y_test, self.prediction, average='weighted')
