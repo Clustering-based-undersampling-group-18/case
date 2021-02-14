@@ -80,9 +80,9 @@ for i in range(0, 4):
         depend_train = depend_train.drop(columns={'Unnamed: 0'})
 
         # Preparing test data
-        depend_test = Y_test[criteria].to_numpy()
+        depend_test = Y_test[criteria]
         depend_test = depend_test[RF_pred_known == 1]
-        X_test_RF = X_test.to_numpy()[RF_pred_known == 1]
+        X_test_RF = X_test[RF_pred_known == 1]
         #X_test_stand_NN = X_test_stand[NN_pred_known == 1]
 
         # Predicting whether on time or not
