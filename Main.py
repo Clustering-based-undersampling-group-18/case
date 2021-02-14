@@ -16,22 +16,27 @@ dep_vars = Y_test.columns
 Y_test = Y_test.to_numpy()
 
 # For loop over all dependent variables
+balanced = False
 for i in range(0, 4):
     criteria = dep_vars[i]
-    print("Dependent variable to be predicted is", criteria)
     depend_test = Y_test[:, i]
+    print("Dependent variable to be predicted is", criteria)
+    if balanced:
+        print('The data that is used is balanced')
+    else:
+        print('The data that is used is imbalanced')
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
         # Step 1
         # Importing train data
-        X_train = pd.read_csv("data/train_test_frames/balanced_train_x_unknown.csv")
+        X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
         X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
         X_train = X_train.iloc[:, 1:]
         X_train_stand = standardize_data(X_train)
         X_train_stand = X_train_stand.to_numpy()
         X_train = X_train.to_numpy()
-        depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_unknown.csv")
+        depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
         depend_train = depend_train.drop(columns={'Unnamed: 0'})
         depend_train = depend_train.to_numpy()
 
@@ -40,9 +45,9 @@ for i in range(0, 4):
         depend_test[depend_test == 'Unknown'] = 0
 
         # Predicting known or unknown
-        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown')
+        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
         print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
-        NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown')
+        NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
         print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         RF_pred_known = RF1.prediction
         NN_pred_known = NN1.prediction
@@ -65,9 +70,9 @@ for i in range(0, 4):
         X_test_stand_NN = X_test_stand[NN_pred_known == 1]
 
         # Predicting whether on time or not
-        RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria)
+        RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for predicting onTimeDelivery when predicted known:", RF2.best_param)
-        NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria)
+        NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
         print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
         RF_pred_onTime = RF2.prediction
         NN_pred_onTime = NN2.prediction
@@ -107,11 +112,11 @@ for i in range(0, 4):
         depend_test = depend_test.astype(np.float32)
 
         # Predicting dependent variable with XGBoost Random Forest
-        RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria)
+        RF = RandomForest(X_train, X_test, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for {0}: ".format(criteria), RF.best_param)
         print("XGB weighted F1 score for {0}: ".format(criteria), RF.score)
 
         # Predicting dependent variable with Neural Network
-        #NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria)
+        #NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for {0}: ".format(criteria), NN.best)
         #print("NN prediction accuracy for {0}: ".format(criteria), NN.score)

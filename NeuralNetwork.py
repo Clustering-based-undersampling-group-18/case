@@ -29,42 +29,46 @@ def standardize_data(X):
 
 
 class NNmodel:
-    def __init__(self, X_train, X_test, Y_train, Y_test, criteria):
+    def __init__(self, X_train, X_test, Y_train, Y_test, criteria, balanced):
 
-        # Data preparation
-        names = []
-        for i in range(1, 6):
-            names.append('train_x_fold_{0}_{1}'.format(i, criteria))
-            names.append('train_y_fold_{0}_{1}'.format(i, criteria))
-            names.append('val_x_fold_{0}'.format(i))
-            names.append('val_y_fold_{0}'.format(i))
+        if balanced:
+            # Data preparation
+            names = []
+            for i in range(1, 6):
+                names.append('train_x_fold_{0}_{1}'.format(i, criteria))
+                names.append('train_y_fold_{0}_{1}'.format(i, criteria))
+                names.append('val_x_fold_{0}'.format(i))
+                names.append('val_y_fold_{0}'.format(i))
 
-        i = 1
-        files = {}
-        for toImport in names:
-            file = "data/train_test_frames/" + toImport + ".csv"
-            temp = pd.read_csv(file)
-            temp = temp.drop(columns={'Unnamed: 0'})
-            if toImport.startswith('train'):
-                if toImport.startswith('train_x'):
+            i = 1
+            files = {}
+            for toImport in names:
+                file = "data/train_test_frames/" + toImport + ".csv"
+                temp = pd.read_csv(file)
+                temp = temp.drop(columns={'Unnamed: 0'})
+                if toImport.startswith('train'):
+                    if toImport.startswith('train_x'):
+                        temp = temp.iloc[:, 1:]
+                        files['train_x_fold_{0}'.format(i)] = temp
+                    else:
+                        files['train_y_fold_{0}'.format(i)] = temp
+                        i = i + 1
+                else:
                     temp = temp.iloc[:, 1:]
-                    temp = standardize_data(temp)
-                    files['train_x_fold_{0}'.format(i)] = temp
-                else:
-                    files['train_y_fold_{0}'.format(i)] = temp
-                    i = i + 1
-            else:
-                temp = temp.iloc[:, 1:]
-                if toImport.startswith('val_y'):
-                    temp = temp[criteria]
-                    files[toImport] = temp
-                else:
-                    temp = standardize_data(temp)
-                    files[toImport] = temp
+                    if toImport.startswith('val_y'):
+                        temp = temp[criteria]
+                        files[toImport] = temp
+                    else:
+                        files[toImport] = temp
 
-        batch1 = int(len(files.get('train_x_fold_1')) / 100)
-        batch2 = int(len(files.get('train_x_fold_1')) / 50)
-        batch3 = int(len(files.get('train_x_fold_1')) / 10)
+            batch1 = int(len(files.get('train_x_fold_1')) / 100)
+            batch2 = int(len(files.get('train_x_fold_1')) / 50)
+            batch3 = int(len(files.get('train_x_fold_1')) / 10)
+
+        else:
+            batch1 = int(len(X_train)/5 / 100)
+            batch2 = int(len(X_train)/5 / 50)
+            batch3 = int(len(X_train)/5 / 10)
 
         space = {'choice': hp.choice('num_layers',
                                      [{'layers': 'one', },
@@ -106,7 +110,11 @@ class NNmodel:
             predict = NNmodel.predict(Xv, verbose=0)
             return roc_auc_score(Yv, predict)
 
-        def objective_function(space):
+        def obj_func_imb(space):
+
+            return 0
+
+        def obj_func_bal(space):
             roc_auc1 = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
                                    files.get('val_x_fold_1'), files.get('val_y_fold_1'))
             roc_auc2 = train_model(space, files.get('train_x_fold_2'), files.get('train_y_fold_2'),
@@ -123,8 +131,12 @@ class NNmodel:
             return {'loss': -roc_auc, 'status': STATUS_OK}
 
         trials = Trials()
-        self.best = fmin(objective_function, space, algo=tpe.suggest, max_evals=100, trials=trials,
-                         rstate=np.random.RandomState(1))
+        if balanced:
+            self.best = fmin(obj_func_bal, space, algo=tpe.suggest, max_evals=100, trials=trials,
+                             rstate=np.random.RandomState(1))
+        else:
+            self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=100, trials=trials,
+                             rstate=np.random.RandomState(1))
         print('best: ', self.best)
 
         batch1 = int(len(X_train) / 100)
