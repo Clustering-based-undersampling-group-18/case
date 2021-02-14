@@ -28,7 +28,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(2, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("Dependent variable to be predicted is", criteria)
@@ -39,7 +39,6 @@ for i in range(0, 4):
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
-        continue
         # Step 1
         # Importing train data
         if balanced:
