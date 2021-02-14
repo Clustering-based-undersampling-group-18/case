@@ -42,7 +42,7 @@ class RandomForest:
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
                        'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
                        'subsample': hp.uniform('subsample', 0.3, 0.9),
-                       'max_depth': scope.int(hp.quniform('max_depth', 5, 15, 1)),
+                       'max_depth': scope.int(hp.quniform('max_depth', 5, 20, 1)),
                        'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
                        'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
