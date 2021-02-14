@@ -8,9 +8,10 @@ Created on Wed Jan 27 14:57:24 2021
 import tensorflow as tf
 from sklearn.metrics import roc_auc_score, f1_score
 from sklearn.preprocessing import StandardScaler
+from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+from MacroF1 import macro_weighted_f1
 import numpy as np
 import pandas as pd
-from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 import sys
 
 
@@ -121,23 +122,23 @@ class NNmodel:
 
         def obj_func_imb(space):
 
-            return {'loss': -roc_auc, 'status': STATUS_OK}
+            return {'loss': -auc, 'status': STATUS_OK}
 
         def obj_func_bal(space):
-            roc_auc1 = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
-                                   files.get('val_x_fold_1'), files.get('val_y_fold_1'))
-            roc_auc2 = train_model(space, files.get('train_x_fold_2'), files.get('train_y_fold_2'),
-                                   files.get('val_x_fold_2'), files.get('val_y_fold_2'))
-            roc_auc3 = train_model(space, files.get('train_x_fold_3'), files.get('train_y_fold_3'),
-                                   files.get('val_x_fold_3'), files.get('val_y_fold_3'))
-            roc_auc4 = train_model(space, files.get('train_x_fold_4'), files.get('train_y_fold_4'),
-                                   files.get('val_x_fold_4'), files.get('val_y_fold_4'))
-            roc_auc5 = train_model(space, files.get('train_x_fold_5'), files.get('train_y_fold_5'),
-                                   files.get('val_x_fold_5'), files.get('val_y_fold_5'))
-            roc_auc = (roc_auc1 + roc_auc2 + roc_auc3 + roc_auc4 + roc_auc5) / 5
-            print('AUC:', roc_auc)
+            auc = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
+                              files.get('val_x_fold_1'), files.get('val_y_fold_1'))
+            auc += train_model(space, files.get('train_x_fold_2'), files.get('train_y_fold_2'),
+                               files.get('val_x_fold_2'), files.get('val_y_fold_2'))
+            auc += train_model(space, files.get('train_x_fold_3'), files.get('train_y_fold_3'),
+                               files.get('val_x_fold_3'), files.get('val_y_fold_3'))
+            auc += train_model(space, files.get('train_x_fold_4'), files.get('train_y_fold_4'),
+                               files.get('val_x_fold_4'), files.get('val_y_fold_4'))
+            auc += train_model(space, files.get('train_x_fold_5'), files.get('train_y_fold_5'),
+                               files.get('val_x_fold_5'), files.get('val_y_fold_5'))
+            auc = auc/5
+            print('AUC:', auc)
             sys.stdout.flush()
-            return {'loss': -roc_auc, 'status': STATUS_OK}
+            return {'loss': -auc, 'status': STATUS_OK}
 
         trials = Trials()
         if balanced:
@@ -183,4 +184,4 @@ class NNmodel:
         else:
             file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = f1_score(Y_test, self.prediction, average='weighted')
+        self.score = macro_weighted_f1(Y_test, self.prediction)

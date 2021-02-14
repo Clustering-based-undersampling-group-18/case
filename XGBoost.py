@@ -2,7 +2,8 @@ from sklearn.model_selection import KFold, cross_val_score
 from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
 from hyperopt.pyll import scope
-from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.metrics import roc_auc_score
+from MacroF1 import macro_weighted_f1
 import numpy as np
 import pandas as pd
 
@@ -71,21 +72,21 @@ class RandomForest:
             auc = roc_auc_score(files.get('val_y_fold_1'), pred_y_fold_1)
             clf.fit(files.get('train_x_fold_2'), files.get('train_y_fold_2'))
             pred_y_fold_2 = clf.predict(files.get('val_x_fold_2'))
-            auc = auc + roc_auc_score(files.get('val_y_fold_2'), pred_y_fold_2)
+            auc += roc_auc_score(files.get('val_y_fold_2'), pred_y_fold_2)
             clf.fit(files.get('train_x_fold_3'), files.get('train_y_fold_3'))
             pred_y_fold_3 = clf.predict(files.get('val_x_fold_3'))
-            auc = auc + roc_auc_score(files.get('val_y_fold_3'), pred_y_fold_3)
+            auc += roc_auc_score(files.get('val_y_fold_3'), pred_y_fold_3)
             clf.fit(files.get('train_x_fold_4'), files.get('train_y_fold_4'))
             pred_y_fold_4 = clf.predict(files.get('val_x_fold_4'))
-            auc = auc + roc_auc_score(files.get('val_y_fold_4'), pred_y_fold_4)
+            auc += roc_auc_score(files.get('val_y_fold_4'), pred_y_fold_4)
             clf.fit(files.get('train_x_fold_5'), files.get('train_y_fold_5'))
             pred_y_fold_5 = clf.predict(files.get('val_x_fold_5'))
-            auc = auc + roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
+            auc += roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
             return {'loss': -auc/5, 'status': STATUS_OK}
 
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
             self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
@@ -105,4 +106,4 @@ class RandomForest:
         else:
             file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = f1_score(Y_test, self.prediction, average='weighted')
+        self.score = macro_weighted_f1(Y_test, self.prediction)
