@@ -184,4 +184,5 @@ class NNmodel:
         else:
             file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])
+        if criteria is not 'onTimeDelivery':
+            self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])

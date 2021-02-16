@@ -89,7 +89,7 @@ class RandomForest:
             self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
-            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
@@ -106,4 +106,5 @@ class RandomForest:
         else:
             file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
         frame.to_csv(file_name)
-        self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])
+        if criteria is not 'onTimeDelivery':
+            self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])

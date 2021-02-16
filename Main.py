@@ -28,7 +28,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("Dependent variable to be predicted is", criteria)
@@ -88,7 +88,7 @@ for i in range(0, 4):
         # Predicting whether on time or not
         RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for predicting onTimeDelivery when predicted known:", RF2.best_param)
-        print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", RF2.score)
+        #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", RF2.score)
         #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
         #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
