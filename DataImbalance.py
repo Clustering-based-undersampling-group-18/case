@@ -176,7 +176,12 @@ def run():
         standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        for criteria in ["noCancellation", "onTimeDelivery", "noReturn", "noCase"]:
+        for criteria in ["Unknown", "noCancellation", "onTimeDelivery", "noReturn", "noCase"]:
+            if criteria == "Unknown":
+                Y_val = Y_val.replace(to_replace=0, value=np.float(1))
+                Y_val = Y_val.replace(to_replace=1, value=np.float(1))
+                Y_val = Y_val.replace(to_replace="Unknown", value=np.float(0))
+
             new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
             file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
@@ -191,9 +196,6 @@ def run():
         file_name_4 = "data/train_test_frames/val_y_fold_{0}.csv".format(i + 1)
         Y_val.to_csv(file_name_4)
 
-        X_val = pd.read_csv("data/train_test_frames/test_x_fold_{0}.csv".format(i + 1))
-        Y_val = pd.read_csv("data/train_test_frames/test_y_fold_{0}.csv".format(i + 1))
-
         unknown_y = Y_val[Y_val["onTimeDelivery"] != "Unknown"]
         unknown_indices = list(unknown_y.index.values)
         val_x_new = X_val.loc[unknown_indices, :].reset_index()
@@ -204,7 +206,6 @@ def run():
 
         if i == 0:
             stand_data_X_val = standardize_data(X_val)
-            print("start")
             for criteria in ["Unknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
                 if criteria == "Unknown":
                     train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
@@ -215,8 +216,7 @@ def run():
                     Y_val = Y_val.replace(to_replace=0, value=np.float(1))
                     Y_val = Y_val.replace(to_replace="1", value=np.float(1))
                     Y_val = Y_val.replace(to_replace=1, value=np.float(1))
-                    Y_val = Y_val.replace(to_replace="Unknown",
-                                              value=np.float(0))
+                    Y_val = Y_val.replace(to_replace="Unknown", value=np.float(0))
 
                     print(Y_train["onTimeDelivery"].value_counts(ascending=True))
                     print(Y_val["onTimeDelivery"].value_counts(ascending=True))

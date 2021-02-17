@@ -69,24 +69,24 @@ class RandomForest:
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
             clf.fit(files.get('train_x_fold_1'), files.get('train_y_fold_1'))
             pred_y_fold_1 = clf.predict(files.get('val_x_fold_1'))
-            auc = macro_weighted_f1(files.get('val_y_fold_1'), pred_y_fold_1, [0, 1])
+            auc = roc_auc_score(files.get('val_y_fold_1'), pred_y_fold_1)
             clf.fit(files.get('train_x_fold_2'), files.get('train_y_fold_2'))
             pred_y_fold_2 = clf.predict(files.get('val_x_fold_2'))
-            auc += macro_weighted_f1(files.get('val_y_fold_2'), pred_y_fold_2, [0, 1])
+            auc += roc_auc_score(files.get('val_y_fold_2'), pred_y_fold_2)
             clf.fit(files.get('train_x_fold_3'), files.get('train_y_fold_3'))
             pred_y_fold_3 = clf.predict(files.get('val_x_fold_3'))
-            auc += macro_weighted_f1(files.get('val_y_fold_3'), pred_y_fold_3, [0, 1])
+            auc += roc_auc_score(files.get('val_y_fold_3'), pred_y_fold_3)
             clf.fit(files.get('train_x_fold_4'), files.get('train_y_fold_4'))
             pred_y_fold_4 = clf.predict(files.get('val_x_fold_4'))
-            auc += macro_weighted_f1(files.get('val_y_fold_4'), pred_y_fold_4, [0, 1])
+            auc += roc_auc_score(files.get('val_y_fold_4'), pred_y_fold_4)
             clf.fit(files.get('train_x_fold_5'), files.get('train_y_fold_5'))
             pred_y_fold_5 = clf.predict(files.get('val_x_fold_5'))
-            auc += macro_weighted_f1(files.get('val_y_fold_5'), pred_y_fold_5, [0, 1])
+            auc += roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
             return {'loss': -auc/5, 'status': STATUS_OK}
 
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
             self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
