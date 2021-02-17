@@ -176,13 +176,18 @@ def run():
         standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        for criteria in ["Unknown", "noCancellation", "onTimeDelivery", "noReturn", "noCase"]:
+        for criteria in ["noCancellation", "Unknown", "onTimeDelivery", "noReturn", "noCase"]:
             if criteria == "Unknown":
-                Y_val = Y_val.replace(to_replace=0, value=np.float(1))
-                Y_val = Y_val.replace(to_replace=1, value=np.float(1))
-                Y_val = Y_val.replace(to_replace="Unknown", value=np.float(0))
+                Y_train = Y_train.replace(to_replace="0", value=np.float(1))
+                Y_train = Y_train.replace(to_replace=0, value=np.float(1))
+                Y_train = Y_train.replace(to_replace="1", value=np.float(1))
+                Y_train = Y_train.replace(to_replace=1, value=np.float(1))
+                Y_train = Y_train.replace(to_replace="Unknown", value=np.float(0))
 
-            new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
+                new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, "onTimeDelivery",
+                                                                       X_train)
+            else:
+                new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
             file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
             new_train_x.to_csv(file_name_1)
@@ -204,6 +209,7 @@ def run():
         val_x_new.tocsv("data/train_test_frames/val_x_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery"))
         val_y_new.tocsv("data/train_test_frames/val_y_fold_{0}_{1}.csv".format(i + 1, "onTimeDelivery"))
 
+        # Step 6: Generate the full balanced training set for each criteria
         if i == 0:
             stand_data_X_val = standardize_data(X_val)
             for criteria in ["Unknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
