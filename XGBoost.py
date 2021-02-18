@@ -36,10 +36,15 @@ class RandomForest:
                         files['train_x_fold_{0}'.format(i)] = temp
                     else:
                         files['train_y_fold_{0}'.format(i)] = temp
-                        i = i + 1
                 else:
                     temp = temp.iloc[:, 1:]
-                    if toImport.startswith('val_y'):
+                    if toImport.endswith('onTimeDelivery'):
+                        if toImport.__contains__('x'):
+                            files['val_x_fold_{0}'.format(i)] = temp
+                        else:
+                            files['val_y_fold_{0}'.format(i)] = temp
+                            i = i + 1
+                    elif toImport.__contains__('y'):
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
                             temp = temp.replace(0, 1)
@@ -48,6 +53,7 @@ class RandomForest:
                         else:
                             temp = temp[criteria]
                         files[toImport] = temp
+                        i = i + 1
                     else:
                         files[toImport] = temp
 
@@ -86,10 +92,10 @@ class RandomForest:
 
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
-            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
