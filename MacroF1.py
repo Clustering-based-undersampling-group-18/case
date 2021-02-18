@@ -3,6 +3,13 @@ import numpy as np
 
 def macro_weighted_f1(true, predict, classes):
     macro_f1 = 0
+    if classes == [0, 1, 'Unknown']:
+        true = true.replace({'Unknown': 2})
+        predict = predict.replace({'Unknown': 2})
+        true = true.astype(np.float32)
+        predict = predict.astype(np.float32)
+        classes = [0, 1, 2]
+
     for c in classes:
         # correctly predicted
         true_positives_c = 0
@@ -25,6 +32,9 @@ def macro_weighted_f1(true, predict, classes):
                 if predict[i] == c:
                     false_negatives_c += 1
 
+        print(true_positives_c)
+        print(false_positives_c)
+        print(false_negatives_c)
         recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
         f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
         macro_f1 += np.divide(1, len(classes)) * f1_c

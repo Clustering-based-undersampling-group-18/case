@@ -11,6 +11,7 @@ balanced = False
 if not balanced:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
     X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
+    X_train = X_train.iloc[:, 1:]
     Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv")
     Y_train = Y_train.drop(columns={'Unnamed: 0'})
     Y_train = Y_train.iloc[:, 1:]
@@ -46,12 +47,12 @@ for i in range(1, 4):
             X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
+            X_train = X_train.iloc[:, 1:]
         else:
             # Preparing train data
             depend_train = Y_train[criteria]
             depend_train = depend_train.replace(0, 1)
             depend_train = depend_train.replace({'Unknown': 0})
-        X_train = X_train.iloc[:, 1:]
         #X_train_stand = standardize_data(X_train)
 
         # Preparing test data
@@ -97,6 +98,7 @@ for i in range(1, 4):
 
         # Combining the two predictions
         final_pred_RF = RF_pred_known
+        final_pred_RF = final_pred_RF.astype(object)
         final_pred_RF[RF_pred_known == 0] = 'Unknown'
         #final_pred_NN = NN_pred_known
         #final_pred_NN[NN_pred_known == 0] = 'Unknown'
@@ -111,9 +113,9 @@ for i in range(1, 4):
                 #m = m + 1
 
         # Results
-        depend_test = Y_test[:, i]
+        depend_test = Y_test[criteria]
         classes = [0, 1, 'Unknown']
-        print("XGB macro weighted F1 score for {0}: ".format(criteria),
+        print("XGB macro weighted F1 score for final {0} prediction: ".format(criteria),
               macro_weighted_f1(depend_test, final_pred_RF, classes))
         #print("NN macro weighted F1 score for {0}: ".format(criteria),
         #      macro_weighted_f1(depend_test, final_pred_NN, classes))
@@ -127,7 +129,6 @@ for i in range(1, 4):
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
             depend_train = Y_train[criteria]
-        X_train = X_train.iloc[:, 1:]
         X_train_stand = standardize_data(X_train)
         depend_train = depend_train.astype(np.float32)
         depend_test = depend_test.astype(np.float32)
