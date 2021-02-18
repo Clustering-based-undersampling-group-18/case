@@ -12,7 +12,7 @@ class RandomForest:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria, balanced):
 
         if balanced:
-            # Data preparation
+            # Creating a list with all the file names that have to be imported
             names = []
             for i in range(1, 6):
                 names.append('train_x_fold_{0}_{1}'.format(i, criteria))
@@ -24,6 +24,7 @@ class RandomForest:
                     names.append('val_x_fold_{0}'.format(i))
                     names.append('val_y_fold_{0}'.format(i))
 
+            # Importing the files mentioned in the list
             i = 1
             files = {}
             for toImport in names:
@@ -57,7 +58,7 @@ class RandomForest:
                     else:
                         files[toImport] = temp
 
-        # Hyperparameter sets
+        # Hyperparameter space
         hyperparams = {'n_estimators': scope.int(hp.quniform('n_estimators', 5, 35, 1)),
                        'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
                        'subsample': hp.uniform('subsample', 0.3, 0.9),
@@ -65,12 +66,14 @@ class RandomForest:
                        'colsample_bytree': hp.uniform('colsample_bytree', 0.5, 1.0),
                        'min_child_weight': scope.int(hp.quniform('min_child_weight', 1, 5, 1))}
 
+        # Objective function for Bayesian optimization with imbalanced data
         def obj_func_imb(params):
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
             kfold = KFold(n_splits=5, random_state=1234, shuffle=True)
             auc = cross_val_score(clf, X_train, Y_train, cv=kfold, scoring='roc_auc').mean()
             return {'loss': -auc, 'status': STATUS_OK}
 
+        # Objective function for Bayesian optimization with balanced data
         def obj_func_bal(params):
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
             clf.fit(files.get('train_x_fold_1'), files.get('train_y_fold_1'))
@@ -90,6 +93,7 @@ class RandomForest:
             auc += roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
             return {'loss': -auc/5, 'status': STATUS_OK}
 
+        # Obtaining the parameterset that maximizes the evaluation metric
         trials = Trials()
         if balanced:
             self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
@@ -99,12 +103,14 @@ class RandomForest:
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
+        # Training the model with the best parameter values
         RF_best = XGBClassifier(n_estimators=int(best_param_values[4]), learning_rate=best_param_values[1],
                                 subsample=best_param_values[5], max_depth=int(best_param_values[2]),
                                 colsample_bytree=best_param_values[0], min_child_weight=int(best_param_values[3]),
                                 use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
-
         RF_best.fit(X_train, Y_train)
+
+        # Predicting the dependent variable with the test set
         self.prediction = RF_best.predict(X_test)
         frame = pd.DataFrame(self.prediction)
         if balanced:
