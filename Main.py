@@ -18,8 +18,9 @@ if not balanced:
     Y_train = Y_train.iloc[:, 1:]
 else:
     # Depends on the predicted variable
+    X_train_onTime = pd.read_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
+    Y_train_onTime = pd.read_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
     X_train = 0
-    X_train_stand = 0
     Y_train = 0
 
 # Importing test data
@@ -31,7 +32,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("Dependent variable to be predicted is", criteria)
@@ -41,9 +42,7 @@ for i in range(0, 4):
         print('Data that is used is imbalanced')
 
     # Two-step binary classification for onTimeDelivery
-    if i == 1:
-        continue
-    elif criteria == 'onTimeDelivery':
+    if criteria == 'onTimeDelivery':
         # Step 1
         # Importing train data
         if balanced:
@@ -84,7 +83,7 @@ for i in range(0, 4):
             depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
-            depend_train = Y_train[criteria]
+            depend_train = Y_train_onTime[criteria]
 
         # Preparing test data
         depend_test = Y_test[criteria]
@@ -93,7 +92,7 @@ for i in range(0, 4):
         #X_test_stand_NN = X_test_stand[NN_pred_known == 1]
 
         # Predicting whether on time or not
-        RF2 = RandomForest(X_train, X_test_RF, depend_train, depend_test, criteria, balanced)
+        RF2 = RandomForest(X_train_onTime, X_test_RF, depend_train, depend_test, criteria, balanced)
         print("XGB best parameters for predicting onTimeDelivery when predicted known:", RF2.best_param)
         #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", RF2.score)
         #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)

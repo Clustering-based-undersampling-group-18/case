@@ -149,17 +149,18 @@ def run():
     X_train, X_test = frequency_seller(X_train, X_test)
     X_frame = X_train.reset_index()
     Y_frame = Y_train.reset_index()
+    X_known = X_frame[X_frame != 'Unknown']
+    Y_known = Y_frame[X_frame != 'Unknown']
 
     # * write final train and test set to csv
-    file_name_final_train_x = "data/train_test_frames/final_train_x.csv"
-    X_frame.to_csv(file_name_final_train_x)
-    file_name_final_train_y = "data/train_test_frames/final_train_y.csv"
-    Y_frame.to_csv(file_name_final_train_y)
+    X_frame.to_csv("data/train_test_frames/final_train_x.csv")
+    Y_frame.to_csv("data/train_test_frames/final_train_y.csv")
 
-    file_name_final_test_x = "data/train_test_frames/final_test_x.csv"
-    X_test.to_csv(file_name_final_test_x)
-    file_name_final_test_y = "data/train_test_frames/final_test_y.csv"
-    Y_test.to_csv(file_name_final_test_y)
+    X_test.to_csv("data/train_test_frames/final_test_x.csv")
+    Y_test.to_csv("data/train_test_frames/final_test_y.csv")
+
+    X_known.to_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
+    Y_known.to_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
 
     # Step 3: obtain train and validation sets by performing 5-fold cv
     train_indices, val_indices = five_fold_cv(X_frame)
@@ -189,17 +190,11 @@ def run():
             else:
                 new_train_x, new_train_y = k_means_plus_two_strategies(standardized_data_X, Y_train, criteria, X_train)
 
-            file_name_1 = "data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria)
-            new_train_x.to_csv(file_name_1)
+            new_train_x.to_csv("data/train_test_frames/train_x_fold_{0}_{1}.csv".format(i + 1, criteria))
+            new_train_y.to_csv("data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria))
 
-            file_name_2 = "data/train_test_frames/train_y_fold_{0}_{1}.csv".format(i + 1, criteria)
-            new_train_y.to_csv(file_name_2)
-
-        file_name_3 = "data/train_test_frames/val_x_fold_{0}.csv".format(i + 1)
-        X_val.to_csv(file_name_3)
-
-        file_name_4 = "data/train_test_frames/val_y_fold_{0}.csv".format(i + 1)
-        Y_val.to_csv(file_name_4)
+        X_val.to_csv("data/train_test_frames/val_x_fold_{0}.csv".format(i + 1))
+        Y_val.to_csv("data/train_test_frames/val_y_fold_{0}.csv".format(i + 1))
 
         unknown_y = Y_val[Y_val["onTimeDelivery"] != "Unknown"]
         unknown_indices = list(unknown_y.index.values)
@@ -229,19 +224,14 @@ def run():
 
                     new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, "onTimeDelivery", X_val)
 
-                    file_name_1 = "data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria)
-                    new_val_x.to_csv(file_name_1)
+                    new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
+                    new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
 
-                    file_name_2 = "data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria)
-                    new_val_y.to_csv(file_name_2)
-
-                    file_name_3 = "data/train_test_frames/balanced_train_x_{0}.csv".format(criteria)
                     train_x_1 = train_x.append(new_val_x, ignore_index=True)
-                    train_x_1.to_csv(file_name_3)
+                    train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
-                    file_name_4 = "data/train_test_frames/balanced_train_y_{0}.csv".format(criteria)
                     train_y_1 = train_y["0"].append(new_val_y, ignore_index=True)
-                    train_y_1.to_csv(file_name_4)
+                    train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
                     return
 
@@ -256,41 +246,31 @@ def run():
 
                     new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, criteria, X_val)
 
-                    file_name_1 = "data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria)
-                    new_val_x.to_csv(file_name_1)
+                    new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
+                    new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
 
-                    file_name_2 = "data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria)
-                    new_val_y.to_csv(file_name_2)
-
-                    file_name_3 = "data/train_test_frames/balanced_train_x_{0}.csv".format(criteria)
                     train_x_1 = known_x.append(new_val_x, ignore_index=True)
-                    train_x_1.to_csv(file_name_3)
+                    train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
-                    file_name_4 = "data/train_test_frames/balanced_train_y_{0}.csv".format(criteria)
                     train_y_1 = train_y["0"].append(new_val_y, ignore_index=True)
-                    train_y_1.to_csv(file_name_4)
+                    train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
                     continue
 
                 new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, criteria, X_val)
 
-                file_name_1 = "data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria)
-                new_val_x.to_csv(file_name_1)
-
-                file_name_2 = "data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria)
-                new_val_y.to_csv(file_name_2)
+                new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
+                new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
 
                 # now combine the balanced test(=validation) of the fold with the balanced training fold
                 train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
                 train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))["0"]
 
-                file_name_3 = "data/train_test_frames/balanced_train_x_{0}.csv".format(criteria)
                 train_x_1 = train_x.append(new_val_x, ignore_index=True)
-                train_x_1.to_csv(file_name_3)
+                train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
-                file_name_4 = "data/train_test_frames/balanced_train_y_{0}.csv".format(criteria)
                 train_y_1 = train_y.append(new_val_y, ignore_index=True)
-                train_y_1.to_csv(file_name_4)
+                train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
             return
 
