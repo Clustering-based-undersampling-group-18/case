@@ -147,11 +147,9 @@ def run():
     X_train, X_test = frequency_seller(X_train, X_test)
     X_frame = X_train.reset_index()
     Y_frame = Y_train.reset_index()
-    X_known = X_frame[Y_frame != 'Unknown']
-    Y_known = Y_frame[Y_frame != 'Unknown']
-
-    X_known.to_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
-    Y_known.to_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
+    Y_known = Y_frame['onTimeDelivery']
+    X_known = X_frame[Y_known != 'Unknown']
+    Y_known = Y_frame[Y_known != 'Unknown']
 
     # * write final train and test set to csv
     X_frame.to_csv("data/train_test_frames/final_train_x.csv")
@@ -160,7 +158,8 @@ def run():
     X_test.to_csv("data/train_test_frames/final_test_x.csv")
     Y_test.to_csv("data/train_test_frames/final_test_y.csv")
 
-    return
+    X_known.to_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
+    Y_known.to_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
 
     # Step 3: obtain train and validation sets by performing 5-fold cv
     train_indices, val_indices = five_fold_cv(X_frame)
