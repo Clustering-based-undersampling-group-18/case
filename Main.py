@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # Data settings
-balanced = False
+balanced = True
 
 # Importing train data
 if not balanced:
@@ -33,6 +33,7 @@ dep_vars = Y_test.columns
 for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
+    print("----------------------------------------------------------------------")
     print("Dependent variable to be predicted is", criteria)
     if balanced:
         print('Data that is used is balanced')
@@ -68,8 +69,8 @@ for i in range(1, 4):
         #NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
         #print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         #print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
-        RF_pred_known = RF1.prediction
-        #NN_pred_known = NN1.prediction
+        RF_pred_known = RF1.predc
+        #NN_pred_known = NN1.predc
 
         # Step 2
         # Importing train data

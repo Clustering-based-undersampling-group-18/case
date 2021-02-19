@@ -6,10 +6,10 @@ def macro_weighted_f1(true, predict, classes):
     if 'Unknown' in classes:
         true = true.replace({'Unknown': 2})
         predict[predict == 'Unknown'] = 2
-        true = true.astype(np.float32)
-        predict = predict.astype(np.float32)
         classes = [0, 1, 2]
 
+    true = true.astype(np.float32)
+    predict = predict.astype(np.float32)
     for c in classes:
         # correctly predicted
         true_positives_c = 0

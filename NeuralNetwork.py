@@ -33,7 +33,7 @@ class NNmodel:
     def __init__(self, X_train, X_test, Y_train, Y_test, criteria, balanced):
 
         if balanced:
-            # Data preparation
+            # Creating a list with all the file names that have to be imported
             names = []
             for i in range(1, 6):
                 names.append('train_x_fold_{0}_{1}'.format(i, criteria))
@@ -45,6 +45,7 @@ class NNmodel:
                     names.append('val_x_fold_{0}'.format(i))
                     names.append('val_y_fold_{0}'.format(i))
 
+            # Importing the files mentioned in the list
             i = 1
             files = {}
             for toImport in names:
@@ -57,10 +58,15 @@ class NNmodel:
                         files['train_x_fold_{0}'.format(i)] = temp
                     else:
                         files['train_y_fold_{0}'.format(i)] = temp
-                        i = i + 1
                 else:
                     temp = temp.iloc[:, 1:]
-                    if toImport.startswith('val_y'):
+                    if toImport.endswith('onTimeDelivery'):
+                        if toImport.__contains__('x'):
+                            files['val_x_fold_{0}'.format(i)] = temp
+                        else:
+                            files['val_y_fold_{0}'.format(i)] = temp
+                            i = i + 1
+                    elif toImport.__contains__('y'):
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
                             temp = temp.replace(0, 1)
@@ -69,6 +75,7 @@ class NNmodel:
                         else:
                             temp = temp[criteria]
                         files[toImport] = temp
+                        i = i + 1
                     else:
                         files[toImport] = temp
 
@@ -80,6 +87,7 @@ class NNmodel:
         batch2 = int((len(X_train)*0.8) / 50)
         batch3 = int((len(X_train)*0.8) / 10)
 
+        # Hyperparameter space
         space = {'choice': hp.choice('num_layers',
                                      [{'layers': 'one', },
                                       {'layers': 'two',
@@ -120,10 +128,12 @@ class NNmodel:
             predict = NNmodel.predict(Xv, verbose=0)
             return roc_auc_score(Yv, predict)
 
+        # Objective function for Bayesian optimization with imbalanced data
         def obj_func_imb(space):
 
             return {'loss': -auc, 'status': STATUS_OK}
 
+        # Objective function for Bayesian optimization with balanced data
         def obj_func_bal(space):
             auc = train_model(space, files.get('train_x_fold_1'), files.get('train_y_fold_1'),
                               files.get('val_x_fold_1'), files.get('val_y_fold_1'))
@@ -140,6 +150,7 @@ class NNmodel:
             sys.stdout.flush()
             return {'loss': -auc, 'status': STATUS_OK}
 
+        # Obtaining the parameterset that maximizes the evaluation metric
         trials = Trials()
         if balanced:
             self.best = fmin(obj_func_bal, space, algo=tpe.suggest, max_evals=100, trials=trials,
@@ -153,6 +164,7 @@ class NNmodel:
         batch2 = int(len(X_train) / 50)
         batch3 = int(len(X_train) / 10)
 
+        # Training the model with the best parameter values
         NNmodel = tf.keras.models.Sequential()
         NNmodel.add(tf.keras.layers.Dropout(self.best['dropout0']))
         NNmodel.add(tf.keras.layers.Dense(self.best['units1'], activation='relu'))
@@ -176,13 +188,16 @@ class NNmodel:
             self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
                                        batch_size=batch3, verbose=0)
 
-        # loss, accuracy = NNmodel.evaluate(X_test, Y_test, verbose=0)
-        self.prediction = NNmodel.predict_classes(X_test, verbose=0)
-        frame = pd.DataFrame(self.prediction)
+        # Predicting the dependent variable with the test set
+        self.predc = NNmodel.predict_classes(X_test, verbose=0)
+        self.predp = NNmodel.predict_proba(X_test, verbose=0)
+        framec = pd.DataFrame(self.predc)
+        framep = pd.DataFrame(self.predp)
         if balanced:
-            file_name = "data/predictions/XGB_balanced_prediction_{0}.csv".format(criteria)
+            framec.to_csv("data/predictions/XGB_balanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/XGB_balanced_p_prediction_{0}.csv".format(criteria))
         else:
-            file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
-        frame.to_csv(file_name)
-        if criteria is not 'onTimeDelivery':
-            self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])
+            framec.to_csv("data/predictions/XGB_imbalanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/XGB_imbalanced_p_prediction_{0}.csv".format(criteria))
+        if criteria != 'onTimeDelivery':
+            self.score = macro_weighted_f1(Y_test, self.predc, [0, 1])
