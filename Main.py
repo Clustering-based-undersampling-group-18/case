@@ -101,7 +101,7 @@ for i in range(1, 4):
         #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
         #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
-        RF_pred_onTime = RF2.prediction
+        RF_pred_onTime = RF2.predc
         #NN_pred_onTime = NN2.prediction
 
         # Combining the two predictions

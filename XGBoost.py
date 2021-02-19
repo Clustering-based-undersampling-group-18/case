@@ -38,14 +38,18 @@ class RandomForest:
                     else:
                         files['train_y_fold_{0}'.format(i)] = temp
                 else:
-                    temp = temp.iloc[:, 1:]
                     if toImport.endswith('onTimeDelivery'):
                         if toImport.__contains__('x'):
+                            temp = temp.drop(columns={'Unnamed: 0.1', 'level_0'})
+                            temp = temp.iloc[:, 1:]
                             files['val_x_fold_{0}'.format(i)] = temp
                         else:
-                            files['val_y_fold_{0}'.format(i)] = temp
+                            temp = temp.drop(columns={'level_0', 'Unnamed: 0.1'})
+                            temp = temp.iloc[:, 1:]
+                            files['val_y_fold_{0}'.format(i)] = temp[criteria]
                             i = i + 1
                     elif toImport.__contains__('y'):
+                        temp = temp.iloc[:, 1:]
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
                             temp = temp.replace(0, 1)
@@ -56,6 +60,7 @@ class RandomForest:
                         files[toImport] = temp
                         i = i + 1
                     else:
+                        temp = temp.iloc[:, 1:]
                         files[toImport] = temp
 
         # Hyperparameter space
@@ -96,10 +101,10 @@ class RandomForest:
         # Obtaining the parameterset that maximizes the evaluation metric
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
-            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
