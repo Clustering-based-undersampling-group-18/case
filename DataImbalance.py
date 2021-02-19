@@ -93,8 +93,8 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     majority_rows = list(majority_class.index.values)
     minority_rows = list(minority_class.index.values)
 
-    print(len(majority_rows))
-    print(len(minority_rows))
+    print("Size of majority class:", len(majority_rows))
+    print("Size of minority class:", len(minority_rows))
 
     # step 5.2: perform kmeans clustering
     N = len(minority_class)  # = number of minority class variables
@@ -104,14 +104,14 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
         empty_series = pd.Series([])
         return empty_frame, empty_frame, empty_series
 
-    print(time.perf_counter())
+    print("Seconds passed before starting KMeans:", time.perf_counter())
     n_c = 10000
     majority_data_stdz = standardized_data_x.loc[majority_rows, :]
     majority_data = normal_data_x.loc[majority_rows, :]
     kmeans = MiniBatchKMeans(n_clusters=n_c, batch_size=N).fit(majority_data_stdz)
-    print(time.perf_counter())
+    print("Seconds passed when KMeans completed:", time.perf_counter())
     majority_data['cluster'] = kmeans.predict(majority_data_stdz)
-    print(time.perf_counter())
+    print("Seconds passed when prediction completed:", time.perf_counter())
 
     # step 5.2.2: print some count information about the clusters
     # summary = majority_data.groupby(['cluster']).mean()
@@ -131,10 +131,8 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
         count = count + obs_from_c
         random_majors_in_c = data.sample(n=obs_from_c, random_state=1234)
         new_X = new_X.append(random_majors_in_c, ignore_index=True)
-    print(time.perf_counter())
+    print("Clustering succesfull! Seconds passed:", time.perf_counter())
     new_Y = pd.Series([0] * N + [1] * count)  # expect count = N, but it is possible that it differs by like 1 or 2
-    print(new_X)
-    print(new_Y)
 
     return new_X, new_Y
 
@@ -149,8 +147,11 @@ def run():
     X_train, X_test = frequency_seller(X_train, X_test)
     X_frame = X_train.reset_index()
     Y_frame = Y_train.reset_index()
-    X_known = X_frame[X_frame != 'Unknown']
-    Y_known = Y_frame[X_frame != 'Unknown']
+    X_known = X_frame[Y_frame != 'Unknown']
+    Y_known = Y_frame[Y_frame != 'Unknown']
+
+    X_known.to_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
+    Y_known.to_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
 
     # * write final train and test set to csv
     X_frame.to_csv("data/train_test_frames/final_train_x.csv")
@@ -159,8 +160,7 @@ def run():
     X_test.to_csv("data/train_test_frames/final_test_x.csv")
     Y_test.to_csv("data/train_test_frames/final_test_y.csv")
 
-    X_known.to_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
-    Y_known.to_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
+    return
 
     # Step 3: obtain train and validation sets by performing 5-fold cv
     train_indices, val_indices = five_fold_cv(X_frame)

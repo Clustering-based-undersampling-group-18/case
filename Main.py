@@ -12,14 +12,12 @@ if not balanced:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
     X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
     X_train = X_train.iloc[:, 1:]
-    X_train_stand = standardize_data(X_train)
+    #X_train_stand = standardize_data(X_train)
     Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv")
     Y_train = Y_train.drop(columns={'Unnamed: 0'})
     Y_train = Y_train.iloc[:, 1:]
 else:
     # Depends on the predicted variable
-    X_train_onTime = pd.read_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
-    Y_train_onTime = pd.read_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")
     X_train = 0
     Y_train = 0
 
@@ -76,14 +74,18 @@ for i in range(1, 4):
         # Step 2
         # Importing train data
         if balanced:
-            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
-            X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
-            X_train = X_train.iloc[:, 1:]
+            X_train_onTime = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
+            X_train_onTime = X_train_onTime.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+            X_train_onTime = X_train_onTime.iloc[:, 1:]
             #X_train_stand = standardize_data(X_train)
             depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
-            depend_train = Y_train_onTime[criteria]
+            X_train_onTime = pd.read_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
+            X_train_onTime = X_train_onTime.iloc[:, 1:]
+            depend_train = pd.read_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")[criteria]
+            print(X_train_onTime)
+            print(depend_train)
 
         # Preparing test data
         depend_test = Y_test[criteria]
