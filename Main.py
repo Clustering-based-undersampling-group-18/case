@@ -54,11 +54,11 @@ for i in range(1, 4):
             depend_train = Y_train[criteria]
             depend_train = depend_train.replace(0, 1)
             depend_train = depend_train.replace({'Unknown': 0})
+        depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
         depend_test = depend_test.replace(0, 1)
         depend_test = depend_test.replace({'Unknown': 0})
-        depend_train = depend_train.astype(np.float32)
         depend_test = depend_test.astype(np.float32)
 
         # Predicting known or unknown
@@ -82,20 +82,16 @@ for i in range(1, 4):
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
             X_train_onTime = pd.read_csv("data/train_test_frames/final_train_x_onTimeDelivery.csv")
-            X_train_onTime = X_train_onTime.drop(columns={'Unnamed: 0'})
+            X_train_onTime = X_train_onTime.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
             X_train_onTime = X_train_onTime.iloc[:, 1:]
             depend_train = pd.read_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")[criteria]
-            X_train_onTime.astype(np.float32)
-            print(X_train_onTime)
-            print(depend_train)
+        depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
         depend_test = Y_test[criteria]
         depend_test = depend_test[RF_pred_known == 1]
         X_test_RF = X_test[RF_pred_known == 1]
         #X_test_stand_NN = X_test_stand[NN_pred_known == 1]
-        depend_train = depend_train.astype(np.float32)
-        depend_test = depend_test.astype(np.float32)
 
         # Predicting whether on time or not
         RF2 = RandomForest(X_train_onTime, X_test_RF, depend_train, depend_test, criteria, balanced)

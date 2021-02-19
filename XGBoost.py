@@ -111,12 +111,15 @@ class RandomForest:
         RF_best.fit(X_train, Y_train)
 
         # Predicting the dependent variable with the test set
-        self.prediction = RF_best.predict(X_test)
-        frame = pd.DataFrame(self.prediction)
+        self.predc = RF_best.predict(X_test)
+        self.predp = RF_best.predict_proba(X_test)
+        framec = pd.DataFrame(self.predc)
+        framep = pd.DataFrame(self.predp)
         if balanced:
-            file_name = "data/predictions/XGB_balanced_prediction_{0}.csv".format(criteria)
+            framec.to_csv("data/predictions/XGB_balanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/XGB_balanced_p_prediction_{0}.csv".format(criteria))
         else:
-            file_name = "data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria)
-        frame.to_csv(file_name)
+            framec.to_csv("data/predictions/XGB_imbalanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/XGB_imbalanced_p_prediction_{0}.csv".format(criteria))
         if criteria != 'onTimeDelivery':
-            self.score = macro_weighted_f1(Y_test, self.prediction, [0, 1])
+            self.score = macro_weighted_f1(Y_test, self.predc, [0, 1])
