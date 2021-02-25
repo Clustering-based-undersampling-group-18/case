@@ -52,7 +52,8 @@ class RandomForest:
                         temp = temp.iloc[:, 1:]
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
-                            temp = temp.replace(0, 1)
+                            temp = temp.replace({'0.0': 1})
+                            temp = temp.replace({'1.0': 1})
                             temp = temp.replace({'Unknown': 0})
                             temp = temp.astype('float32')
                         else:

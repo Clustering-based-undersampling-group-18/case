@@ -59,17 +59,22 @@ class NNmodel:
                     else:
                         files['train_y_fold_{0}'.format(i)] = temp
                 else:
-                    temp = temp.iloc[:, 1:]
                     if toImport.endswith('onTimeDelivery'):
                         if toImport.__contains__('x'):
+                            temp = temp.drop(columns={'Unnamed: 0.1', 'level_0'})
+                            temp = temp.iloc[:, 1:]
                             files['val_x_fold_{0}'.format(i)] = temp
                         else:
-                            files['val_y_fold_{0}'.format(i)] = temp
+                            temp = temp.drop(columns={'level_0', 'Unnamed: 0.1'})
+                            temp = temp.iloc[:, 1:]
+                            files['val_y_fold_{0}'.format(i)] = temp[criteria]
                             i = i + 1
                     elif toImport.__contains__('y'):
+                        temp = temp.iloc[:, 1:]
                         if criteria == 'Unknown':
                             temp = temp['onTimeDelivery']
-                            temp = temp.replace(0, 1)
+                            temp = temp.replace({'0.0': 1})
+                            temp = temp.replace({'1.0': 1})
                             temp = temp.replace({'Unknown': 0})
                             temp = temp.astype('float32')
                         else:
@@ -77,6 +82,7 @@ class NNmodel:
                         files[toImport] = temp
                         i = i + 1
                     else:
+                        temp = temp.iloc[:, 1:]
                         files[toImport] = temp
 
         #batch1 = int(len(files.get('train_x_fold_1')) / 100)
