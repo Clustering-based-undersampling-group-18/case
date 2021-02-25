@@ -30,7 +30,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(3, 4):
+for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
@@ -58,7 +58,8 @@ for i in range(3, 4):
         depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
-        depend_test = depend_test.replace(0, 1)
+        depend_test = depend_test.replace({'0.0': 1})
+        depend_test = depend_test.replace({'1.0': 1})
         depend_test = depend_test.replace({'Unknown': 0})
         depend_test = depend_test.astype(np.float32)
 
