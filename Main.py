@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # Data settings
-balanced = True
+balanced = False
 
 # Importing train data
 if not balanced:
