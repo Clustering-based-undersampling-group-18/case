@@ -53,7 +53,8 @@ for i in range(1, 4):
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
             depend_train = Y_train[criteria]
-            depend_train = depend_train.replace(0, 1)
+            depend_train = depend_train.replace({'0.0': 1})
+            depend_train = depend_train.replace({'1.0': 1})
             depend_train = depend_train.replace({'Unknown': 0})
         depend_train = depend_train.astype(np.float32)
 
