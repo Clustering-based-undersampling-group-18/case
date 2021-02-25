@@ -5,7 +5,7 @@ import pandas as pd
 import numpy as np
 
 # Data settings
-balanced = False
+balanced = True
 
 # Importing train data
 if not balanced:
@@ -132,10 +132,10 @@ for i in range(3, 4):
         final_pred_RF = pd.DataFrame(final_pred_RF)
         #final_pred_NN = pd.DataFrame(final_pred_NN)
         if balanced:
-            final_pred_RF.to_csv("data/predictions/XGB_balanced_prediction_{0}.csv".format(criteria))
+            final_pred_RF.to_csv("data/predictions/XGB_balanced_final_prediction_{0}.csv".format(criteria))
             #final_pred_NN.to_csv("data/predictions/NN_balanced_prediction_{0}.csv".format(criteria))
         else:
-            final_pred_RF.to_csv("data/predictions/XGB_imbalanced_prediction_{0}.csv".format(criteria))
+            final_pred_RF.to_csv("data/predictions/XGB_imbalanced_final_prediction_{0}.csv".format(criteria))
             #final_pred_NN.to_csv("data/predictions/NN_imbalanced_prediction_{0}.csv".format(criteria))
 
     else:
