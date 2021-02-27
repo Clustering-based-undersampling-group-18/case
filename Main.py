@@ -44,34 +44,35 @@ for i in range(1, 4):
     if criteria == 'onTimeDelivery':
         # Step 1
         # Importing train data
-        if balanced:
-            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
-            X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
-            X_train = X_train.iloc[:, 1:]
-            #X_train_stand = standardize_data(X_train)
-            depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
-            depend_train = depend_train.drop(columns={'Unnamed: 0'})
-        else:
-            depend_train = Y_train[criteria]
-            depend_train = depend_train.replace({'0.0': 1})
-            depend_train = depend_train.replace({'1.0': 1})
-            depend_train = depend_train.replace({'Unknown': 0})
-        depend_train = depend_train.astype(np.float32)
+        #if balanced:
+        #    X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
+        #    X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
+        #    X_train = X_train.iloc[:, 1:]
+        #    #X_train_stand = standardize_data(X_train)
+        #    depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
+        #    depend_train = depend_train.drop(columns={'Unnamed: 0'})
+        #else:
+        #    depend_train = Y_train[criteria]
+        #    depend_train = depend_train.replace({'0.0': 1})
+        #    depend_train = depend_train.replace({'1.0': 1})
+        #    depend_train = depend_train.replace({'Unknown': 0})
+        #depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
-        depend_test = depend_test.replace({'0.0': 1})
-        depend_test = depend_test.replace({'1.0': 1})
-        depend_test = depend_test.replace({'Unknown': 0})
-        depend_test = depend_test.astype(np.float32)
+        #depend_test = depend_test.replace({'0.0': 1})
+        #depend_test = depend_test.replace({'1.0': 1})
+        #depend_test = depend_test.replace({'Unknown': 0})
+        #depend_test = depend_test.astype(np.float32)
 
         # Predicting known or unknown
-        RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
-        print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
-        print("XGB macro weighted F1 score for predicting known/unknown delivery time:", RF1.score)
+        #RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
+        #print("XGB best parameters for predicting known/unknown delivery time:", RF1.best_param)
+        #print("XGB macro weighted F1 score for predicting known/unknown delivery time:", RF1.score)
         #NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
         #print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         #print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
-        RF_pred_known = RF1.predc
+        #RF_pred_known = RF1.predc
+        RF_pred_known = pd.read_csv("data/predictions/XGB_balanced_p_prediction_Unknown.csv")
         #NN_pred_known = NN1.predc
 
         # Step 2
@@ -121,6 +122,7 @@ for i in range(1, 4):
             #if final_pred_NN[j] == 1:
                 #final_pred_NN[j] = NN_pred_onTime[m]
                 #m = m + 1
+        print(k)
 
         # Results
         depend_test = Y_test[criteria]
