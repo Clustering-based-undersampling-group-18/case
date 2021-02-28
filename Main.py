@@ -1,11 +1,11 @@
-from MacroF1 import macro_weighted_f1
+from MacroF1 import macro_weighted_f1, threshold_search
 from NeuralNetwork import NNmodel, standardize_data
 from XGBoost import RandomForest
 import pandas as pd
 import numpy as np
 
 # Data settings
-balanced = False
+balanced = True
 
 # Importing train data
 if not balanced:
@@ -59,10 +59,10 @@ for i in range(1, 4):
         #depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
-        #depend_test = depend_test.replace({'0.0': 1})
-        #depend_test = depend_test.replace({'1.0': 1})
-        #depend_test = depend_test.replace({'Unknown': 0})
-        #depend_test = depend_test.astype(np.float32)
+        depend_test = depend_test.replace({'0.0': 1})
+        depend_test = depend_test.replace({'1.0': 1})
+        depend_test = depend_test.replace({'Unknown': 0})
+        depend_test = depend_test.astype(np.float32)
 
         # Predicting known or unknown
         #RF1 = RandomForest(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
@@ -71,9 +71,16 @@ for i in range(1, 4):
         #NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
         #print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
         #print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
-        #RF_pred_known = RF1.predc
-        RF_pred_known = pd.read_csv("data/predictions/XGB_balanced_p_prediction_Unknown.csv")
-        #NN_pred_known = NN1.predc
+        #RF_prob_known = RF1.predp
+        RF_prob_known = pd.read_csv("data/predictions/XGB_balanced_p_prediction_Unknown.csv")["1"]
+        RF_prob_known = RF_prob_known.to_numpy()
+        #RF_prob_known = RF_prob_known.drop(columns="0")
+        #NN_prob_known = NN1.predp
+
+        # Determining the best threshold
+        best_threshold = threshold_search(depend_test, RF_prob_known)
+        RF_pred_known = np.ones(len(RF_prob_known))
+        RF_pred_known[RF_prob_known <= best_threshold[0]] = 0
 
         # Step 2
         # Importing train data
@@ -104,8 +111,13 @@ for i in range(1, 4):
         #NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
         #print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
         #print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
-        RF_pred_onTime = RF2.predc
-        #NN_pred_onTime = NN2.prediction
+        RF_prob_onTime = RF2.predp
+        #NN_prob_onTime = NN2.predp
+
+        # Determining the best threshold
+        best_threshold = threshold_search(depend_test, RF_prob_onTime)
+        RF_pred_onTime = np.ones(len(RF_prob_onTime))
+        RF_pred_onTime[RF_prob_onTime <= best_threshold[0]] = 0
 
         # Combining the two predictions
         final_pred_RF = RF_pred_known

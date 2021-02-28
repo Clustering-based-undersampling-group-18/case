@@ -1,4 +1,6 @@
 import numpy as np
+from networkx.drawing.tests.test_pylab import plt
+from sklearn.model_selection import train_test_split
 
 
 def macro_weighted_f1(true, predict, classes):
@@ -37,3 +39,41 @@ def macro_weighted_f1(true, predict, classes):
         macro_f1 += np.divide(1, len(classes)) * f1_c
 
     return macro_f1
+
+
+def threshold_search(true, prob):
+    true = true.to_numpy()
+    prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
+
+    thresholds = np.linspace(0, 1, 101)
+    all_f1_train = np.zeros(len(thresholds))
+    all_f1_test = np.zeros(len(thresholds))
+    for j in range(len(thresholds)):
+        predictions_train = np.ones(len(prob_train))
+        predictions_test = np.ones(len(prob_test))
+
+        predictions_train[prob_train <= thresholds[j]] = 0
+        predictions_test[prob_test <= thresholds[j]] = 0
+
+        macro_f1_train = macro_weighted_f1(true_train, predictions_train, [0, 1])
+        macro_f1_test = macro_weighted_f1(true_test, predictions_test, [0, 1])
+
+        print(macro_f1_train)
+        print(macro_f1_test)
+        all_f1_train[j] = macro_f1_train
+        all_f1_test[j] = macro_f1_test
+
+    threshold = np.linspace(0.1, 1, 100)
+    best_threshold = threshold[np.where(max(all_f1_train) == all_f1_train)]
+    print("The best threshold is: %s" % best_threshold)
+
+    plt.plot(threshold, all_f1_train, 'b')
+    plt.axvline(x=0.5, linestyle='--', color='r')
+    plt.axvline(x=threshold[np.where(max(all_f1_train) == all_f1_train)], linestyle='--', color='g')
+    plt.axhline(y=all_f1_train[np.where(threshold == 0.5)], linestyle='--', color='r')
+    plt.axhline(y=max(all_f1_train), linestyle='--', color='g')
+    plt.xlabel("Threshold")
+    plt.ylabel("Macro F1")
+    plt.show()
+
+    return best_threshold

@@ -102,10 +102,10 @@ class RandomForest:
         # Obtaining the parameterset that maximizes the evaluation metric
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
-            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
@@ -128,4 +128,6 @@ class RandomForest:
             framec.to_csv("data/predictions/XGB_imbalanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/XGB_imbalanced_p_prediction_{0}.csv".format(criteria))
         if criteria != 'onTimeDelivery':
+            print(Y_test.dtype)
+            print(self.predc.dtype)
             self.score = macro_weighted_f1(Y_test, self.predc, [0, 1])
