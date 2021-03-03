@@ -55,19 +55,19 @@ class NNmodel:
                 if toImport.startswith('train'):
                     if toImport.startswith('train_x'):
                         temp = temp.iloc[:, 1:]
-                        files['train_x_fold_{0}'.format(i)] = temp
+                        files['train_x_fold_{0}'.format(i)] = temp.astype(np.float32)
                     else:
-                        files['train_y_fold_{0}'.format(i)] = temp
+                        files['train_y_fold_{0}'.format(i)] = temp.astype(np.float32)
                 else:
                     if toImport.endswith('onTimeDelivery'):
                         if toImport.__contains__('x'):
                             temp = temp.drop(columns={'Unnamed: 0.1', 'level_0'})
                             temp = temp.iloc[:, 1:]
-                            files['val_x_fold_{0}'.format(i)] = temp
+                            files['val_x_fold_{0}'.format(i)] = temp.astype(np.float32)
                         else:
                             temp = temp.drop(columns={'level_0', 'Unnamed: 0.1'})
                             temp = temp.iloc[:, 1:]
-                            files['val_y_fold_{0}'.format(i)] = temp[criteria]
+                            files['val_y_fold_{0}'.format(i)] = temp[criteria].astype(np.float32)
                             i = i + 1
                     elif toImport.__contains__('y'):
                         temp = temp.iloc[:, 1:]
@@ -79,19 +79,21 @@ class NNmodel:
                             temp = temp.astype('float32')
                         else:
                             temp = temp[criteria]
-                        files[toImport] = temp
+                        files[toImport] = temp.astype(np.float32)
                         i = i + 1
                     else:
                         temp = temp.iloc[:, 1:]
-                        files[toImport] = temp
+                        files[toImport] = temp.astype(np.float32)
 
-        #batch1 = int(len(files.get('train_x_fold_1')) / 100)
-        #batch2 = int(len(files.get('train_x_fold_1')) / 50)
-        #batch3 = int(len(files.get('train_x_fold_1')) / 10)
+            batch1 = int((len(X_train) * 0.8) / 100)
+            batch2 = int((len(X_train) * 0.8) / 50)
+            batch3 = int((len(X_train) * 0.8) / 10)
 
-        batch1 = int((len(X_train)*0.8) / 100)
-        batch2 = int((len(X_train)*0.8) / 50)
-        batch3 = int((len(X_train)*0.8) / 10)
+        else:
+            X_trainsub, X_val, Y_trainsub, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
+            batch1 = int(len(X_trainsub) / 100)
+            batch2 = int(len(X_trainsub) / 50)
+            batch3 = int(len(X_trainsub) / 10)
 
         # Hyperparameter space
         space = {'choice': hp.choice('num_layers',
@@ -136,8 +138,31 @@ class NNmodel:
 
         # Objective function for Bayesian optimization with imbalanced data
         def obj_func_imb(space):
+            NNmodel = tf.keras.models.Sequential()
+            NNmodel.add(tf.keras.layers.Dropout(space['dropout0']))
+            NNmodel.add(tf.keras.layers.Dense(space['units1'], activation='relu'))
+            NNmodel.add(tf.keras.layers.Dropout(space['dropout1']))
 
-            return {'loss': -auc, 'status': STATUS_OK}
+            if space['choice']['layers'] == 'two':
+                NNmodel.add(tf.keras.layers.Dense(space['choice']['units2'], activation='relu'))
+                NNmodel.add(tf.keras.layers.Dropout(space['choice']['dropout2']))
+
+            NNmodel.add(tf.keras.layers.Dense(1, activation='sigmoid'))
+
+            sgd = tf.keras.optimizers.SGD(lr=space['learning_rate'], momentum=space['momentum'])
+            NNmodel.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
+            self.history = NNmodel.fit(X_trainsub, Y_trainsub,
+                                       validation_data=(X_val, Y_val),
+                                       epochs=space['nb_epochs'],
+                                       batch_size=space['batch_size'],
+                                       verbose=0)
+
+            loss, accuracy = NNmodel.evaluate(X_val, Y_val, verbose=0)
+            predict = NNmodel.predict_proba(X_val, verbose=0)
+            roc_auc = roc_auc_score(Y_val, predict)
+            print('AUC:', roc_auc)
+            sys.stdout.flush()
+            return {'loss': -roc_auc, 'status': STATUS_OK}
 
         # Objective function for Bayesian optimization with balanced data
         def obj_func_bal(space):
@@ -162,7 +187,7 @@ class NNmodel:
             self.best = fmin(obj_func_bal, space, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
         else:
-            self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=1, trials=trials,
+            self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=5, trials=trials,
                              rstate=np.random.RandomState(1))
         print('best: ', self.best)
 
@@ -185,14 +210,11 @@ class NNmodel:
         sgd = tf.keras.optimizers.SGD(lr=self.best['learning_rate'], momentum=self.best['momentum'])
         NNmodel.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
         if self.best['batch_size'] == 0:
-            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
-                                       batch_size=batch1, verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train, epochs=100, batch_size=batch1, verbose=0)
         elif self.best['batch_size'] == 1:
-            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
-                                       batch_size=batch2, verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train,  epochs=100, batch_size=batch2, verbose=0)
         else:
-            self.history = NNmodel.fit(X_train, Y_train, validation_data=(X_test, Y_test), epochs=100,
-                                       batch_size=batch3, verbose=0)
+            self.history = NNmodel.fit(X_train, Y_train, epochs=100, batch_size=batch3, verbose=0)
 
         # Predicting the dependent variable with the test set
         self.predc = NNmodel.predict_classes(X_test, verbose=0)
