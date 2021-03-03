@@ -7,6 +7,7 @@ Created on Wed Jan 27 14:57:24 2021
 
 import tensorflow as tf
 from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 from MacroF1 import macro_weighted_f1
@@ -85,15 +86,13 @@ class NNmodel:
                         temp = temp.iloc[:, 1:]
                         files[toImport] = temp.astype(np.float32)
 
-            batch1 = int((len(X_train) * 0.8) / 100)
-            batch2 = int((len(X_train) * 0.8) / 50)
-            batch3 = int((len(X_train) * 0.8) / 10)
-
         else:
+
             X_trainsub, X_val, Y_trainsub, Y_val = train_test_split(X_train, Y_train, test_size=0.2, random_state=1234)
-            batch1 = int(len(X_trainsub) / 100)
-            batch2 = int(len(X_trainsub) / 50)
-            batch3 = int(len(X_trainsub) / 10)
+
+        batch1 = int((len(X_train) * 0.8) / 100)
+        batch2 = int((len(X_train) * 0.8) / 50)
+        batch3 = int((len(X_train) * 0.8) / 10)
 
         # Hyperparameter space
         space = {'choice': hp.choice('num_layers',
@@ -187,7 +186,7 @@ class NNmodel:
             self.best = fmin(obj_func_bal, space, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
         else:
-            self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=5, trials=trials,
+            self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
         print('best: ', self.best)
 

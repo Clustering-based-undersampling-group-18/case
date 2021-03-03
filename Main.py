@@ -5,16 +5,15 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = False
-XGBoost = True
-balanced = True
+NeuralNetwork = True
+XGBoost = False
+balanced = False
 
 # Importing train data
 if not balanced:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
     X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
     X_train = X_train.iloc[:, 1:]
-    X_train_stand = standardize_data(X_train)
     Y_train = pd.read_csv("data/train_test_frames/final_train_y.csv")
     Y_train = Y_train.drop(columns={'Unnamed: 0'})
     Y_train = Y_train.iloc[:, 1:]
@@ -26,7 +25,7 @@ else:
 # Importing test data
 X_test = pd.read_csv("data/train_test_frames/final_test_x.csv")
 X_test = X_test.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
-X_test_stand = standardize_data(X_test)
+X_test_stand = standardize_data(X_test).astype(np.float32)
 Y_test = pd.read_csv("data/train_test_frames/final_test_y.csv")
 Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
@@ -57,7 +56,6 @@ for i in range(0, 4):
             depend_train = depend_train.replace({'0.0': 1})
             depend_train = depend_train.replace({'1.0': 1})
             depend_train = depend_train.replace({'Unknown': 0})
-        X_train_stand = standardize_data(X_train)
         depend_train = depend_train.astype(np.float32)
 
         # Preparing test data
@@ -79,6 +77,7 @@ for i in range(0, 4):
             XGB_pred_known[XGB_prob_known <= best_threshold] = 0
 
         if NeuralNetwork:
+            X_train_stand = standardize_data(X_train).astype(np.float32)
             NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
             print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
             print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
@@ -102,7 +101,6 @@ for i in range(0, 4):
             X_train_onTime = X_train_onTime.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
             X_train_onTime = X_train_onTime.iloc[:, 1:]
             depend_train = pd.read_csv("data/train_test_frames/final_train_y_onTimeDelivery.csv")[criteria]
-        X_train_stand = standardize_data(X_train)
         depend_train = depend_train.astype(np.float32)
 
         if XGBoost:
@@ -139,8 +137,10 @@ for i in range(0, 4):
             depend_test = Y_test[criteria]
             depend_test = depend_test[NN_pred_known == 1]
             X_test_stand_NN = X_test_stand[NN_pred_known == 1]
+            X_test_stand_NN = X_test_stand_NN.astype(np.float32)
 
             # Predicting whether on time or not
+            X_train_stand = standardize_data(X_train).astype(np.float32)
             NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
             print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
             print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
@@ -157,11 +157,11 @@ for i in range(0, 4):
             final_pred_NN = NN_pred_known
             final_pred_NN = final_pred_NN.astype(object)
             final_pred_NN[NN_pred_known == 0] = 'Unknown'
-            k = 0
+            m = 0
             for j in range(0, len(final_pred_NN)):
                 if final_pred_NN[j] == 1:
-                    final_pred_NN[j] = NN_pred_onTime[k]
-                    k = k + 1
+                    final_pred_NN[j] = NN_pred_onTime[m]
+                    m = m + 1
 
         # Computing results & saving them
         depend_test = Y_test[criteria]
@@ -196,7 +196,6 @@ for i in range(0, 4):
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
             depend_train = Y_train[criteria]
-        X_train_stand = standardize_data(X_train)
         depend_train = depend_train.astype(np.float32)
         depend_test = depend_test.astype(np.float32)
 
@@ -207,6 +206,7 @@ for i in range(0, 4):
             print("XGB macro weighted F1 score for {0}: ".format(criteria), XGB.score)
 
         if NeuralNetwork:
+            X_train_stand = standardize_data(X_train).astype(np.float32)
             NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced)
             print("NN best parameters for {0}: ".format(criteria), NN.best)
             print("NN macro weighted F1 score for {0}: ".format(criteria), NN.score)
