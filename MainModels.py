@@ -210,3 +210,15 @@ for i in range(0, 4):
             NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced)
             print("NN best parameters for {0}: ".format(criteria), NN.best)
             print("NN macro weighted F1 score for {0}: ".format(criteria), NN.score)
+
+
+# Classifying the orders based on their predictions
+if XGBoost:
+    "classification XGB"
+
+if NeuralNetwork:
+    "classification NN"
+
+
+
+
