@@ -5,8 +5,8 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = True
-XGBoost = False
+NeuralNetwork = False
+XGBoost = True
 balanced = True
 
 # Importing train data
