@@ -70,7 +70,7 @@ def threshold_search(true, prob):
 
     best_threshold = thresholds[np.where(max(all_f1_train) == all_f1_train)]
     best_threshold = best_threshold[0]
-    print("The best threshold is: %s" % best_threshold)
+    print("The best threshold for this prediction is: %s" % best_threshold)
 
     plt.plot(thresholds, all_f1_train, 'b')
     plt.axvline(x=0.5, linestyle='--', color='r')
@@ -79,5 +79,6 @@ def threshold_search(true, prob):
     plt.axhline(y=max(all_f1_train), linestyle='--', color='g')
     plt.xlabel("Threshold")
     plt.ylabel("Macro F1")
-    plt.savefig('demo.png', bbox_inches='tight')
+    plt.savefig('Threshold plot.png', bbox_inches='tight')
+
     return best_threshold
