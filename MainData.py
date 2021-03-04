@@ -1,7 +1,8 @@
 import numpy as np
 import pandas as pd
+import DataImbalance
 
-# load in data
+# Import the data
 missing_value_formats = ["n.a.", "?", "NA", "n/a", "na", "--", "NaN", " ", ""]
 frame_2019 = pd.read_csv("data/data_2019.csv", na_values=missing_value_formats,
                          dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
@@ -86,3 +87,7 @@ frame = month_of_year(frame)
 
 # Saving the transformed frame
 frame.to_csv('frame.csv')
+
+# Create all the folds and make balanced subsets balanced where needed
+# WARNING: takes a lot of time
+DataImbalance.run()
