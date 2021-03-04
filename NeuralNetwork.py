@@ -175,7 +175,6 @@ class NNmodel:
             auc += train_model(space, files.get('train_x_fold_5'), files.get('train_y_fold_5'),
                                files.get('val_x_fold_5'), files.get('val_y_fold_5'))
             auc = auc/5
-            print('AUC:', auc)
             sys.stdout.flush()
             return {'loss': -auc, 'status': STATUS_OK}
 
@@ -187,7 +186,6 @@ class NNmodel:
         else:
             self.best = fmin(obj_func_imb, space, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
-        print('best: ', self.best)
 
         batch1 = int(len(X_train) / 100)
         batch2 = int(len(X_train) / 50)
@@ -215,10 +213,10 @@ class NNmodel:
             self.history = NNmodel.fit(X_train, Y_train, epochs=100, batch_size=batch3, verbose=0)
 
         # Predicting the dependent variable with the test set
-        self.predc = NNmodel.predict_classes(X_test, verbose=0)
         self.predp = NNmodel.predict(X_test, verbose=0)
-        framec = pd.DataFrame(self.predc)
+        self.predc = (self.predp > 0.5).astype("int32")
         framep = pd.DataFrame(self.predp)
+        framec = pd.DataFrame(self.predc)
         if balanced:
             framec.to_csv("data/predictions/XGB_balanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/XGB_balanced_p_prediction_{0}.csv".format(criteria))

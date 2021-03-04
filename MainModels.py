@@ -7,8 +7,8 @@ import numpy as np
 # Algorithm settings
 NeuralNetwork = True
 XGBoost = False
-balanced = False
-threshold = True
+balanced = True
+threshold = False
 
 # Importing train data
 if not balanced:
