@@ -6,7 +6,7 @@ Created on Wed Jan 27 14:57:24 2021
 """
 
 import tensorflow as tf
-from sklearn.metrics import roc_auc_score, f1_score
+from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
@@ -159,7 +159,6 @@ class NNmodel:
             loss, accuracy = NNmodel.evaluate(X_val, Y_val, verbose=0)
             predict = NNmodel.predict_proba(X_val, verbose=0)
             roc_auc = roc_auc_score(Y_val, predict)
-            print('AUC:', roc_auc)
             sys.stdout.flush()
             return {'loss': -roc_auc, 'status': STATUS_OK}
 
@@ -217,7 +216,7 @@ class NNmodel:
 
         # Predicting the dependent variable with the test set
         self.predc = NNmodel.predict_classes(X_test, verbose=0)
-        self.predp = NNmodel.predict_proba(X_test, verbose=0)
+        self.predp = NNmodel.predict(X_test, verbose=0)
         framec = pd.DataFrame(self.predc)
         framep = pd.DataFrame(self.predp)
         if balanced:
