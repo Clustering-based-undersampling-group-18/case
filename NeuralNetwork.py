@@ -218,10 +218,10 @@ class NNmodel:
         framep = pd.DataFrame(self.predp)
         framec = pd.DataFrame(self.predc)
         if balanced:
-            framec.to_csv("data/predictions/XGB_balanced_c_prediction_{0}.csv".format(criteria))
-            framep.to_csv("data/predictions/XGB_balanced_p_prediction_{0}.csv".format(criteria))
+            framec.to_csv("data/predictions/NN_balanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/NN_balanced_p_prediction_{0}.csv".format(criteria))
         else:
-            framec.to_csv("data/predictions/XGB_imbalanced_c_prediction_{0}.csv".format(criteria))
-            framep.to_csv("data/predictions/XGB_imbalanced_p_prediction_{0}.csv".format(criteria))
+            framec.to_csv("data/predictions/NN_imbalanced_c_prediction_{0}.csv".format(criteria))
+            framep.to_csv("data/predictions/NN_imbalanced_p_prediction_{0}.csv".format(criteria))
         if criteria != 'onTimeDelivery':
             self.score = macro_weighted_f1(Y_test, self.predc, [0, 1])
