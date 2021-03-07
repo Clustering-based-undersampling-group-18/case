@@ -4,8 +4,9 @@ It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 
 from MacroF1 import macro_weighted_f1, threshold_search
-from NeuralNetwork import NNmodel, standardize_data
 from XGBoost import ExtremeGradientBoosting
+from DataImbalance import standardize_data
+from NeuralNetwork import NNmodel
 import pandas as pd
 import numpy as np
 
