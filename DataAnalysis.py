@@ -3,10 +3,7 @@ import pandas as pd
 import numpy as np
 from collections import Counter
 
-# frame_2019 = pd.read_csv("data/data_2019.csv")  # 1929679
-# frame_2020 = pd.read_csv("data/data_2020.csv")  # 2849787
-# frame = pd.concat([frame_2019, frame_2020], ignore_index=True)  # 4779466
-from scipy import stats
+from networkx.drawing.tests.test_pylab import plt
 
 frame = pd.read_csv("data/frame.csv",
                     dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
