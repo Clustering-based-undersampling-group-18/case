@@ -3,6 +3,35 @@ from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 
 
+def precision_and_recall_c(c, true, predict):
+    # correctly predicted
+    true_positives_c = 0
+    for i in range(0, len(true)):
+        if true[i] == c:
+            if predict[i] == c:
+                true_positives_c += 1
+
+    false_positives_c = 0
+    for i in range(0, len(true)):
+        if true[i] == c:
+            if predict[i] != c:
+                false_positives_c += 1
+    precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
+
+    false_negatives_c = 0
+    for i in range(0, len(true)):
+        if true[i] != c:
+            if predict[i] == c:
+                false_negatives_c += 1
+
+    if (true_positives_c + false_negatives_c) == 0:
+        recall_c = 0.0
+    else:
+        recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
+
+    return precision_c, recall_c
+
+
 def macro_weighted_f1(true, predict, classes):
     macro_f1 = 0
     precision = 0
