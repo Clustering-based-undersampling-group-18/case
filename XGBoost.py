@@ -13,7 +13,7 @@ import pandas as pd
 
 
 class ExtremeGradientBoosting:
-    def __init__(self, X_train, X_test, Y_train, Y_test, criteria, balanced):
+    def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced):
 
         if balanced:
             # Creating a list with all the file names that have to be imported
@@ -80,7 +80,7 @@ class ExtremeGradientBoosting:
         def obj_func_imb(params):
             clf = XGBClassifier(**params, use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
             kfold = KFold(n_splits=5, random_state=1234, shuffle=True)
-            auc = cross_val_score(clf, X_train, Y_train, cv=kfold, scoring='roc_auc').mean()
+            auc = cross_val_score(clf, x_train, y_train, cv=kfold, scoring='roc_auc').mean()
             return {'loss': -auc, 'status': STATUS_OK}
 
         # Objective function for Bayesian optimization with balanced data
@@ -103,7 +103,7 @@ class ExtremeGradientBoosting:
             auc += roc_auc_score(files.get('val_y_fold_5'), pred_y_fold_5)
             return {'loss': -auc/5, 'status': STATUS_OK}
 
-        # Obtaining the parameterset that maximizes the evaluation metric
+        # Obtaining the parameter set that maximizes the evaluation metric
         trials = Trials()
         if balanced:
             self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
@@ -118,11 +118,11 @@ class ExtremeGradientBoosting:
                                 subsample=best_param_values[5], max_depth=int(best_param_values[2]),
                                 colsample_bytree=best_param_values[0], min_child_weight=int(best_param_values[3]),
                                 use_label_encoder=False, objective="binary:logistic", eval_metric='logloss')
-        RF_best.fit(X_train, Y_train)
+        RF_best.fit(x_train, y_train)
 
         # Predicting the dependent variable with the test set
-        self.predc = RF_best.predict(X_test)
-        self.predp = RF_best.predict_proba(X_test)
+        self.predc = RF_best.predict(x_test)
+        self.predp = RF_best.predict_proba(x_test)
         framec = pd.DataFrame(self.predc)
         framep = pd.DataFrame(self.predp)
         if balanced:
@@ -132,4 +132,4 @@ class ExtremeGradientBoosting:
             framec.to_csv("data/predictions/XGB_imbalanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/XGB_imbalanced_p_prediction_{0}.csv".format(criteria))
         if criteria != 'onTimeDelivery':
-            self.score = macro_weighted_f1(Y_test, self.predc, [0, 1])
+            self.score = macro_weighted_f1(y_test, self.predc, [0, 1])
