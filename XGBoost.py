@@ -1,3 +1,7 @@
+"""
+This script contains the function for computing forecasts with an XGBoost model
+"""
+
 from sklearn.model_selection import KFold, cross_val_score
 from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials

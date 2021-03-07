@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import DataImbalance
 
-# Import the data
+# Importing the data
 missing_value_formats = ["n.a.", "?", "NA", "n/a", "na", "--", "NaN", " ", ""]
 frame_2019 = pd.read_csv("data/data_2019.csv", na_values=missing_value_formats,
                          dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
@@ -19,14 +19,14 @@ frame_2020 = pd.read_csv("data/data_2020.csv", na_values=missing_value_formats,
 frame = pd.concat([frame_2019, frame_2020], ignore_index=True)
 
 
-# This function creates a new column containing the day of the week orders were placed
+# Function that creates a new column containing the day of the week the orders were placed
 def day_of_the_week(f):
     f['orderDate'] = pd.to_datetime(f['orderDate'])
     f['day_of_week'] = f['orderDate'].dt.day_name()
     return f
 
 
-# This function creates a new column containing the month of the year the orders were placed
+# Function that creates a new column containing the month of the year the orders were placed
 def month_of_year(f):
     f['orderDate'] = pd.to_datetime(f['orderDate'])
     f['month_of_year'] = f['orderDate'].dt.month_name()
@@ -58,7 +58,7 @@ frame["startDateCase"] = days_difference(frame, "startDateCase", "orderDate")
 frame["returnDateTime"] = days_difference(frame, "returnDateTime", "orderDate")
 frame["registrationDateSeller"] = days_difference(frame, "orderDate", "registrationDateSeller")
 
-# Drop the orders that give NA values for these observations
+# Dropping the orders that give NA values for these observations
 frame = frame.dropna(subset=['registrationDateSeller'])
 frame = frame.dropna(subset=['promisedDeliveryDate'])
 
@@ -66,24 +66,24 @@ frame = frame.dropna(subset=['promisedDeliveryDate'])
 frame = frame.drop(frame[(frame.transporterCode == 'OTHER') & (pd.isna(frame.transporterNameOther))].index)
 frame = frame.drop(frame[(frame.transporterCode != 'OTHER') & (pd.notna(frame.transporterNameOther))].index)
 
-# Transforming missing values (NAs) into Unknown or drop them
-# Returns
+# Transforming missing values (NAs) into Unknown or drop the order for ...
+# ...Returns
 frame = frame.drop(frame[(frame.noReturn == False) & (pd.isna(frame.returnDateTime))].index)
 frame['quanityReturned'].fillna("Unknown", inplace=True) # when a product is not returned, this still gives unknown instead of NA ()
 frame['returnCode'].fillna("Unknown", inplace=True)
 
-# Delivery
+# ...Delivery
 frame = frame.drop(frame[(frame.onTimeDelivery == "True") & (pd.isna(frame.datetTimeFirstDeliveryMoment))].index)
 frame['onTimeDelivery'].fillna("Unknown", inplace=True)
 frame['datetTimeFirstDeliveryMoment'].fillna("Unknown", inplace=True)
 frame['transporterCode'].fillna("Unknown", inplace=True)
 frame['transporterName'].fillna("Unknown", inplace=True)
 
-# Cases
+# ...Customer Cases
 frame = frame.drop(frame[(frame.noCase == False) & (pd.isna(frame.startDateCase))].index)
 frame['cntDistinctCaseIds'].fillna("Unknown", inplace=True)
 
-# Cancellations
+# ...Cancellations
 frame = frame.drop(frame[(frame.noCancellation == False) & (pd.isna(frame.cancellationDate))].index)
 frame['cancellationReasonCode'].fillna("Unknown", inplace=True)
 
