@@ -12,11 +12,10 @@ from networkx.drawing.tests.test_pylab import plt
 
 frame = pd.read_csv("data/frame.csv",
                     dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
-                           'transporterNameOther': object,
-                           'cancellationReasonCode': object})  # 4778046  4778215 (-1420 compared to original data)
+                           'transporterNameOther': object, 'cancellationReasonCode': object})
 
 
-# Below function finds characteristics of each column in the given frame
+# Function that finds characteristics of each column in the given frame
 def find_range(f):
     for column in f.keys():
         col = f[column]
@@ -45,7 +44,7 @@ def find_range(f):
         print("\n")
 
 
-# Below function is the slow version of the find_range function
+# Function that is the slow version of the find_range function
 def check_unique_values(f):
     unique_to_dict = {}
     for column in f.keys():
@@ -70,15 +69,15 @@ def check_unique_values(f):
         time.sleep(20)
 
 
-# Below function counts the occurrences of all values in a given column
+# Function that counts the occurrences of all values in a given column
 def count_classes(column_name, f):
     col = f[column_name]
     return col.value_counts(ascending=True)
 
 
-# This function counts the classes belong to a certain column given that the order is returned, also ratio to no returns
+# Function that counts the classes belong to a certain column given that the order is returned, also ratio to no returns
 def most_returns(f, col_name):
-    # first find product group with most returns
+    # First find product group with most returns
     returns = f[[col_name, 'noReturn']]
     no_returns = returns[returns['noReturn'] == True]
     returns = returns[returns['noReturn'] == False]
@@ -88,10 +87,10 @@ def most_returns(f, col_name):
     return returns_sorted, relative
 
 
-# This function counts the classes belong to a certain column given that the order is cancelled, also ratio to no
-# cancels
+# Function that counts classes belonging to a certain column given that the order is cancelled,
+# also calculates ratio to no cancels
 def most_cancellation(f, col_name):
-    # first find product group with most cancellations
+    # First find product group with most cancellations
     cancelled = f[[col_name, 'noCancellation']]
     not_cancelled = cancelled[cancelled['noCancellation'] == True]
     cancelled = cancelled[cancelled['noCancellation'] == False]
@@ -101,7 +100,8 @@ def most_cancellation(f, col_name):
     return cancels_sorted, relative_cancels
 
 
-# This function counts the classes belong to a certain column given that the order has a case, also ratio to no cases
+# Function that counts classes belonging to a certain column given that the order has a case,
+# also calculates ratio to no cases
 def most_cases(f, col_name):
     # first find product group with most cases
     cases = f[[col_name, 'noCase']]
@@ -113,8 +113,8 @@ def most_cases(f, col_name):
     return cases_sorted, relative_cases
 
 
-# This function counts the classes belong to a certain column given that the order is not delivered on time,
-# also ratio to on time deliveries
+# Function that counts classes belonging to a certain column given that the order is not delivered on time,
+# also calculates ratio to no on time deliveries
 def least_on_time_delivery(f, col_name):
     # first find product group with least on time deliveries
     late = f[[col_name, 'onTimeDelivery']]
@@ -125,16 +125,6 @@ def least_on_time_delivery(f, col_name):
     on_time_sorted = count_classes(col_name, on_time)
     relative_late_deliveries = late_sorted.divide(on_time_sorted, fill_value=None).dropna().sort_values()
     return late_sorted, relative_late_deliveries
-
-
-# Below function contains code that might be useful in the future, but can be deleted if data analysis is complete
-def storage():
-    cancellation = frame[["currentCountryAvailabilitySeller", "sellerId"]]
-    cancellation = cancellation.loc[np.where(pd.isnull(cancellation))[0]]
-    print(cancellation)
-    date = cancellation['sellerId']
-    print(date.nunique())
-    print(date.unique())
 
 
 # column can choose from cancellationDate [11], datetTimeFirstDeliveryMoment
@@ -176,7 +166,7 @@ def groupby(frame, column1, column2):
     return counts
 
 
-def criteria_plots():
+def thijs_function():
     [columndates, orderdates] = column_and_order_dates(frame, "returnDateTime")
     [difference_dates, date_values] = days_difference(columndates, orderdates, 31)
 
@@ -213,7 +203,7 @@ def rest_code(frame):
     print("*" * 25)
 
 
-# This function calculates the class ratios
+# Function that calculates the class ratios
 def class_ratios(frame):
     total_orders = len(frame)
 

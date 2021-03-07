@@ -1,5 +1,5 @@
 """
-This script contains the functions for computing forecasts with a Neural Network model
+This script contains the function for computing forecasts with a Neural Network model
 """
 
 import tensorflow as tf
@@ -7,24 +7,11 @@ from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
+from DataImbalance import standardize_data
 from MacroF1 import macro_weighted_f1
 import numpy as np
 import pandas as pd
 import sys
-
-
-def standardize_data(X):
-    """ This function standardized/ normalizes the data, required for the KMeans algorithm"""
-    columns_to_standardize = ['totalPrice', 'quantityOrdered', 'promisedDeliveryDate', 'registrationDateSeller',
-                              'frequencySeller']
-
-    data_to_standardize = X[columns_to_standardize]
-
-    scaler = StandardScaler().fit(data_to_standardize)
-    standardized_data = X.copy()
-    standardized_columns = scaler.transform(data_to_standardize)
-    standardized_data[columns_to_standardize] = standardized_columns
-    return standardized_data
 
 
 class NNmodel:
