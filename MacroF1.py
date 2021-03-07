@@ -8,6 +8,7 @@ from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 
 
+# Function to compute the macro_weighted F1 score of a prediction
 def macro_weighted_f1(true, predict, classes):
     macro_f1 = 0
     precision = 0
@@ -53,6 +54,7 @@ def macro_weighted_f1(true, predict, classes):
     return macro_f1
 
 
+# Function that optimizes the prediction threshold
 def threshold_search(true, prob):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
@@ -89,6 +91,7 @@ def threshold_search(true, prob):
     return best_threshold
 
 
+# Function to compute the precision and recall of a class in a prediction
 def precision_and_recall_c(c, true, predict):
     # correctly predicted
     true_positives_c = 0
