@@ -1,3 +1,8 @@
+"""
+This script contains functions that can be used to analyze the dataset
+(These are not used in a main file)
+"""
+
 import time
 import pandas as pd
 import numpy as np
@@ -166,12 +171,12 @@ def correlations_categorical(data):
     return correlation
 
 
-def groupby(data, column1, column2):
+def groupby(frame, column1, column2):
     counts = frame.groupby([column1, column2]).size()
     return counts
 
 
-def thijs_functie():
+def criteria_plots():
     [columndates, orderdates] = column_and_order_dates(frame, "returnDateTime")
     [difference_dates, date_values] = days_difference(columndates, orderdates, 31)
 
@@ -209,19 +214,19 @@ def rest_code(frame):
 
 
 # This function calculates the class ratios
-def class_ratios(f):
-    total_orders = len(f)
+def class_ratios(frame):
+    total_orders = len(frame)
 
-    return_amount = len(f[f["noReturn"] == False])
+    return_amount = len(frame[frame["noReturn"] == False])
     return_ratio = np.divide(total_orders, return_amount)
 
-    cancellation_amount = len(f[f["noCancellation"] == False])
+    cancellation_amount = len(frame[frame["noCancellation"] == False])
     cancellation_ratio = np.divide(total_orders, cancellation_amount)
 
-    late_delivery_amount = len(f[f["onTimeDelivery"] == "false"])
+    late_delivery_amount = len(frame[frame["onTimeDelivery"] == "false"])
     late_delivery_ratio = np.divide(total_orders, late_delivery_amount)
 
-    case_amount = len(f[f["noCase"] == False])
+    case_amount = len(frame[frame["noCase"] == False])
     case_ratio = np.divide(total_orders, case_amount)
 
     return return_ratio, cancellation_ratio, late_delivery_ratio, case_ratio

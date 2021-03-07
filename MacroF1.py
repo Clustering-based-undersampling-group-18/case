@@ -1,3 +1,8 @@
+"""
+This script contains functions to calculate prediction metrics and optimize the threshold
+These functions are used in MainModels.py
+"""
+
 import numpy as np
 from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split

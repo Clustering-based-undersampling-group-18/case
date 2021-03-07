@@ -1,8 +1,5 @@
-# -*- coding: utf-8 -*-
 """
-Created on Wed Jan 27 14:57:24 2021
-
-@author: thijs
+This script contains the functions for computing forecasts with a Neural Network model
 """
 
 import tensorflow as tf

@@ -1,4 +1,8 @@
-# load modules and packages
+"""
+This script contains functions to make the data balanced
+These functions are used in MainData.py
+"""
+
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold, train_test_split
@@ -34,17 +38,18 @@ def load_data():
     Y = Y.replace(to_replace=False, value=np.float(0))
     Y = Y.replace(to_replace="true", value=np.float(1))
     Y_frame = Y.replace(to_replace="false", value=np.float(0))
+
     return X_frame, Y_frame
 
 
-def five_fold_cv(X):
+def five_fold_cv(x):
     """ This function splits the input data in 5 training sets with corresponding validation sets """
     np.random.seed(1234)
     kf = KFold(n_splits=5, shuffle=True)
 
     train_indices = []
     val_indices = []
-    for train_index, val_index in kf.split(X):
+    for train_index, val_index in kf.split(x):
         train_indices.append(train_index)
         val_indices.append(val_index)
 
@@ -86,7 +91,7 @@ def standardize_data(X_train):
 
 def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal_data_x):
     """ This function performs KMeans algorithm and updates the training set according to the two strategies"""
-    # step 5.1: count the occurrences where column condition is not met  (e.g. number of returns)
+    # Step 5.1: count the occurrences where column condition is not met  (e.g. number of returns)
     criteria_data = data_y[[column_name]]
     minority_class = criteria_data[criteria_data[column_name] == np.float(0)]
     majority_class = criteria_data[criteria_data[column_name] == np.float(1)]
@@ -96,7 +101,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     print("Size of majority class:", len(majority_rows))
     print("Size of minority class:", len(minority_rows))
 
-    # step 5.2: perform kmeans clustering
+    # Step 5.2: perform k-means clustering
     N = len(minority_class)  # = number of minority class variables
     if N == 0:
         logging.warning("There are no observations in the minority class!")
@@ -113,12 +118,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     majority_data['cluster'] = kmeans.predict(majority_data_stdz)
     print("Seconds passed when prediction completed:", time.perf_counter())
 
-    # step 5.2.2: print some count information about the clusters
-    # summary = majority_data.groupby(['cluster']).mean()
-    # summary['count'] = majority_data['cluster'].value_counts()
-    # summary = summary.sort_values(by='count', ascending=False)
-
-    # step 5.3: find the new values
+    # Step 5.3: find the new values
     M = len(majority_rows)
     minority_data = normal_data_x.loc[minority_rows, :]
     new_X = minority_data
@@ -137,11 +137,11 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     return new_X, new_Y
 
 
+# Creating all balanced sets of data
 def run():
     # Step 1: load and prep the data
     X_frame, Y_frame = load_data()
-    X_train, X_test, Y_train, Y_test = train_test_split(X_frame, Y_frame, test_size=0.3, random_state=1234,
-                                                        shuffle=True)
+    X_train, X_test, Y_train, Y_test = train_test_split(X_frame, Y_frame, test_size=0.3, random_state=1234, shuffle=True)
 
     # Step 2: compute frequency seller and add to frame, note test is not included in calculation:
     X_train, X_test = frequency_seller(X_train, X_test)
@@ -151,7 +151,7 @@ def run():
     X_known = X_frame[Y_known != 'Unknown']
     Y_known = Y_frame[Y_known != 'Unknown']
 
-    # * write final train and test set to csv
+    # Save final train and test set to csv
     X_frame.to_csv("data/train_test_frames/final_train_x.csv")
     Y_frame.to_csv("data/train_test_frames/final_train_y.csv")
 
@@ -207,6 +207,7 @@ def run():
         if i == 0:
             stand_data_X_val = standardize_data(X_val)
             for criteria in ["Unknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
+
                 if criteria == "Unknown":
                     train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
                     train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))
@@ -223,20 +224,14 @@ def run():
 
                     new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, "onTimeDelivery", X_val)
 
-                    new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
-                    new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
-
+                    # Combining the balanced validation of the fold with the balanced training fold
                     train_x_1 = train_x.append(new_val_x, ignore_index=True)
                     train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
                     train_y_1 = train_y["0"].append(new_val_y, ignore_index=True)
                     train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
-                    return
-
-                if criteria == "onTimeDelivery":
-                    # on time delivery prediction consists of two parts unknown/known and known-> true/false
-                    # now combine the balanced validation of the fold with the balanced training fold
+                elif criteria == "onTimeDelivery":
                     train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
                     train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))
                     train_y = train_y[train_y["0"] != "Unknown"]
@@ -245,33 +240,25 @@ def run():
 
                     new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, criteria, X_val)
 
-                    new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
-                    new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
-
+                    # Combining the balanced validation of the fold with the balanced training fold
                     train_x_1 = known_x.append(new_val_x, ignore_index=True)
                     train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
                     train_y_1 = train_y["0"].append(new_val_y, ignore_index=True)
                     train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
-                    continue
+                else:
 
-                new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, criteria, X_val)
+                    new_val_x, new_val_y = k_means_plus_two_strategies(stand_data_X_val, Y_val, criteria, X_val)
 
-                new_val_x.to_csv("data/train_test_frames/balanced_val_x_fold_1_{0}.csv".format(criteria))
-                new_val_y.to_csv("data/train_test_frames/balanced_val_y_fold_1_{0}.csv".format(criteria))
+                    # Combining the balanced validation set of the fold with the balanced training fold
+                    train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
+                    train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))["0"]
 
-                # now combine the balanced test(=validation) of the fold with the balanced training fold
-                train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
-                train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))["0"]
+                    train_x_1 = train_x.append(new_val_x, ignore_index=True)
+                    train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
 
-                train_x_1 = train_x.append(new_val_x, ignore_index=True)
-                train_x_1.to_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
+                    train_y_1 = train_y.append(new_val_y, ignore_index=True)
+                    train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
 
-                train_y_1 = train_y.append(new_val_y, ignore_index=True)
-                train_y_1.to_csv("data/train_test_frames/balanced_train_y_{0}.csv".format(criteria))
-
-            return
-
-
-run()
+    return

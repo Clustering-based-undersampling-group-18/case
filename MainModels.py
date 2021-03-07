@@ -1,3 +1,8 @@
+"""
+This script can be run to generate forecasts for the four criteria
+It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
+"""
+
 from MacroF1 import macro_weighted_f1, threshold_search
 from NeuralNetwork import NNmodel, standardize_data
 from XGBoost import ExtremeGradientBoosting
@@ -88,13 +93,13 @@ for i in range(1, 4):
 
             # Determining the best threshold
             if threshold:
-                print(NN1.predp)
-                NN_prob_known = NN1.predp["1"]
+                NN_prob_known = NN1.predp
                 best_threshold = threshold_search(depend_test, NN_prob_known)
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
             else:
-                NN_pred_known = NN1.predc
+                print(NN1.predc)
+                NN_pred_known = NN1.predc[:, 1]
 
         # Step 2
         # Importing train data
@@ -179,7 +184,7 @@ for i in range(1, 4):
                 NN_pred_onTime = np.ones(len(NN_prob_onTime))
                 NN_pred_onTime[NN_prob_onTime <= best_threshold] = 0
             else:
-                NN_pred_onTime = NN2.predc
+                NN_pred_onTime = NN2.predc[:, 1]
 
             # Combining the two predictions
             final_pred_NN = NN_pred_known
