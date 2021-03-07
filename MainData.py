@@ -89,5 +89,5 @@ frame = month_of_year(frame)
 frame.to_csv('frame.csv')
 
 # Create all the folds and make balanced subsets balanced where needed
-# WARNING: takes a lot of time
+# WARNING: takes a lot of time !
 DataImbalance.run()

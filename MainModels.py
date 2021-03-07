@@ -32,7 +32,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(1, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
@@ -88,7 +88,8 @@ for i in range(0, 4):
 
             # Determining the best threshold
             if threshold:
-                NN_prob_known = NN1.predp
+                print(NN1.predp)
+                NN_prob_known = NN1.predp["1"]
                 best_threshold = threshold_search(depend_test, NN_prob_known)
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
