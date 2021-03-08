@@ -99,8 +99,9 @@ for i in range(1, 4):
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
             else:
-                print(NN1.predc)
-                NN_pred_known = NN1.predc[:, 1]
+                NN_pred_known = NN1.predc
+                NN_pred_known = NN_pred_known.T
+                print(NN_pred_known)
 
         # Step 2
         # Importing train data
@@ -185,7 +186,9 @@ for i in range(1, 4):
                 NN_pred_onTime = np.ones(len(NN_prob_onTime))
                 NN_pred_onTime[NN_prob_onTime <= best_threshold] = 0
             else:
-                NN_pred_onTime = NN2.predc[:, 1]
+                NN_pred_onTime = NN2.predc
+                NN_pred_onTime = NN_pred_onTime.T
+                print(NN_pred_onTime)
 
             # Combining the two predictions
             final_pred_NN = NN_pred_known
