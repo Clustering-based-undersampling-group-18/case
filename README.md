@@ -4,6 +4,6 @@ This repository consists of several .py files:
 1. 
 
 -------
-> uitleg over elk .py bestand en gitignore
+> uitleg over elk .py bestand en gitignore +
 > bestandsnamen moeten eruit
 >
