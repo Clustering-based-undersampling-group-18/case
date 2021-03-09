@@ -1,4 +1,4 @@
-**This repository contains all of the code that we used for our Seminar Case Study 2020/2021. **
+**This repository contains all of the code that we used for our Seminar Case Study 2020/2021.**
 
 This repository consists of several .py files:
 * DataAnalysis.py: This script contains several functions that can tell us more about the data we are provided with (e.g. value ranges)
