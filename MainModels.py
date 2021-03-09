@@ -94,6 +94,7 @@ for i in range(1, 4):
 
             # Determining the best threshold
             if threshold:
+                print(NN1.predp)
                 NN_prob_known = NN1.predp
                 best_threshold = threshold_search(depend_test, NN_prob_known)
                 NN_pred_known = np.ones(len(NN_prob_known))
@@ -101,7 +102,7 @@ for i in range(1, 4):
             else:
                 NN_pred_known = NN1.predc
                 NN_pred_known = NN_pred_known.T
-                print(NN_pred_known)
+                NN_pred_known = NN_pred_known[0]
 
         # Step 2
         # Importing train data
@@ -125,7 +126,7 @@ for i in range(1, 4):
             X_test_XGB = X_test[XGB_pred_known == 1]
 
             # Predicting whether on time or not
-            XGB2 = ExtremeGradientBoosting(X_train, X_test_XGB, depend_train, depend_test, criteria, balanced)
+            XGB2 = ExtremeGradientBoosting(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced)
             print("XGB best parameters for predicting onTimeDelivery when predicted known:", XGB2.best_param)
             print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", XGB2.score)
 
@@ -172,7 +173,7 @@ for i in range(1, 4):
             X_test_stand_NN = X_test_stand_NN.astype(np.float32)
 
             # Predicting whether on time or not
-            X_train_stand = standardize_data(X_train).astype(np.float32)
+            X_train_stand = standardize_data(X_train_onTime).astype(np.float32)
             NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
             print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
             print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
@@ -188,6 +189,7 @@ for i in range(1, 4):
             else:
                 NN_pred_onTime = NN2.predc
                 NN_pred_onTime = NN_pred_onTime.T
+                NN_pred_onTime = NN_pred_onTime[0]
                 print(NN_pred_onTime)
 
             # Combining the two predictions
