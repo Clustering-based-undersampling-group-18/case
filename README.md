@@ -12,5 +12,5 @@ This repository consists of several .py files:
 
 *As we are not allowed to share any of the data we work with, we use a gitignore file to prevent all local csv files from being pushed into this public repository.* 
 
-*Authors: Lucas van den Adel, Anne Jasmijn Langerak, Thijs Schrijvers, Tim van den Toorn
+*Authors: Lucas van den Adel, Anne Jasmijn Langerak, Thijs Schrijvers, Tim van den Toorn*
 
