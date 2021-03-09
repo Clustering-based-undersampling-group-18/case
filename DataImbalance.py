@@ -2,7 +2,7 @@
 This script contains functions to make the data balanced
 These functions are used in MainData.py
 """
-
+# Packages and modules
 import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold, train_test_split
@@ -13,8 +13,8 @@ import logging
 import time
 
 
+# This function loads and prepares the data
 def load_data():
-    """ This function loads and prepares the data """
     frame = pd.read_csv("data/frame.csv",
                         dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
                                'transporterNameOther': object,
@@ -42,8 +42,8 @@ def load_data():
     return X_frame, Y_frame
 
 
+# This function splits the input data in 5 training sets with corresponding validation sets
 def five_fold_cv(x):
-    """ This function splits the input data in 5 training sets with corresponding validation sets """
     np.random.seed(1234)
     kf = KFold(n_splits=5, shuffle=True)
 
@@ -63,8 +63,8 @@ def five_fold_cv(x):
     return train_indices, val_indices
 
 
+# This function adds a new column containing the total amount of orders a seller receives
 def frequency_seller(train_data, test_data):
-    """ This function adds a new column containing the total amount of orders a seller receives"""
     # compute frequency for training, add those number to test set (if seller not known in train then add 0 for test)
     temp_count_dict = pd.Series.to_dict(train_data.groupby('sellerId')['orderDate'].nunique())
     train_data.insert(loc=len(train_data.columns), column="frequencySeller",
@@ -75,8 +75,8 @@ def frequency_seller(train_data, test_data):
     return train_data, test_data
 
 
+# This function standardized/ normalizes the data, required for the KMeans algorithm
 def standardize_data(X_train):
-    """ This function standardized/ normalizes the data, required for the KMeans algorithm"""
     columns_to_standardize = ['totalPrice', 'quantityOrdered', 'promisedDeliveryDate', 'registrationDateSeller',
                               'frequencySeller']
 
@@ -89,8 +89,8 @@ def standardize_data(X_train):
     return standardized_data
 
 
+# This function performs KMeans algorithm and updates the training set according to the two strategies
 def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal_data_x):
-    """ This function performs KMeans algorithm and updates the training set according to the two strategies"""
     # Step 5.1: count the occurrences where column condition is not met  (e.g. number of returns)
     criteria_data = data_y[[column_name]]
     minority_class = criteria_data[criteria_data[column_name] == np.float(0)]
@@ -137,7 +137,7 @@ def k_means_plus_two_strategies(standardized_data_x, data_y, column_name, normal
     return new_X, new_Y
 
 
-# Creating all balanced sets of data
+# This function is the main function in this .py file, it calls all other functions
 def run():
     # Step 1: load and prep the data
     X_frame, Y_frame = load_data()
