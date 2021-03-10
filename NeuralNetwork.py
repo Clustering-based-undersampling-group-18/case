@@ -71,9 +71,9 @@ class NNmodel:
         else:
             x_train2, x_val, y_train2, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1234)
 
-        batch1 = int((len(x_train) * 0.8) / 100)
-        batch2 = int((len(x_train) * 0.8) / 50)
-        batch3 = int((len(x_train) * 0.8) / 10)
+        batch1 = 128
+        batch2 = 256
+        batch3 = 512
 
         # Hyperparameter space
         hyperparams = {'choice': hp.choice('num_layers',
@@ -87,7 +87,7 @@ class NNmodel:
                        'dropout0': hp.uniform('dropout0', 0, .5),
                        'dropout1': hp.uniform('dropout1', 0, .5),
                        'batch_size': hp.choice('batch_size', [batch1, batch2, batch3]),
-                       'nb_epochs': 100,
+                       'nb_epochs': 10,
                        'learning_rate': hp.loguniform('learning_rate', np.log(0.01), np.log(1)),
                        'momentum': hp.loguniform('momentum', np.log(0.01), np.log(1))
                        }
@@ -161,10 +161,6 @@ class NNmodel:
             self.best = fmin(obj_func_imb, hyperparams, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
 
-        batch1 = int(len(x_train) / 100)
-        batch2 = int(len(x_train) / 50)
-        batch3 = int(len(x_train) / 10)
-
         # Training the model with the best parameter values
         nn = tf.keras.models.Sequential()
         nn.add(tf.keras.layers.Dropout(self.best['dropout0']))
@@ -180,11 +176,11 @@ class NNmodel:
         sgd = tf.keras.optimizers.SGD(lr=self.best['learning_rate'], momentum=self.best['momentum'])
         nn.compile(optimizer=sgd, loss='binary_crossentropy', metrics=["accuracy"])
         if self.best['batch_size'] == 0:
-            self.history = nn.fit(x_train, y_train, epochs=100, batch_size=batch1, verbose=0)
+            self.history = nn.fit(x_train, y_train, epochs=10, batch_size=batch1, verbose=0)
         elif self.best['batch_size'] == 1:
-            self.history = nn.fit(x_train, y_train,  epochs=100, batch_size=batch2, verbose=0)
+            self.history = nn.fit(x_train, y_train,  epochs=10, batch_size=batch2, verbose=0)
         else:
-            self.history = nn.fit(x_train, y_train, epochs=100, batch_size=batch3, verbose=0)
+            self.history = nn.fit(x_train, y_train, epochs=10, batch_size=batch3, verbose=0)
 
         # Predicting the dependent variable with the test set
         self.predp = nn.predict(x_test, verbose=0)
