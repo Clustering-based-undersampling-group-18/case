@@ -114,7 +114,7 @@ def threshold_search(true, prob, criteria):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
-    thresholds = np.linspace(0,1,101)
+    thresholds = np.linspace(0, 1, 101)
     all_f1_train = np.zeros(len(thresholds))
     for j in range(len(thresholds)):
         predictions_train = np.ones(len(prob_train))
@@ -127,7 +127,6 @@ def threshold_search(true, prob, criteria):
     best_threshold = best_threshold[0]
     predictions_test = np.ones(len(prob_test))
     predictions_test[prob_test < best_threshold] = 0
-    macro_f1 = macro_weighted_f1_print(true_test, predictions_test, [0, 1])
     print("The best threshold for this prediction is: %s" % best_threshold)
 
     plt.plot(thresholds, all_f1_train, 'b')
@@ -140,33 +139,3 @@ def threshold_search(true, prob, criteria):
     plt.savefig('{0} threshold plot.png'.format(criteria), bbox_inches='tight')
 
     return best_threshold
-
-
-# Function to compute the precision and recall of a class in a prediction
-def precision_and_recall_c(c, true, predict):
-    # correctly predicted
-    true_positives_c = 0
-    for i in range(0, len(true)):
-        if true[i] == c:
-            if predict[i] == c:
-                true_positives_c += 1
-
-    false_positives_c = 0
-    for i in range(0, len(true)):
-        if true[i] == c:
-            if predict[i] != c:
-                false_positives_c += 1
-    precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
-
-    false_negatives_c = 0
-    for i in range(0, len(true)):
-        if true[i] != c:
-            if predict[i] == c:
-                false_negatives_c += 1
-
-    if (true_positives_c + false_negatives_c) == 0:
-        recall_c = 0.0
-    else:
-        recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
-
-    return precision_c, recall_c

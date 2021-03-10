@@ -3,10 +3,8 @@ This script contains functions that can be used to analyze the data set
 (These are not used in a main file)
 """
 # Packages and modules
-import time
 import pandas as pd
 import numpy as np
-from collections import Counter
 
 from networkx.drawing.tests.test_pylab import plt
 

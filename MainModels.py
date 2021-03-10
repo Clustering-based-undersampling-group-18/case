@@ -3,7 +3,7 @@ This script can be run to generate forecasts for the four criteria
 It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 
-from MacroF1 import macro_weighted_f1, macro_weighted_f1_print, threshold_search
+from MacroF1 import macro_weighted_f1_print, threshold_search
 from XGBoost import ExtremeGradientBoosting
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
