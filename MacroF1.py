@@ -114,21 +114,14 @@ def threshold_search(true, prob, criteria):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
-    thresholds = np.linspace(0.1, 0.9, 99)
+    thresholds = np.linspace(0,1,101)
     all_f1_train = np.zeros(len(thresholds))
-    all_f1_test = np.zeros(len(thresholds))
     for j in range(len(thresholds)):
         predictions_train = np.ones(len(prob_train))
-        predictions_test = np.ones(len(prob_test))
-
         predictions_train[prob_train < thresholds[j]] = 0
-        predictions_test[prob_test < thresholds[j]] = 0
 
         macro_f1_train = macro_weighted_f1(true_train, predictions_train, [0, 1])
-        macro_f1_test = macro_weighted_f1(true_test, predictions_test, [0, 1])
-
         all_f1_train[j] = macro_f1_train
-        all_f1_test[j] = macro_f1_test
 
     best_threshold = thresholds[np.where(max(all_f1_train) == all_f1_train)]
     best_threshold = best_threshold[0]
