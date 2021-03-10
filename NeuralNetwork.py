@@ -68,9 +68,6 @@ class NNmodel:
                         temp = temp.iloc[:, 1:]
                         files[toImport] = temp.astype(np.float32)
 
-        #else:
-            #x_train2, x_val, y_train2, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1234)
-
         batch1 = 128
         batch2 = 256
         batch3 = 512
@@ -92,6 +89,7 @@ class NNmodel:
                        'momentum': hp.loguniform('momentum', np.log(0.01), np.log(1))
                        }
 
+        # Function that trains a Neural Network model with the given input data
         def train_model(space, xt, yt, xv, yv):
             model = tf.keras.models.Sequential()
             model.add(tf.keras.layers.Dropout(space['dropout0']))
@@ -110,6 +108,7 @@ class NNmodel:
 
             predict = model.predict(xv, verbose=0)
             predict = (predict > 0.5).astype("int32")
+
             return roc_auc_score(yv, predict)
 
         """# Objective function for Bayesian optimization with imbalanced data
@@ -144,6 +143,7 @@ class NNmodel:
                 x_train_fold, x_val_fold = x_train.iloc[train_index, :], x_train.iloc[test_index, :]
                 y_train_fold, y_val_fold = y_train[train_index], y_train[test_index]
                 auc += train_model(params, x_train_fold, y_train_fold, x_val_fold, y_val_fold)
+            auc = auc/5
             return {'loss': -auc, 'status': STATUS_OK}
 
         # Objective function for Bayesian optimization with balanced data
