@@ -35,6 +35,7 @@ def macro_weighted_f1(true, predict, classes):
                     false_positives_c += 1
 
         precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
+        print("Precision {0}: ".format(c), precision_c)
         precision += precision_c/len(classes)
 
         false_negatives_c = 0
@@ -44,13 +45,15 @@ def macro_weighted_f1(true, predict, classes):
                     false_negatives_c += 1
 
         recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
+        print("Recall {0}: ".format(c), recall_c)
         recall += recall_c/len(classes)
 
         f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
+        print("F1 {0}: ".format(c), f1_c)
         macro_f1 += np.divide(1, len(classes)) * f1_c
 
-    print("Recall:", recall)
-    print("Precision:", precision)
+    print("Macro recall:", recall)
+    print("Macro precision:", precision)
     return macro_f1
 
 
