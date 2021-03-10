@@ -68,7 +68,7 @@ class NNmodel:
                         temp = temp.iloc[:, 1:]
                         files[toImport] = temp.astype(np.float32)
 
-        else:
+        #else:
             #x_train2, x_val, y_train2, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1234)
 
         batch1 = 128
@@ -139,9 +139,9 @@ class NNmodel:
         # Objective function for Bayesian optimization with imbalanced data
         def obj_func_imb(params):
             auc = 0
-            kfold = KFold(n_splits=5, random_state=1234, shuffle=True)
+            kfold = KFold(n_splits=2, random_state=1234, shuffle=True)
             for train_index, test_index in kfold.split(x_train):
-                x_train_fold, x_val_fold = x_train[train_index], x_train[test_index]
+                x_train_fold, x_val_fold = x_train.iloc[train_index, :], x_train.iloc[test_index, :]
                 y_train_fold, y_val_fold = y_train[train_index], y_train[test_index]
                 auc += train_model(params, x_train_fold, y_train_fold, x_val_fold, y_val_fold)
             return {'loss': -auc, 'status': STATUS_OK}
