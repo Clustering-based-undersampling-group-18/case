@@ -1,5 +1,5 @@
 """
-This script contains functions that can be used to analyze the dataset
+This script contains functions that can be used to analyze the data set
 (These are not used in a main file)
 """
 # Packages and modules
@@ -17,9 +17,9 @@ frame = pd.read_csv("data/frame.csv",
 
 
 # Function that finds characteristics of each column in the given frame
-def find_range(f):
-    for column in f.keys():
-        col = f[column]
+def find_range(data):
+    for column in data.keys():
+        col = data[column]
         print("Characteristic name: " + column)  # prints out which column is being analyzed
         print("Total column length: " + str(len(col)))
 
@@ -46,21 +46,21 @@ def find_range(f):
 
 
 # Function that counts the occurrences of all values in a given column
-def count_classes(column_name, f):
-    col = f[column_name]
+def count_classes(column_name, data):
+    col = data[column_name]
     return col.value_counts(ascending=True)
 
 
 # This function groups a frame by specified columns
-def groupby(frame, column1, column2):
-    counts = frame.groupby([column1, column2]).size()
+def groupby(data, column1, column2):
+    counts = data.groupby([column1, column2]).size()
     return counts
 
 
 # Function that counts classes belonging to a certain column given that the order has not met a criterion,
 # also computes ratio
-def most_criteria(f, col_name, criterion):
-    not_met = f[[col_name, criterion]]
+def most_criteria(data, col_name, criterion):
+    not_met = data[[col_name, criterion]]
 
     met = not_met[not_met[criterion] is True]
     not_met = not_met[not_met[criterion] is False]
@@ -75,8 +75,8 @@ def most_criteria(f, col_name, criterion):
 
 # Function that counts classes belonging to a certain column given that the order is not delivered on time,
 # also calculates ratio to no on time deliveries
-def least_on_time_delivery(f, col_name):
-    late = f[[col_name, 'onTimeDelivery']]
+def least_on_time_delivery(data, col_name):
+    late = data[[col_name, 'onTimeDelivery']]
     on_time = late[late['onTimeDelivery'] == "True"]
     cases = late[late['onTimeDelivery'] == "False"]
 
@@ -87,20 +87,20 @@ def least_on_time_delivery(f, col_name):
 
 
 # Function that calculates the class ratios
-def class_ratios(f):
-    total_orders = len(f)
+def class_ratios(data):
+    total_orders = len(data)
 
-    return_amount = len(f[f["noReturn"] is False])
+    return_amount = len(data[data["noReturn"] is False])
     return_ratio = np.divide(total_orders, return_amount)
 
-    cancellation_amount = len(f[f["noCancellation"] is False])
+    cancellation_amount = len(data[data["noCancellation"] is False])
     cancellation_ratio = np.divide(total_orders, cancellation_amount)
 
     # Note that this ratio is late to ontime+unknowns
-    late_delivery_amount = len(f[f["onTimeDelivery"] == "false"])
+    late_delivery_amount = len(data[data["onTimeDelivery"] == "false"])
     late_delivery_ratio = np.divide(total_orders, late_delivery_amount)
 
-    case_amount = len(f[f["noCase"] is False])
+    case_amount = len(data[data["noCase"] is False])
     case_ratio = np.divide(total_orders, case_amount)
 
     return return_ratio, cancellation_ratio, late_delivery_ratio, case_ratio
@@ -143,8 +143,8 @@ def correlations_categorical(data):
 
 
 # This function plots a histogram given a column
-def get_hist(frame, col):
-    [columndates, orderdates] = column_and_order_dates(frame, col)
+def get_hist(data, col):
+    [columndates, orderdates] = column_and_order_dates(data, col)
     [difference_dates, date_values] = days_difference(columndates, orderdates, 31)
 
     plt.hist(x=difference_dates, bins=100)
@@ -156,19 +156,19 @@ def get_hist(frame, col):
 
 # With this function we can compute how many orders are caused by not meeting one or more criteria
 # Note that we utilized this function by manually changing criteria and their status
-def matches_causes_count(frame):
-    print(frame[frame["detailedMatchClassification"] == "KNOWN HAPPY"])
-    print(frame["returnDateTime"].unique())
-    print(frame[(frame['detailedMatchClassification'] == "UNKNOWN") & (frame['noReturn'] == True) & (
-            frame['noCase'] == True) & (frame['onTimeDelivery'] == 'Unknown') & (frame['noCancellation'] == True)])
+def matches_causes_count(data):
+    print(data[data["detailedMatchClassification"] == "KNOWN HAPPY"])
+    print(data["returnDateTime"].unique())
+    print(data[(data['detailedMatchClassification'] == "UNKNOWN") & (data['noReturn'] == True) & (
+            data['noCase'] == True) & (data['onTimeDelivery'] == 'Unknown') & (data['noCancellation'] == True)])
     print("*" * 25)
-    print(frame[(frame['detailedMatchClassification'] == "UNHAPPY") & (frame['noReturn'] == True) & (
-            frame['noCase'] == True) & (frame['onTimeDelivery'] == 'Unknown') & (frame['noCancellation'] == True)])
-    print(frame[["noReturn", "returnDateTime"]])
-    print(frame['detailedMatchClassification'].unique())
-    print(frame[(frame['returnDateTime'].astype(float) < 30)])
-    print(frame[(frame['returnDateTime'].astype(float) > 30) & (frame['onTimeDelivery'] == 'True') & (
-            frame['noCase'] == True) & (frame['noCancellation'] == True)])
+    print(data[(data['detailedMatchClassification'] == "UNHAPPY") & (data['noReturn'] == True) & (
+            data['noCase'] == True) & (data['onTimeDelivery'] == 'Unknown') & (data['noCancellation'] == True)])
+    print(data[["noReturn", "returnDateTime"]])
+    print(data['detailedMatchClassification'].unique())
+    print(data[(data['returnDateTime'].astype(float) < 30)])
+    print(data[(data['returnDateTime'].astype(float) > 30) & (data['onTimeDelivery'] == 'True') & (
+            data['noCase'] == True) & (data['noCancellation'] == True)])
 
     print("*" * 25)
 
