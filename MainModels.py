@@ -246,7 +246,7 @@ for i in range(3, 4):
                 XGB_prob = XGB.predp[:, 1]
                 best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria))
                 XGB_pred = np.ones(len(XGB_prob))
-                XGB_pred[XGB_prob <= best_threshold] = 0
+                XGB_pred[XGB_prob < best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
                       macro_weighted_f1_print(depend_test, XGB_pred, [0, 1]))
@@ -271,7 +271,7 @@ for i in range(3, 4):
                 NN_prob = NN_prob[0]
                 best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria))
                 NN_pred = np.ones(len(NN_prob))
-                NN_pred[NN_prob <= best_threshold] = 0
+                NN_pred[NN_prob < best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("NN macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
                       macro_weighted_f1_print(depend_test, NN_pred, [0, 1]))
