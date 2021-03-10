@@ -155,10 +155,10 @@ class NNmodel:
         # Obtaining the parameter set that maximizes the evaluation metric
         trials = Trials()
         if balanced:
-            self.best = fmin(obj_func_bal, hyperparams, algo=tpe.suggest, max_evals=5, trials=trials,
+            self.best = fmin(obj_func_bal, hyperparams, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
         else:
-            self.best = fmin(obj_func_imb, hyperparams, algo=tpe.suggest, max_evals=5, trials=trials,
+            self.best = fmin(obj_func_imb, hyperparams, algo=tpe.suggest, max_evals=1, trials=trials,
                              rstate=np.random.RandomState(1))
 
         # Training the model with the best parameter values

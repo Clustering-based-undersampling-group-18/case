@@ -38,7 +38,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(3, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
@@ -98,8 +98,9 @@ for i in range(0, 4):
 
             # Determining the best threshold
             if threshold:
-                print(NN1.predp)
                 NN_prob_known = NN1.predp
+                NN_prob_known = NN_prob_known.T
+                NN_prob_known = NN_prob_known[0]
                 best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown")
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
@@ -186,6 +187,8 @@ for i in range(0, 4):
             # Determining the best threshold
             if threshold:
                 NN_prob_onTime = NN2.predp
+                NN_prob_onTime = NN_prob_onTime.T
+                NN_prob_onTime = NN_prob_onTime[0]
                 depend_test = depend_test.replace({'Unknown': 2})
                 depend_test = depend_test.astype(np.float32)
                 best_threshold = threshold_search(depend_test, NN_prob_onTime, "NN {0}".format(criteria))
@@ -240,7 +243,7 @@ for i in range(0, 4):
 
             if threshold:
                 # Determining the best threshold
-                XGB_prob = XGB.predp
+                XGB_prob = XGB.predp[:, 1]
                 best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria))
                 XGB_pred = np.ones(len(XGB_prob))
                 XGB_pred[XGB_prob <= best_threshold] = 0
@@ -264,6 +267,8 @@ for i in range(0, 4):
             if threshold:
                 # Determining the best threshold
                 NN_prob = NN.predp
+                NN_prob = NN_prob.T
+                NN_prob = NN_prob[0]
                 best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria))
                 NN_pred = np.ones(len(NN_prob))
                 NN_pred[NN_prob <= best_threshold] = 0
