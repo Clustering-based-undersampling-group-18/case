@@ -106,10 +106,10 @@ class ExtremeGradientBoosting:
         # Obtaining the parameter set that maximizes the evaluation metric
         trials = Trials()
         if balanced:
-            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
-            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=1, algo=tpe.suggest, trials=trials,
+            self.best_param = fmin(obj_func_imb, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         best_param_values = [x for x in self.best_param.values()]
 
