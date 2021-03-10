@@ -55,7 +55,7 @@ def macro_weighted_f1(true, predict, classes):
 
 
 # Function that optimizes the prediction threshold
-def threshold_search(true, prob):
+def threshold_search(true, prob, criteria):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
@@ -86,7 +86,7 @@ def threshold_search(true, prob):
     plt.axhline(y=max(all_f1_train), linestyle='--', color='g')
     plt.xlabel("Threshold")
     plt.ylabel("Macro F1")
-    plt.savefig('Threshold plot.png', bbox_inches='tight')
+    plt.savefig('{0} threshold plot.png'.format(criteria), bbox_inches='tight')
 
     return best_threshold
 
