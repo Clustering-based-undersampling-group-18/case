@@ -128,7 +128,6 @@ for i in range(1, 4):
             # Predicting whether on time or not
             XGB2 = ExtremeGradientBoosting(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced)
             print("XGB best parameters for predicting onTimeDelivery when predicted known:", XGB2.best_param)
-            print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", XGB2.score)
 
             # Determining the best threshold
             if threshold:
@@ -176,7 +175,6 @@ for i in range(1, 4):
             X_train_stand = standardize_data(X_train_onTime).astype(np.float32)
             NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
             print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
-            print("XGB macro weighted F1 score for predicting onTimeDelivery when predicted known:", NN2.score)
 
             # Determining the best threshold
             if threshold:
