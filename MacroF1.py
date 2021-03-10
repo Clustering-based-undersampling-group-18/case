@@ -107,7 +107,6 @@ def macro_weighted_f1_print(true, predict, classes):
         else:
             recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
 
-        recall += recall_c / len(classes)
         print("Recall {0}: ".format(c), recall_c)
         recall += recall_c/len(classes)
 
