@@ -34,6 +34,57 @@ def macro_weighted_f1(true, predict, classes):
                 if predict[i] == c:
                     false_positives_c += 1
 
+        if (true_positives_c + false_positives_c) == 0:
+            precision_c = 0.0
+        else:
+            precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
+
+        precision += precision_c/len(classes)
+
+        false_negatives_c = 0
+        for i in range(0, len(true)):
+            if true[i] == c:
+                if predict[i] != c:
+                    false_negatives_c += 1
+
+        if (true_positives_c + false_negatives_c) == 0:
+            recall_c = 0.0
+        else:
+            recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
+
+        recall += recall_c/len(classes)
+
+        f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
+        macro_f1 += np.divide(1, len(classes)) * f1_c
+
+    return macro_f1
+
+# Function to compute the macro_weighted F1 score of a prediction with printing
+def macro_weighted_f1_print(true, predict, classes):
+    macro_f1 = 0
+    precision = 0
+    recall = 0
+    if 'Unknown' in classes:
+        true = true.replace({'Unknown': 2})
+        predict[predict == 'Unknown'] = 2
+        classes = [0, 1, 2]
+
+    true = true.astype(np.float32)
+    predict = predict.astype(np.float32)
+    for c in classes:
+        # correctly predicted
+        true_positives_c = 0
+        for i in range(0, len(true)):
+            if true[i] == c:
+                if predict[i] == c:
+                    true_positives_c += 1
+
+        false_positives_c = 0
+        for i in range(0, len(true)):
+            if true[i] != c:
+                if predict[i] == c:
+                    false_positives_c += 1
+
         precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
         print("Precision {0}: ".format(c), precision_c)
         precision += precision_c/len(classes)
@@ -69,8 +120,8 @@ def threshold_search(true, prob, criteria):
         predictions_train = np.ones(len(prob_train))
         predictions_test = np.ones(len(prob_test))
 
-        predictions_train[prob_train <= thresholds[j]] = 0
-        predictions_test[prob_test <= thresholds[j]] = 0
+        predictions_train[prob_train < thresholds[j]] = 0
+        predictions_test[prob_test < thresholds[j]] = 0
 
         macro_f1_train = macro_weighted_f1(true_train, predictions_train, [0, 1])
         macro_f1_test = macro_weighted_f1(true_test, predictions_test, [0, 1])
@@ -80,6 +131,9 @@ def threshold_search(true, prob, criteria):
 
     best_threshold = thresholds[np.where(max(all_f1_train) == all_f1_train)]
     best_threshold = best_threshold[0]
+    predictions_test = np.ones(len(prob_test))
+    predictions_test[prob_test < best_threshold] = 0
+    macro_f1 = macro_weighted_f1_print(true_test, predictions_test, [0, 1])
     print("The best threshold for this prediction is: %s" % best_threshold)
 
     plt.plot(thresholds, all_f1_train, 'b')
