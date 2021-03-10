@@ -83,6 +83,10 @@ for i in range(0, 4):
                 best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB Unknown")
                 XGB_pred_known = np.ones(len(XGB_prob_known))
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
+                print("Results after threshold optimization:")
+                print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
+                      macro_weighted_f1(depend_test, XGB_pred_known, [0, 1]))
+
             else:
                 XGB_pred_known = XGB1.predc
 
@@ -99,6 +103,9 @@ for i in range(0, 4):
                 best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown")
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
+                print("Results after threshold optimization:")
+                print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
+                      macro_weighted_f1(depend_test, NN_pred_known, [0, 1]))
             else:
                 NN_pred_known = NN1.predc
                 NN_pred_known = NN_pred_known.T
@@ -237,6 +244,7 @@ for i in range(0, 4):
                 best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria))
                 XGB_pred = np.ones(len(XGB_prob))
                 XGB_pred[XGB_prob <= best_threshold] = 0
+                print("Results after threshold optimization:")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
                       macro_weighted_f1(depend_test, XGB_pred, [0, 1]))
 
@@ -259,6 +267,7 @@ for i in range(0, 4):
                 best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria))
                 NN_pred = np.ones(len(NN_prob))
                 NN_pred[NN_prob <= best_threshold] = 0
+                print("Results after threshold optimization:")
                 print("NN macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
                       macro_weighted_f1(depend_test, NN_pred, [0, 1]))
 
