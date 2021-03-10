@@ -54,7 +54,10 @@ def macro_weighted_f1(true, predict, classes):
 
         recall += recall_c/len(classes)
 
-        f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
+        if (precision_c+recall_c) == 0:
+            f1_c = 0
+        else:
+            f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
         macro_f1 += np.divide(1, len(classes)) * f1_c
 
     return macro_f1
@@ -86,7 +89,10 @@ def macro_weighted_f1_print(true, predict, classes):
                 if predict[i] == c:
                     false_positives_c += 1
 
-        precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
+        if (true_positives_c + false_positives_c) == 0:
+            precision_c = 0.0
+        else:
+            precision_c = np.divide(true_positives_c, (true_positives_c + false_positives_c))
         print("Precision {0}: ".format(c), precision_c)
         precision += precision_c/len(classes)
 
@@ -96,11 +102,19 @@ def macro_weighted_f1_print(true, predict, classes):
                 if predict[i] != c:
                     false_negatives_c += 1
 
-        recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
+        if (true_positives_c + false_negatives_c) == 0:
+            recall_c = 0.0
+        else:
+            recall_c = np.divide(true_positives_c, (true_positives_c + false_negatives_c))
+
+        recall += recall_c / len(classes)
         print("Recall {0}: ".format(c), recall_c)
         recall += recall_c/len(classes)
 
-        f1_c = np.divide((2*precision_c*recall_c), (precision_c+recall_c))
+        if (precision_c + recall_c) == 0:
+            f1_c = 0
+        else:
+            f1_c = np.divide((2 * precision_c * recall_c), (precision_c + recall_c))
         print("F1 {0}: ".format(c), f1_c)
         macro_f1 += np.divide(1, len(classes)) * f1_c
 
@@ -114,7 +128,7 @@ def threshold_search(true, prob, criteria):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
-    thresholds = np.linspace(0, 1, 101)
+    thresholds = np.linspace(0,1,101)
     all_f1_train = np.zeros(len(thresholds))
     for j in range(len(thresholds)):
         predictions_train = np.ones(len(prob_train))
