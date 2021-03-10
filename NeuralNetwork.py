@@ -4,7 +4,7 @@ This script contains the function for computing forecasts with a Neural Network 
 
 import tensorflow as tf
 from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, KFold, cross_val_score
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 from MacroF1 import macro_weighted_f1_print
 import numpy as np
@@ -69,7 +69,7 @@ class NNmodel:
                         files[toImport] = temp.astype(np.float32)
 
         else:
-            x_train2, x_val, y_train2, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1234)
+            #x_train2, x_val, y_train2, y_val = train_test_split(x_train, y_train, test_size=0.2, random_state=1234)
 
         batch1 = 128
         batch2 = 256
@@ -112,7 +112,7 @@ class NNmodel:
             predict = (predict > 0.5).astype("int32")
             return roc_auc_score(yv, predict)
 
-        # Objective function for Bayesian optimization with imbalanced data
+        """# Objective function for Bayesian optimization with imbalanced data
         def obj_func_imb(space):
             model = tf.keras.models.Sequential()
             model.add(tf.keras.layers.Dropout(space['dropout0']))
@@ -134,7 +134,17 @@ class NNmodel:
             predict = (predict > 0.5).astype("int32")
             roc_auc = roc_auc_score(y_val, predict)
             sys.stdout.flush()
-            return {'loss': -roc_auc, 'status': STATUS_OK}
+            return {'loss': -roc_auc, 'status': STATUS_OK}"""
+
+        # Objective function for Bayesian optimization with imbalanced data
+        def obj_func_imb(params):
+            auc = 0
+            kfold = KFold(n_splits=5, random_state=1234, shuffle=True)
+            for train_index, test_index in kfold.split(x_train):
+                x_train_fold, x_val_fold = x_train[train_index], x_train[test_index]
+                y_train_fold, y_val_fold = y_train[train_index], y_train[test_index]
+                auc += train_model(params, x_train_fold, y_train_fold, x_val_fold, y_val_fold)
+            return {'loss': -auc, 'status': STATUS_OK}
 
         # Objective function for Bayesian optimization with balanced data
         def obj_func_bal(space):
