@@ -6,7 +6,7 @@ import tensorflow as tf
 from sklearn.metrics import roc_auc_score
 from sklearn.model_selection import train_test_split
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-from MacroF1 import macro_weighted_f1
+from MacroF1 import macro_weighted_f1_print
 import numpy as np
 import pandas as pd
 import sys
@@ -194,4 +194,4 @@ class NNmodel:
             framec.to_csv("data/predictions/NN_imbalanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/NN_imbalanced_p_prediction_{0}.csv".format(criteria))
         if criteria != 'onTimeDelivery':
-            self.score = macro_weighted_f1(y_test, self.predc, [0, 1])
+            self.score = macro_weighted_f1_print(y_test, self.predc, [0, 1])

@@ -3,7 +3,7 @@ This script can be run to generate forecasts for the four criteria
 It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 
-from MacroF1 import macro_weighted_f1, threshold_search
+from MacroF1 import macro_weighted_f1, macro_weighted_f1_print, threshold_search
 from XGBoost import ExtremeGradientBoosting
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
@@ -85,7 +85,7 @@ for i in range(3, 4):
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
-                      macro_weighted_f1(depend_test, XGB_pred_known, [0, 1]))
+                      macro_weighted_f1_print(depend_test, XGB_pred_known, [0, 1]))
 
             else:
                 XGB_pred_known = XGB1.predc
@@ -106,7 +106,7 @@ for i in range(3, 4):
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
-                      macro_weighted_f1(depend_test, NN_pred_known, [0, 1]))
+                      macro_weighted_f1_print(depend_test, NN_pred_known, [0, 1]))
             else:
                 NN_pred_known = NN1.predc
                 NN_pred_known = NN_pred_known.T
@@ -162,7 +162,7 @@ for i in range(3, 4):
             depend_test = Y_test[criteria]
             classes = [0, 1, 'Unknown']
             print("XGB macro weighted F1 score for final {0} prediction: ".format(criteria),
-                  macro_weighted_f1(depend_test, final_pred_XGB, classes))
+                  macro_weighted_f1_print(depend_test, final_pred_XGB, classes))
 
             final_pred_XGB = pd.DataFrame(final_pred_XGB)
             if balanced:
@@ -214,7 +214,7 @@ for i in range(3, 4):
             depend_test = Y_test[criteria]
             classes = [0, 1, 'Unknown']
             print("NN macro weighted F1 score for {0}: ".format(criteria),
-                  macro_weighted_f1(depend_test, final_pred_NN, classes))
+                  macro_weighted_f1_print(depend_test, final_pred_NN, classes))
 
             final_pred_NN = pd.DataFrame(final_pred_NN)
             if balanced:
@@ -249,7 +249,7 @@ for i in range(3, 4):
                 XGB_pred[XGB_prob <= best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
-                      macro_weighted_f1(depend_test, XGB_pred, [0, 1]))
+                      macro_weighted_f1_print(depend_test, XGB_pred, [0, 1]))
 
                 # Saving new prediction
                 XGB_pred = pd.DataFrame(XGB_pred)
@@ -274,7 +274,7 @@ for i in range(3, 4):
                 NN_pred[NN_prob <= best_threshold] = 0
                 print("Results after threshold optimization:")
                 print("NN macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
-                      macro_weighted_f1(depend_test, NN_pred, [0, 1]))
+                      macro_weighted_f1_print(depend_test, NN_pred, [0, 1]))
 
                 # Saving new prediction
                 NN_pred = pd.DataFrame(NN_pred)
