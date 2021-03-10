@@ -14,7 +14,7 @@ import numpy as np
 NeuralNetwork = True
 XGBoost = False
 balanced = True
-threshold = False
+threshold = True
 
 # Importing train data
 if not balanced:
@@ -38,7 +38,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(1, 4):
+for i in range(3, 4):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
@@ -80,7 +80,7 @@ for i in range(1, 4):
             # Determining the best threshold
             if threshold:
                 XGB_prob_known = XGB1.predp[:, 1]
-                best_threshold = threshold_search(depend_test, XGB_prob_known)
+                best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB Unknown")
                 XGB_pred_known = np.ones(len(XGB_prob_known))
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
             else:
@@ -96,7 +96,7 @@ for i in range(1, 4):
             if threshold:
                 print(NN1.predp)
                 NN_prob_known = NN1.predp
-                best_threshold = threshold_search(depend_test, NN_prob_known)
+                best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown")
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
             else:
@@ -134,7 +134,7 @@ for i in range(1, 4):
                 XGB_prob_onTime = XGB2.predp[:, 1]
                 depend_test = depend_test.replace({'Unknown': 2})
                 depend_test = depend_test.astype(np.float32)
-                best_threshold = threshold_search(depend_test, XGB_prob_onTime)
+                best_threshold = threshold_search(depend_test, XGB_prob_onTime, "XGB {0}".format(criteria))
                 XGB_pred_onTime = np.ones(len(XGB_prob_onTime))
                 XGB_pred_onTime[XGB_prob_onTime <= best_threshold] = 0
             else:
@@ -181,7 +181,7 @@ for i in range(1, 4):
                 NN_prob_onTime = NN2.predp
                 depend_test = depend_test.replace({'Unknown': 2})
                 depend_test = depend_test.astype(np.float32)
-                best_threshold = threshold_search(depend_test, NN_prob_onTime)
+                best_threshold = threshold_search(depend_test, NN_prob_onTime, "NN {0}".format(criteria))
                 NN_pred_onTime = np.ones(len(NN_prob_onTime))
                 NN_pred_onTime[NN_prob_onTime <= best_threshold] = 0
             else:
@@ -234,7 +234,7 @@ for i in range(1, 4):
             if threshold:
                 # Determining the best threshold
                 XGB_prob = XGB.predp
-                best_threshold = threshold_search(depend_test, XGB_prob)
+                best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria))
                 XGB_pred = np.ones(len(XGB_prob))
                 XGB_pred[XGB_prob <= best_threshold] = 0
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
@@ -256,7 +256,7 @@ for i in range(1, 4):
             if threshold:
                 # Determining the best threshold
                 NN_prob = NN.predp
-                best_threshold = threshold_search(depend_test, NN_prob)
+                best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria))
                 NN_pred = np.ones(len(NN_prob))
                 NN_pred[NN_prob <= best_threshold] = 0
                 print("NN macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
