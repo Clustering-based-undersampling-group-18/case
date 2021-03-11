@@ -152,3 +152,94 @@ def threshold_search(true, prob, criteria):
     plt.savefig('{0} threshold plot.png'.format(criteria), bbox_inches='tight')
 
     return best_threshold
+
+
+# This function performs the match classification based on the business decision tree + the criteria predictions
+def match_classification():
+    threshold_boolean = True
+
+    true_values = pd.read_csv("data/train_test_frames/final_test_x.csv")["detailedMatchClassification"]
+    predictions = pd.Series(["KNOWN HAPPY"] * len(true_values))
+
+    if not threshold_boolean:
+        """ 
+        late_predictions = pd.read_csv("data/results/Imbalanced/NN_onTimeDelivery_HeleData.csv", header=None)[0]
+        print(late_predictions)
+        indices_late_prediction = np.where(late_predictions == 0)[0]
+        predictions.loc[indices_late_prediction] = "UNHAPPY"
+
+        unknown_predictions = pd.read_csv("data/results/Imbalanced/NN_DeliveryKnownUnknown_HeleData.csv", header=None)[0]
+        indices_unknown_prediction = np.where(unknown_predictions == 0)[0]
+        predictions.loc[indices_unknown_prediction] = "UNKNOWN"
+        """
+        times = pd.read_csv("data/results/Balanced/XGB_balanced_final_prediction_onTimeDelivery.csv", header=None, skiprows=1)[1]
+        print(times)
+        print(times.value_counts())
+        indices_late_prediction = np.where(times == 0)[0]
+        print(indices_late_prediction)
+        predictions.loc[indices_late_prediction] = "UNHAPPY"
+        indices_unknown_prediction = np.where(times == 2)[0]
+        print(indices_unknown_prediction)
+        predictions.loc[indices_unknown_prediction] = "UNKNOWN"
+
+    else:
+        total_time = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_totalTime_after_threshold.csv", skiprows=1, header=None)[1]
+
+        indices_unknown_prediction = np.where(total_time == 2)[0]
+        predictions.loc[indices_unknown_prediction] = "UNKNOWN"
+
+        indices_late_prediction = np.where(total_time == 0)[0]
+        predictions.loc[indices_late_prediction] = "UNHAPPY"
+
+        print(predictions.value_counts())
+
+    cancel_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noCancellation_after_threshold.csv", skiprows=1, header=None)[1]
+    indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
+    predictions.loc[indices_cancel_prediction] = "UNHAPPY"
+
+    return_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noReturn_after_threshold.csv", skiprows=1, header=None)[1]
+    indices_return_prediction = np.where(return_predictions == 0)[0]
+    predictions.loc[indices_return_prediction] = "UNHAPPY"
+
+    case_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noCase_after_threshold.csv", skiprows=1, header=None)[1]
+    indices_case_prediction = np.where(case_predictions == 0)[0]
+    predictions.loc[indices_case_prediction] = "UNHAPPY"
+
+    predictions_train, predictions, true_values_train, true_values = train_test_split(predictions, true_values, test_size=0.2, random_state=1234)
+
+    print(predictions.value_counts())
+    print(true_values.value_counts())
+
+    true_values = true_values.to_numpy()
+    predictions = predictions.to_numpy()
+
+    correct_minority = 0
+    for i in range(0, len(true_values)):
+        if predictions[i] == 0:
+            if true_values[i] == 0:
+                correct_minority += 1
+
+    macro_f1 = 0
+    macro_recall = 0
+    macro_precision = 0
+    correct = 0
+    classes = ["UNKNOWN", "KNOWN HAPPY", "UNHAPPY"]
+    for c in classes:
+        precision_c, recall_c, tp_c = precision_and_recall_c(c, true_values, predictions)
+        correct += tp_c
+        print("Precision class {0}:".format(c), precision_c)
+        print("Recall class {0}:".format(c), recall_c)
+        macro_precision += np.divide(1, len(classes)) * precision_c
+        macro_recall += np.divide(1, len(classes)) * recall_c
+        print("F1 class {0}:".format(c), f1(precision_c, recall_c))
+        f1_c = f1(precision_c, recall_c)
+        macro_f1 += np.divide(1, len(classes)) * f1_c
+
+    total = len(true_values)
+    accuracy = np.divide(correct, total)
+    print(macro_f1, macro_precision, macro_recall)
+    print("Macro precision:", macro_precision)
+    print("Macro recall:", macro_recall)
+    print("Macro F1:", macro_f1)
+    print("Accuracy:", accuracy )
+
