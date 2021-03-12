@@ -14,7 +14,7 @@ import numpy as np
 NeuralNetwork = True
 XGBoost = False
 balanced = False
-threshold = False
+threshold = True
 
 # Importing train data
 if not balanced:
@@ -50,7 +50,7 @@ for i in range(1, 4):
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
-        # Step 1
+        """# Step 1
         # Importing train data
         if balanced:
             X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
@@ -63,7 +63,7 @@ for i in range(1, 4):
             depend_train = depend_train.replace({'0.0': 1})
             depend_train = depend_train.replace({'1.0': 1})
             depend_train = depend_train.replace({'Unknown': 0})
-        depend_train = depend_train.astype(np.float32)
+        depend_train = depend_train.astype(np.float32)"""
 
         # Preparing test data
         depend_test = depend_test.replace({'0.0': 1})
@@ -71,7 +71,7 @@ for i in range(1, 4):
         depend_test = depend_test.replace({'Unknown': 0})
         depend_test = depend_test.astype(np.float32)
 
-        # Predicting known or unknown
+        """# Predicting known or unknown
         if XGBoost:
             XGB1 = ExtremeGradientBoosting(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
             print("XGB best parameters for predicting known/unknown delivery time:", XGB1.best_param)
@@ -95,24 +95,31 @@ for i in range(1, 4):
                     save.to_csv("data/predictions/XGB_imbalanced_ct_prediction_Unknown.csv")
 
             else:
-                XGB_pred_known = XGB1.predc
+                XGB_pred_known = XGB1.predc"""
 
         if NeuralNetwork:
-            X_train_stand = standardize_data(X_train).astype(np.float32)
+            """X_train_stand = standardize_data(X_train).astype(np.float32)
             NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
             print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
-            print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
+            print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)"""
 
             # Determining the best threshold
             if threshold:
-                NN_prob_known = NN1.predp
+                """NN_prob_known = NN1.predp
                 NN_prob_known = NN_prob_known.T
                 NN_prob_known = NN_prob_known[0]
-                best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown", balanced)
+                best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown", balanced)"""
+
+                best_threshold = 0.58
+                NN_prob_known = pd.read_csv("data/predictions/NN_imbalanced_p_prediction_Unknown.csv")
+                NN_prob_known = NN_prob_known.drop(columns="Unnamed: 0")
+                NN_prob_known = NN_prob_known.to_numpy()
+                NN_prob_known = NN_prob_known.T
+                NN_prob_known = NN_prob_known[0]
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
                 print("***RESULTS WITH THRESHOLD***")
-                print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
+                print("NN macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
                       macro_weighted_f1_print(depend_test, NN_pred_known, [0, 1]))
 
                 # Saving new prediction
@@ -229,7 +236,6 @@ for i in range(1, 4):
                 NN_pred_onTime = NN2.predc
                 NN_pred_onTime = NN_pred_onTime.T
                 NN_pred_onTime = NN_pred_onTime[0]
-                print(NN_pred_onTime)
 
             # Combining the two predictions
             final_pred_NN = NN_pred_known
