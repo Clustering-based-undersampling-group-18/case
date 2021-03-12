@@ -1,5 +1,5 @@
 """
-This script contains functions to calculate prediction metrics and optimize the threshold
+This script contains functions to calculate prediction metrics, optimize the threshold and perform match classification
 These functions are used in MainModels.py
 """
 
@@ -170,12 +170,12 @@ def match_classification(model, balanced, threshold):
         balanced = "imbalanced"
 
     if threshold:
-        ontime_predictions = \
+        delivery_predictions = \
             pd.read_csv("data/predictions/{0}_balanced_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
-        indices_late_prediction = np.where(ontime_predictions == 0)[0]
+        indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
-        indices_unknown_prediction = np.where(ontime_predictions == 2)[0]
+        indices_unknown_prediction = np.where(delivery_predictions == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
 
         cancel_predictions = \
@@ -223,6 +223,8 @@ def match_classification(model, balanced, threshold):
     predictions_train, predictions, true_values_train, true_values = \
         train_test_split(predictions, true_values, test_size=0.2, random_state=1234)
 
+    print(predictions.value_counts())
+    print(true_values.value_counts())
     true_values = true_values.to_numpy()
     predictions = predictions.to_numpy()
 
