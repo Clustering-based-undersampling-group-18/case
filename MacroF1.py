@@ -1,12 +1,12 @@
 """
 This script contains functions to calculate prediction metrics, optimize the threshold and perform match classification
-These functions are used in MainModels.py
+These functions are used in MainPredicting.py
 """
-
-import numpy as np
-import pandas as pd
-from networkx.drawing.tests.test_pylab import plt
+# Packages and modules
 from sklearn.model_selection import train_test_split
+from networkx.drawing.tests.test_pylab import plt
+import pandas as pd
+import numpy as np
 
 
 # Function to compute the macro_weighted F1 score of a prediction

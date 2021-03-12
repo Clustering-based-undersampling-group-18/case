@@ -1,15 +1,15 @@
 """
 This script contains the function for computing forecasts with an XGBoost model
 """
-
+# Packages and modules
 from sklearn.model_selection import KFold, cross_val_score
-from xgboost import XGBClassifier
 from hyperopt import hp, tpe, fmin, STATUS_OK, Trials
-from hyperopt.pyll import scope
-from sklearn.metrics import roc_auc_score
 from MacroF1 import macro_weighted_f1_print
-import numpy as np
+from sklearn.metrics import roc_auc_score
+from xgboost import XGBClassifier
+from hyperopt.pyll import scope
 import pandas as pd
+import numpy as np
 
 
 class ExtremeGradientBoosting:

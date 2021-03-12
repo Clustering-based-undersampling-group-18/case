@@ -1,12 +1,12 @@
 """
 This script can be run to prepare the data; handling NA values, adding new variables and creating every balanced data
 set needed to make predictions
-It uses the functions from DataImbalance.py
+Using functions from DataImbalance.py
 """
-
-import numpy as np
-import pandas as pd
+# Packages and modules
 import DataImbalance
+import pandas as pd
+import numpy as np
 
 # Importing the data
 missing_value_formats = ["n.a.", "?", "NA", "n/a", "na", "--", "NaN", " ", ""]
