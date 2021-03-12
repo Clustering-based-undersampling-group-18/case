@@ -4,6 +4,7 @@ These functions are used in MainModels.py
 """
 
 import numpy as np
+import pandas as pd
 from networkx.drawing.tests.test_pylab import plt
 from sklearn.model_selection import train_test_split
 
@@ -127,7 +128,7 @@ def threshold_search(true, prob, criteria):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
-    thresholds = np.linspace(0,1,101)
+    thresholds = np.linspace(0, 1, 101)
     all_f1_train = np.zeros(len(thresholds))
     for j in range(len(thresholds)):
         predictions_train = np.ones(len(prob_train))
@@ -156,12 +157,15 @@ def threshold_search(true, prob, criteria):
 
 # This function performs the match classification based on the business decision tree + the criteria predictions
 def match_classification():
-    threshold_boolean = True
+    XGBoost = True
+    NeuralNetwork = True
+    threshold = True
+
 
     true_values = pd.read_csv("data/train_test_frames/final_test_x.csv")["detailedMatchClassification"]
     predictions = pd.Series(["KNOWN HAPPY"] * len(true_values))
 
-    if not threshold_boolean:
+    if not threshold:
         """ 
         late_predictions = pd.read_csv("data/results/Imbalanced/NN_onTimeDelivery_HeleData.csv", header=None)[0]
         print(late_predictions)
@@ -172,18 +176,16 @@ def match_classification():
         indices_unknown_prediction = np.where(unknown_predictions == 0)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
         """
-        times = pd.read_csv("data/results/Balanced/XGB_balanced_final_prediction_onTimeDelivery.csv", header=None, skiprows=1)[1]
-        print(times)
-        print(times.value_counts())
+        times = pd.read_csv("data/predictions/XGB_balanced_final_prediction_onTimeDelivery.csv", header=None,
+                            skiprows=1)[1]
         indices_late_prediction = np.where(times == 0)[0]
-        print(indices_late_prediction)
         predictions.loc[indices_late_prediction] = "UNHAPPY"
         indices_unknown_prediction = np.where(times == 2)[0]
-        print(indices_unknown_prediction)
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
 
     else:
-        total_time = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_totalTime_after_threshold.csv", skiprows=1, header=None)[1]
+        total_time = pd.read_csv("data/predictions/Im_NN_totalTime_after_threshold.csv", skiprows=1,
+                                 header=None)[1]
 
         indices_unknown_prediction = np.where(total_time == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
@@ -219,27 +221,6 @@ def match_classification():
             if true_values[i] == 0:
                 correct_minority += 1
 
-    macro_f1 = 0
-    macro_recall = 0
-    macro_precision = 0
-    correct = 0
     classes = ["UNKNOWN", "KNOWN HAPPY", "UNHAPPY"]
-    for c in classes:
-        precision_c, recall_c, tp_c = precision_and_recall_c(c, true_values, predictions)
-        correct += tp_c
-        print("Precision class {0}:".format(c), precision_c)
-        print("Recall class {0}:".format(c), recall_c)
-        macro_precision += np.divide(1, len(classes)) * precision_c
-        macro_recall += np.divide(1, len(classes)) * recall_c
-        print("F1 class {0}:".format(c), f1(precision_c, recall_c))
-        f1_c = f1(precision_c, recall_c)
-        macro_f1 += np.divide(1, len(classes)) * f1_c
-
-    total = len(true_values)
-    accuracy = np.divide(correct, total)
-    print(macro_f1, macro_precision, macro_recall)
-    print("Macro precision:", macro_precision)
-    print("Macro recall:", macro_recall)
-    print("Macro F1:", macro_f1)
-    print("Accuracy:", accuracy )
+    macro_weighted_f1_print(true_values, predictions, classes)
 

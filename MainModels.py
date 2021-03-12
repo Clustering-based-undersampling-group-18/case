@@ -217,10 +217,16 @@ for i in range(1, 4):
                   macro_weighted_f1_print(depend_test, final_pred_NN, classes))
 
             final_pred_NN = pd.DataFrame(final_pred_NN)
-            if balanced:
-                final_pred_NN.to_csv("data/predictions/NN_balanced_final_prediction_{0}.csv".format(criteria))
+            if threshold:
+                if balanced:
+                    final_pred_NN.to_csv("data/predictions/NN_balanced_final_ct_prediction_{0}.csv".format(criteria))
+                else:
+                    final_pred_NN.to_csv("data/predictions/NN_imbalanced_final_ct_prediction_{0}.csv".format(criteria))
             else:
-                final_pred_NN.to_csv("data/predictions/NN_imbalanced_final_prediction_{0}.csv".format(criteria))
+                if balanced:
+                    final_pred_NN.to_csv("data/predictions/NN_balanced_final_c_prediction_{0}.csv".format(criteria))
+                else:
+                    final_pred_NN.to_csv("data/predictions/NN_imbalanced_final_c_prediction_{0}.csv".format(criteria))
 
     else:
         # Importing train data
