@@ -3,7 +3,7 @@ This script can be run to generate forecasts for the four criteria
 It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 
-from MacroF1 import macro_weighted_f1_print, threshold_search
+from MacroF1 import macro_weighted_f1_print, threshold_search, match_classification
 from XGBoost import ExtremeGradientBoosting
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
@@ -80,7 +80,7 @@ for i in range(1, 4):
             # Determining the best threshold
             if threshold:
                 XGB_prob_known = XGB1.predp[:, 1]
-                best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB Unknown")
+                best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB Unknown", balanced)
                 XGB_pred_known = np.ones(len(XGB_prob_known))
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
                 print("Results after threshold optimization:")
@@ -88,11 +88,11 @@ for i in range(1, 4):
                       macro_weighted_f1_print(depend_test, XGB_pred_known, [0, 1]))
 
                 # Saving new prediction
-                XGB_pred_known = pd.DataFrame(XGB_pred_known)
+                save = pd.DataFrame(XGB_pred_known)
                 if balanced:
-                    XGB_pred_known.to_csv("data/predictions/XGB_balanced_ct_prediction_Unknown.csv")
+                    save.to_csv("data/predictions/XGB_balanced_ct_prediction_Unknown.csv")
                 else:
-                    XGB_pred_known.to_csv("data/predictions/XGB_imbalanced_ct_prediction_Unknown.csv")
+                    save.to_csv("data/predictions/XGB_imbalanced_ct_prediction_Unknown.csv")
 
             else:
                 XGB_pred_known = XGB1.predc
@@ -108,7 +108,7 @@ for i in range(1, 4):
                 NN_prob_known = NN1.predp
                 NN_prob_known = NN_prob_known.T
                 NN_prob_known = NN_prob_known[0]
-                best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown")
+                best_threshold = threshold_search(depend_test, NN_prob_known, "NN Unknown", balanced)
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
                 print("***RESULTS WITH THRESHOLD***")
@@ -116,11 +116,11 @@ for i in range(1, 4):
                       macro_weighted_f1_print(depend_test, NN_pred_known, [0, 1]))
 
                 # Saving new prediction
-                NN_pred_known = pd.DataFrame(NN_pred_known)
+                save = pd.DataFrame(NN_pred_known)
                 if balanced:
-                    NN_pred_known.to_csv("data/predictions/NN_balanced_ct_prediction_Unknown.csv")
+                    save.to_csv("data/predictions/NN_balanced_ct_prediction_Unknown.csv")
                 else:
-                    NN_pred_known.to_csv("data/predictions/NN_imbalanced_ct_prediction_Unknown.csv")
+                    save.to_csv("data/predictions/NN_imbalanced_ct_prediction_Unknown.csv")
 
             else:
                 NN_pred_known = NN1.predc
@@ -157,16 +157,16 @@ for i in range(1, 4):
                 XGB_prob_onTime = XGB2.predp[:, 1]
                 depend_test = depend_test.replace({'Unknown': 2})
                 depend_test = depend_test.astype(np.float32)
-                best_threshold = threshold_search(depend_test, XGB_prob_onTime, "XGB {0}".format(criteria))
+                best_threshold = threshold_search(depend_test, XGB_prob_onTime, "XGB {0}".format(criteria), balanced)
                 XGB_pred_onTime = np.ones(len(XGB_prob_onTime))
                 XGB_pred_onTime[XGB_prob_onTime <= best_threshold] = 0
 
                 # Saving new prediction
-                XGB_pred_onTime = pd.DataFrame(XGB_pred_onTime)
+                save = pd.DataFrame(XGB_pred_onTime)
                 if balanced:
-                    XGB_pred_onTime.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria))
+                    save.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria))
                 else:
-                    XGB_pred_onTime.to_csv("data/predictions/XGB_imbalanced_ct_prediction_{0}.csv".format(criteria))
+                    save.to_csv("data/predictions/XGB_imbalanced_ct_prediction_{0}.csv".format(criteria))
 
             else:
                 XGB_pred_onTime = XGB2.predc
@@ -214,16 +214,16 @@ for i in range(1, 4):
                 NN_prob_onTime = NN_prob_onTime[0]
                 depend_test = depend_test.replace({'Unknown': 2})
                 depend_test = depend_test.astype(np.float32)
-                best_threshold = threshold_search(depend_test, NN_prob_onTime, "NN {0}".format(criteria))
+                best_threshold = threshold_search(depend_test, NN_prob_onTime, "NN {0}".format(criteria), balanced)
                 NN_pred_onTime = np.ones(len(NN_prob_onTime))
                 NN_pred_onTime[NN_prob_onTime <= best_threshold] = 0
 
                 # Saving new prediction
-                NN_pred_onTime = pd.DataFrame(NN_pred_onTime)
+                save = pd.DataFrame(NN_pred_onTime)
                 if balanced:
-                    NN_pred_onTime.to_csv("data/predictions/NN_balanced_ct_prediction_{0}.csv".format(criteria))
+                    save.to_csv("data/predictions/NN_balanced_ct_prediction_{0}.csv".format(criteria))
                 else:
-                    NN_pred_onTime.to_csv("data/predictions/NN_imbalanced_ct_prediction_{0}.csv".format(criteria))
+                    save.to_csv("data/predictions/NN_imbalanced_ct_prediction_{0}.csv".format(criteria))
 
             else:
                 NN_pred_onTime = NN2.predc
@@ -281,7 +281,7 @@ for i in range(1, 4):
             if threshold:
                 # Determining the best threshold
                 XGB_prob = XGB.predp[:, 1]
-                best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria))
+                best_threshold = threshold_search(depend_test, XGB_prob, "XGB {0}".format(criteria), balanced)
                 XGB_pred = np.ones(len(XGB_prob))
                 XGB_pred[XGB_prob < best_threshold] = 0
                 print("Results after threshold optimization:")
@@ -306,7 +306,7 @@ for i in range(1, 4):
                 NN_prob = NN.predp
                 NN_prob = NN_prob.T
                 NN_prob = NN_prob[0]
-                best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria))
+                best_threshold = threshold_search(depend_test, NN_prob, "NN {0}".format(criteria), balanced)
                 NN_pred = np.ones(len(NN_prob))
                 NN_pred[NN_prob < best_threshold] = 0
                 print("***RESULTS WITH THRESHOLD***")
@@ -323,10 +323,11 @@ for i in range(1, 4):
 
 # Classifying the orders based on their predictions
 if XGBoost:
-    "classification XGB"
+    match_classification("XGB", balanced, threshold)
 
 if NeuralNetwork:
-    "classification NN"
+    match_classification("NN", balanced, threshold)
+
 
 
 

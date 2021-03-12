@@ -124,7 +124,7 @@ def macro_weighted_f1_print(true, predict, classes):
 
 
 # Function that optimizes the prediction threshold
-def threshold_search(true, prob, criteria):
+def threshold_search(true, prob, criteria, balanced):
     true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
@@ -150,67 +150,74 @@ def threshold_search(true, prob, criteria):
     plt.axhline(y=max(all_f1_train), linestyle='--', color='g')
     plt.xlabel("Threshold")
     plt.ylabel("Macro F1")
-    plt.savefig('{0} threshold plot.png'.format(criteria), bbox_inches='tight')
+    plt.savefig('{0} {1} threshold plot.png'.format(criteria, balanced), bbox_inches='tight')
 
     return best_threshold
 
 
 # This function performs the match classification based on the business decision tree + the criteria predictions
-def match_classification():
-    XGBoost = True
-    NeuralNetwork = True
-    threshold = True
-
-
+def match_classification(model, balanced, threshold):
     true_values = pd.read_csv("data/train_test_frames/final_test_x.csv")["detailedMatchClassification"]
     predictions = pd.Series(["KNOWN HAPPY"] * len(true_values))
 
-    if not threshold:
-        """ 
-        late_predictions = pd.read_csv("data/results/Imbalanced/NN_onTimeDelivery_HeleData.csv", header=None)[0]
-        print(late_predictions)
-        indices_late_prediction = np.where(late_predictions == 0)[0]
-        predictions.loc[indices_late_prediction] = "UNHAPPY"
+    if balanced:
+        balanced = "balanced"
+    else:
+        balanced = "imbalanced"
 
-        unknown_predictions = pd.read_csv("data/results/Imbalanced/NN_DeliveryKnownUnknown_HeleData.csv", header=None)[0]
-        indices_unknown_prediction = np.where(unknown_predictions == 0)[0]
-        predictions.loc[indices_unknown_prediction] = "UNKNOWN"
-        """
-        times = pd.read_csv("data/predictions/XGB_balanced_final_prediction_onTimeDelivery.csv", header=None,
-                            skiprows=1)[1]
-        indices_late_prediction = np.where(times == 0)[0]
+    if threshold:
+        ontime_predictions = \
+            pd.read_csv("data/predictions/{0}_balanced_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
+                        header=None, skiprows=1)[1]
+        indices_late_prediction = np.where(ontime_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
-        indices_unknown_prediction = np.where(times == 2)[0]
+        indices_unknown_prediction = np.where(ontime_predictions == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
+
+        cancel_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCancellation.csv".format(model, balanced),
+                        skiprows=1, header=None)[1]
+        indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
+        predictions.loc[indices_cancel_prediction] = "UNHAPPY"
+
+        return_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noReturn.csv".format(model, balanced),
+                        skiprows=1, header=None)[1]
+        indices_return_prediction = np.where(return_predictions == 0)[0]
+        predictions.loc[indices_return_prediction] = "UNHAPPY"
+
+        case_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCase.csv".format(model, balanced),
+                        skiprows=1, header=None)[1]
+        indices_case_prediction = np.where(case_predictions == 0)[0]
+        predictions.loc[indices_case_prediction] = "UNHAPPY"
 
     else:
-        total_time = pd.read_csv("data/predictions/Im_NN_totalTime_after_threshold.csv", skiprows=1,
-                                 header=None)[1]
-
-        indices_unknown_prediction = np.where(total_time == 2)[0]
+        ontime_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced),
+                        header=None, skiprows=1)[1]
+        indices_late_prediction = np.where(ontime_predictions == 0)[0]
+        predictions.loc[indices_late_prediction] = "UNHAPPY"
+        indices_unknown_prediction = np.where(ontime_predictions == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
 
-        indices_late_prediction = np.where(total_time == 0)[0]
-        predictions.loc[indices_late_prediction] = "UNHAPPY"
+        cancel_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCancellation.csv".format(model, balanced),
+                                         skiprows=1, header=None)[1]
+        indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
+        predictions.loc[indices_cancel_prediction] = "UNHAPPY"
 
-        print(predictions.value_counts())
+        return_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noReturn.csv".format(model, balanced),
+                                         skiprows=1, header=None)[1]
+        indices_return_prediction = np.where(return_predictions == 0)[0]
+        predictions.loc[indices_return_prediction] = "UNHAPPY"
 
-    cancel_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noCancellation_after_threshold.csv", skiprows=1, header=None)[1]
-    indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
-    predictions.loc[indices_cancel_prediction] = "UNHAPPY"
+        case_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCase.csv".format(model, balanced),
+                                       skiprows=1, header=None)[1]
+        indices_case_prediction = np.where(case_predictions == 0)[0]
+        predictions.loc[indices_case_prediction] = "UNHAPPY"
 
-    return_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noReturn_after_threshold.csv", skiprows=1, header=None)[1]
-    indices_return_prediction = np.where(return_predictions == 0)[0]
-    predictions.loc[indices_return_prediction] = "UNHAPPY"
-
-    case_predictions = pd.read_csv("data/results/Imbalanced_threshold/Im_NN_noCase_after_threshold.csv", skiprows=1, header=None)[1]
-    indices_case_prediction = np.where(case_predictions == 0)[0]
-    predictions.loc[indices_case_prediction] = "UNHAPPY"
-
-    predictions_train, predictions, true_values_train, true_values = train_test_split(predictions, true_values, test_size=0.2, random_state=1234)
-
-    print(predictions.value_counts())
-    print(true_values.value_counts())
+    predictions_train, predictions, true_values_train, true_values = \
+        train_test_split(predictions, true_values, test_size=0.2, random_state=1234)
 
     true_values = true_values.to_numpy()
     predictions = predictions.to_numpy()
@@ -220,7 +227,10 @@ def match_classification():
         if predictions[i] == 0:
             if true_values[i] == 0:
                 correct_minority += 1
+    print("Correct predictions minority class:", correct_minority)
 
     classes = ["UNKNOWN", "KNOWN HAPPY", "UNHAPPY"]
     macro_weighted_f1_print(true_values, predictions, classes)
+
+    return
 

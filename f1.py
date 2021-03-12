@@ -137,7 +137,7 @@ def both_models_both_true():
     temp.to_csv("test_ding_theshold.csv")
 
 
-def match_classification():
+def match_classification(model, balanced, threshold):
     threshold_boolean = True
 
     true_values = pd.read_csv("data/train_test_frames/final_test_x.csv")["detailedMatchClassification"]
