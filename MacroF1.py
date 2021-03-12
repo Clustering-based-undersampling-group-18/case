@@ -125,11 +125,11 @@ def macro_weighted_f1_print(true, predict, classes):
 
 # Function that optimizes the prediction threshold
 def threshold_search(true, prob, criteria, balanced):
-    true = true.to_numpy()
     if balanced:
         balanced = "balanced"
     else:
         balanced = "imbalanced"
+    true = true.to_numpy()
     prob_train, prob_test, true_train, true_test = train_test_split(prob, true, test_size=0.2, random_state=1234)
 
     thresholds = np.linspace(0, 1, 101)
