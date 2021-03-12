@@ -87,6 +87,13 @@ for i in range(1, 4):
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
                       macro_weighted_f1_print(depend_test, XGB_pred_known, [0, 1]))
 
+                # Saving new prediction
+                XGB_pred_known = pd.DataFrame(XGB_pred_known)
+                if balanced:
+                    XGB_pred_known.to_csv("data/predictions/XGB_balanced_ct_prediction_Unknown.csv")
+                else:
+                    XGB_pred_known.to_csv("data/predictions/XGB_imbalanced_ct_prediction_Unknown.csv")
+
             else:
                 XGB_pred_known = XGB1.predc
 
@@ -107,6 +114,14 @@ for i in range(1, 4):
                 print("***RESULTS WITH THRESHOLD***")
                 print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
                       macro_weighted_f1_print(depend_test, NN_pred_known, [0, 1]))
+
+                # Saving new prediction
+                NN_pred_known = pd.DataFrame(NN_pred_known)
+                if balanced:
+                    NN_pred_known.to_csv("data/predictions/NN_balanced_ct_prediction_Unknown.csv")
+                else:
+                    NN_pred_known.to_csv("data/predictions/NN_imbalanced_ct_prediction_Unknown.csv")
+
             else:
                 NN_pred_known = NN1.predc
                 NN_pred_known = NN_pred_known.T
@@ -145,6 +160,14 @@ for i in range(1, 4):
                 best_threshold = threshold_search(depend_test, XGB_prob_onTime, "XGB {0}".format(criteria))
                 XGB_pred_onTime = np.ones(len(XGB_prob_onTime))
                 XGB_pred_onTime[XGB_prob_onTime <= best_threshold] = 0
+
+                # Saving new prediction
+                XGB_pred_onTime = pd.DataFrame(XGB_pred_onTime)
+                if balanced:
+                    XGB_pred_onTime.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria))
+                else:
+                    XGB_pred_onTime.to_csv("data/predictions/XGB_imbalanced_ct_prediction_{0}.csv".format(criteria))
+
             else:
                 XGB_pred_onTime = XGB2.predc
 
@@ -194,6 +217,14 @@ for i in range(1, 4):
                 best_threshold = threshold_search(depend_test, NN_prob_onTime, "NN {0}".format(criteria))
                 NN_pred_onTime = np.ones(len(NN_prob_onTime))
                 NN_pred_onTime[NN_prob_onTime <= best_threshold] = 0
+
+                # Saving new prediction
+                NN_pred_onTime = pd.DataFrame(NN_pred_onTime)
+                if balanced:
+                    NN_pred_onTime.to_csv("data/predictions/NN_balanced_ct_prediction_{0}.csv".format(criteria))
+                else:
+                    NN_pred_onTime.to_csv("data/predictions/NN_imbalanced_ct_prediction_{0}.csv".format(criteria))
+
             else:
                 NN_pred_onTime = NN2.predc
                 NN_pred_onTime = NN_pred_onTime.T
