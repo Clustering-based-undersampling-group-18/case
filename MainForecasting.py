@@ -11,13 +11,13 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = True
-XGBoost = False
-balanced = False
-threshold = True
+NeuralNetwork = False
+XGBoost = True
+balanced_data = True
+threshold = False
 
 # Importing train data
-if not balanced:
+if not balanced_data:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
     X_train = X_train.drop(columns={'sellerId', 'orderDate', 'Unnamed: 0'})
     X_train = X_train.iloc[:, 1:]
@@ -38,21 +38,24 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(1, 4):
+for i in range(0, 4):
+    continue
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
     print("Dependent variable to be predicted is", criteria)
-    if balanced:
+    if balanced_data:
         print('Data that is used is balanced')
+        balanced = "balanced"
     else:
         print('Data that is used is imbalanced')
+        balanced = "imbalanced"
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
         # Step 1
         # Importing train data
-        if balanced:
+        if balanced_data:
             X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
             X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             X_train = X_train.iloc[:, 1:]
@@ -84,15 +87,12 @@ for i in range(1, 4):
                 XGB_pred_known = np.ones(len(XGB_prob_known))
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
                 print("Results after threshold optimization:")
-                print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
+                print("XGB macro weighted F1 score for {0} with optimized threshold:".format("Unknown"),
                       macro_weighted_f1_print(depend_test, XGB_pred_known, [0, 1]))
 
                 # Saving new prediction
                 save = pd.DataFrame(XGB_pred_known)
-                if balanced:
-                    save.to_csv("data/predictions/XGB_balanced_ct_prediction_Unknown.csv")
-                else:
-                    save.to_csv("data/predictions/XGB_imbalanced_ct_prediction_Unknown.csv")
+                save.to_csv("data/predictions/XGB_{0}_ct_prediction_Unknown.csv".format(balanced))
 
             else:
                 XGB_pred_known = XGB1.predc
@@ -117,10 +117,7 @@ for i in range(1, 4):
 
                 # Saving new prediction
                 save = pd.DataFrame(NN_pred_known)
-                if balanced:
-                    save.to_csv("data/predictions/NN_balanced_ct_prediction_Unknown.csv")
-                else:
-                    save.to_csv("data/predictions/NN_imbalanced_ct_prediction_Unknown.csv")
+                save.to_csv("data/predictions/NN_{0}_ct_prediction_Unknown.csv".format(balanced))
 
             else:
                 NN_pred_known = NN1.predc
@@ -129,7 +126,7 @@ for i in range(1, 4):
 
         # Step 2
         # Importing train data
-        if balanced:
+        if balanced_data:
             X_train_onTime = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
             X_train_onTime = X_train_onTime.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             X_train_onTime = X_train_onTime.iloc[:, 1:]
@@ -163,10 +160,7 @@ for i in range(1, 4):
 
                 # Saving new prediction
                 save = pd.DataFrame(XGB_pred_onTime)
-                if balanced:
-                    save.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria))
-                else:
-                    save.to_csv("data/predictions/XGB_imbalanced_ct_prediction_{0}.csv".format(criteria))
+                save.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria).format(balanced))
 
             else:
                 XGB_pred_onTime = XGB2.predc
@@ -188,12 +182,7 @@ for i in range(1, 4):
                   macro_weighted_f1_print(depend_test, final_pred_XGB, classes))
 
             final_pred_XGB = pd.DataFrame(final_pred_XGB)
-            if balanced:
-                final_pred_XGB.to_csv(
-                    "data/predictions/XGB_balanced_final_prediction_{0}.csv".format(criteria))
-            else:
-                final_pred_XGB.to_csv(
-                    "data/predictions/XGB_imbalanced_final_prediction_{0}.csv".format(criteria))
+            final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_prediction_{1}.csv".format(balanced, criteria))
 
         if NeuralNetwork:
             # Preparing test data
@@ -220,10 +209,7 @@ for i in range(1, 4):
 
                 # Saving new prediction
                 save = pd.DataFrame(NN_pred_onTime)
-                if balanced:
-                    save.to_csv("data/predictions/NN_balanced_ct_prediction_{0}.csv".format(criteria))
-                else:
-                    save.to_csv("data/predictions/NN_imbalanced_ct_prediction_{0}.csv".format(criteria))
+                save.to_csv("data/predictions/NN_{0}_ct_prediction_{0}.csv".format(criteria).format(balanced))
 
             else:
                 NN_pred_onTime = NN2.predc
@@ -249,19 +235,13 @@ for i in range(1, 4):
 
             final_pred_NN = pd.DataFrame(final_pred_NN)
             if threshold:
-                if balanced:
-                    final_pred_NN.to_csv("data/predictions/NN_balanced_final_ct_prediction_{0}.csv".format(criteria))
-                else:
-                    final_pred_NN.to_csv("data/predictions/NN_imbalanced_final_ct_prediction_{0}.csv".format(criteria))
+                final_pred_NN.to_csv("data/predictions/NN_{0}_final_ct_prediction_{1}.csv".format(balanced, criteria))
             else:
-                if balanced:
-                    final_pred_NN.to_csv("data/predictions/NN_balanced_final_c_prediction_{0}.csv".format(criteria))
-                else:
-                    final_pred_NN.to_csv("data/predictions/NN_imbalanced_final_c_prediction_{0}.csv".format(criteria))
+                final_pred_NN.to_csv("data/predictions/NN_{0}_final_c_prediction_{1}.csv".format(balanced, criteria))
 
     else:
         # Importing train data
-        if balanced:
+        if balanced_data:
             X_train = pd.read_csv("data/train_test_frames/balanced_train_x_{0}.csv".format(criteria))
             X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             X_train = X_train.iloc[:, 1:]
@@ -290,10 +270,7 @@ for i in range(1, 4):
 
                 # Saving new prediction
                 XGB_pred = pd.DataFrame(XGB_pred)
-                if balanced:
-                    XGB_pred.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria))
-                else:
-                    XGB_pred.to_csv("data/predictions/XGB_imbalanced_ct_prediction_{0}.csv".format(criteria))
+                XGB_pred.to_csv("data/predictions/XGB_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
 
         if NeuralNetwork:
             X_train_stand = standardize_data(X_train).astype(np.float32)
@@ -310,20 +287,16 @@ for i in range(1, 4):
                 NN_pred = np.ones(len(NN_prob))
                 NN_pred[NN_prob < best_threshold] = 0
                 print("***RESULTS WITH THRESHOLD***")
-                print("NN macro weighted F1 score for {0} with optimized threshold: ".format(criteria),
+                print("NN macro weighted F1 score for {0} with optimized threshold:".format(criteria),
                       macro_weighted_f1_print(depend_test, NN_pred, [0, 1]))
 
                 # Saving new prediction
                 NN_pred = pd.DataFrame(NN_pred)
-                if balanced:
-                    NN_pred.to_csv("data/predictions/NN_balanced_ct_prediction_{0}.csv".format(criteria))
-                else:
-                    NN_pred.to_csv("data/predictions/NN_imbalanced_ct_prediction_{0}.csv".format(criteria))
-
+                NN_pred.to_csv("data/predictions/NN_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
 
 # Classifying the orders based on their predictions
 if XGBoost:
-    match_classification("XGB", balanced, threshold)
+    match_classification("XGB", balanced_data, threshold)
 
 if NeuralNetwork:
-    match_classification("NN", balanced, threshold)
+    match_classification("NN", balanced_data, threshold)

@@ -171,7 +171,7 @@ def match_classification(model, balanced, threshold):
 
     if threshold:
         delivery_predictions = \
-            pd.read_csv("data/predictions/{0}_balanced_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_balanced_finalt_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
@@ -198,7 +198,7 @@ def match_classification(model, balanced, threshold):
 
     else:
         ontime_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_{1}_final_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(ontime_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
