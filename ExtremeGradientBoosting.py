@@ -12,7 +12,7 @@ import pandas as pd
 import numpy as np
 
 
-class ExtremeGradientBoosting:
+class XGBoost:
     def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced):
 
         if balanced:

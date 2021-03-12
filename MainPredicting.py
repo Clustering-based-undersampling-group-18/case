@@ -4,7 +4,7 @@ Using functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 # Packages and modules
 from MacroF1 import macro_weighted_f1_print, threshold_search, match_classification
-from XGBoost import ExtremeGradientBoosting
+from ExtremeGradientBoosting import XGBoost
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
 import pandas as pd
@@ -73,7 +73,7 @@ for i in range(1, 4):
 
         # Predicting known or unknown
         if XGBoost:
-            XGB1 = ExtremeGradientBoosting(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
+            XGB1 = XGBoost(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
             print("XGB best parameters for predicting known/unknown delivery time:", XGB1.best_param)
             print("XGB macro weighted F1 score for predicting known/unknown delivery time:", XGB1.score)
 
@@ -149,7 +149,7 @@ for i in range(1, 4):
             X_test_XGB = X_test[XGB_pred_known == 1]
 
             # Predicting whether on time or not
-            XGB2 = ExtremeGradientBoosting(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced)
+            XGB2 = XGBoost(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced)
             print("XGB best parameters for predicting onTimeDelivery when predicted known:", XGB2.best_param)
 
             # Determining the best threshold
@@ -274,7 +274,7 @@ for i in range(1, 4):
 
         # Predicting dependent variable
         if XGBoost:
-            XGB = ExtremeGradientBoosting(X_train, X_test, depend_train, depend_test, criteria, balanced)
+            XGB = XGBoost(X_train, X_test, depend_train, depend_test, criteria, balanced)
             print("XGB best parameters for {0}: ".format(criteria), XGB.best_param)
             print("XGB macro weighted F1 score for {0}: ".format(criteria), XGB.score)
 
