@@ -3,7 +3,7 @@ This script contains the function for computing forecasts with a Neural Network 
 """
 # Packages and modules
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
-from MacroF1 import macro_weighted_f1_print
+from PredictionMetrics import macro_weighted_f1_print
 from sklearn.model_selection import KFold
 from sklearn.metrics import roc_auc_score
 import tensorflow as tf
