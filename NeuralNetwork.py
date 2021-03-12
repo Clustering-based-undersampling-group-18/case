@@ -1,14 +1,14 @@
 """
 This script contains the function for computing forecasts with a Neural Network model
 """
-
-import tensorflow as tf
-from sklearn.metrics import roc_auc_score
-from sklearn.model_selection import train_test_split, KFold, cross_val_score
+# Packages and modules
 from hyperopt import fmin, tpe, hp, STATUS_OK, Trials
 from MacroF1 import macro_weighted_f1_print
-import numpy as np
+from sklearn.model_selection import KFold
+from sklearn.metrics import roc_auc_score
+import tensorflow as tf
 import pandas as pd
+import numpy as np
 import sys
 
 

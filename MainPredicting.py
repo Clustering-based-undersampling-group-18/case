@@ -1,8 +1,8 @@
 """
-This script can be run to generate forecasts for the four criteria
-It uses the functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
+This script can be run to generate forecasts for the four criteria and perform the match classification
+Using functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
-
+# Packages and modules
 from MacroF1 import macro_weighted_f1_print, threshold_search, match_classification
 from XGBoost import ExtremeGradientBoosting
 from DataImbalance import standardize_data
