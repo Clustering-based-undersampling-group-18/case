@@ -1,6 +1,6 @@
 """
 This script contains functions to calculate prediction metrics, optimize the threshold and perform match classification
-These functions are used in MainPredicting.py
+These functions are used in MainForecasting.py
 """
 # Packages and modules
 from sklearn.model_selection import train_test_split
