@@ -11,8 +11,8 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = True
-XGBoost = False
+NeuralNetwork = False
+XGBoost = True
 balanced = False
 threshold = True
 
@@ -38,7 +38,7 @@ Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
 
 # For loop over all dependent variables
-for i in range(0, 4):
+for i in range(0,1):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
