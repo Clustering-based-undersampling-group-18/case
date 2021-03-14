@@ -16,7 +16,7 @@ XGBoost = False
 balanced_data = False
 threshold = False
 
-"""
+
 # Importing train data
 if not balanced_data:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
@@ -295,7 +295,7 @@ for i in range(1, 2):
                 # Saving new prediction
                 NN_pred = pd.DataFrame(NN_pred)
                 NN_pred.to_csv("data/predictions/NN_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
-"""
+
 # Classifying the orders based on their predictions
 if XGBoost:
     match_classification("XGB", balanced_data, threshold)
