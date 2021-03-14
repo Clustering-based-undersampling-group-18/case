@@ -181,7 +181,10 @@ for i in range(1, 2):
                   macro_weighted_f1_print(depend_test, final_pred_XGB, classes))
 
             final_pred_XGB = pd.DataFrame(final_pred_XGB)
-            final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_prediction_{1}.csv".format(balanced, criteria))
+            if threshold:
+                final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_ct_prediction_{1}.csv".format(balanced, criteria))
+            else:
+                final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_prediction_{1}.csv".format(balanced, criteria))
 
         if NeuralNetwork:
             # Preparing test data
