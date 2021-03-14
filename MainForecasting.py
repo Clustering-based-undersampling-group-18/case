@@ -4,15 +4,15 @@ Using functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 # Packages and modules
 from PredictionMetrics import macro_weighted_f1_print, threshold_search, match_classification
-#from ExtremeGradientBoosting import XGBmodel
+from ExtremeGradientBoosting import XGBmodel
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
 import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = True
-XGBoost = False
+NeuralNetwork = False
+XGBoost = True
 balanced_data = False
 threshold = False
 
@@ -52,7 +52,7 @@ for i in range(1, 2):
 
     # Two-step binary classification for onTimeDelivery
     if criteria == 'onTimeDelivery':
-        # Step 1
+        """# Step 1
         # Importing train data
         if balanced_data:
             X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
@@ -121,7 +121,7 @@ for i in range(1, 2):
             else:
                 NN_pred_known = NN1.predc
                 NN_pred_known = NN_pred_known.T
-                NN_pred_known = NN_pred_known[0]
+                NN_pred_known = NN_pred_known[0]"""
 
         # Step 2
         # Importing train data
@@ -140,6 +140,11 @@ for i in range(1, 2):
 
         if XGBoost:
             # Preparing test data
+            XGB_pred_known = pd.read_csv("data/predictions/XGB_imbalanced_c_prediction_Unknown.csv")
+            XGB_pred_known = XGB_pred_known.drop(columns="Unnamed: 0")
+            XGB_pred_known = XGB_pred_known.to_numpy()
+            XGB_pred_known = XGB_pred_known.T
+            XGB_pred_known = XGB_pred_known[0]
             depend_test = Y_test[criteria]
             depend_test = depend_test[XGB_pred_known == 1]
             X_test_XGB = X_test[XGB_pred_known == 1]
