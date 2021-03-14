@@ -177,6 +177,8 @@ def macro_weighted_f1_print_match(true, predict, classes):
 
     print("Macro recall:", recall)
     print("Macro precision:", precision)
+    print("Macro F1:", macro_f1)
+
     return macro_f1
 
 
@@ -260,7 +262,7 @@ def match_classification(model, balanced, threshold):
 
     else:
         ontime_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_final_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(ontime_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"

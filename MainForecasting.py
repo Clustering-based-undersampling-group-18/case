@@ -13,8 +13,8 @@ import numpy as np
 # Algorithm settings
 NeuralNetwork = True
 XGBoost = False
-balanced_data = True
-threshold = True
+balanced_data = False
+threshold = False
 
 """
 # Importing train data
