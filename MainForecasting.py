@@ -11,8 +11,8 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = True
-XGBoost = False
+NeuralNetwork = False
+XGBoost = True
 balanced_data = True
 threshold = True
 
@@ -159,7 +159,7 @@ for i in range(1, 2):
 
                 # Saving new prediction
                 save = pd.DataFrame(XGB_pred_onTime)
-                save.to_csv("data/predictions/XGB_balanced_ct_prediction_{0}.csv".format(criteria).format(balanced))
+                save.to_csv("data/predictions/XGB_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
 
             else:
                 XGB_pred_onTime = XGB2.predc
@@ -208,7 +208,7 @@ for i in range(1, 2):
 
                 # Saving new prediction
                 save = pd.DataFrame(NN_pred_onTime)
-                save.to_csv("data/predictions/NN_{0}_ct_prediction_{0}.csv".format(criteria).format(balanced))
+                save.to_csv("data/predictions/NN_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
 
             else:
                 NN_pred_onTime = NN2.predc
