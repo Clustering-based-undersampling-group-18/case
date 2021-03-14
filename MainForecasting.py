@@ -75,7 +75,7 @@ for i in range(1, 2):
 
         # Predicting known or unknown
         if XGBoost:
-            XGB1 = XGBmodel(X_train, X_test, depend_train, depend_test, 'Unknown', balanced)
+            XGB1 = XGBmodel(X_train, X_test, depend_train, depend_test, 'Unknown', balanced_data)
             print("XGB best parameters for predicting known/unknown delivery time:", XGB1.best_param)
             print("XGB macro weighted F1 score for predicting known/unknown delivery time:", XGB1.score)
 
@@ -98,7 +98,7 @@ for i in range(1, 2):
 
         if NeuralNetwork:
             X_train_stand = standardize_data(X_train).astype(np.float32)
-            NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced)
+            NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced_data)
             print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
             print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
 
@@ -150,7 +150,7 @@ for i in range(1, 2):
             X_test_XGB = X_test[XGB_pred_known == 1]
 
             # Predicting whether on time or not
-            XGB2 = XGBmodel(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced)
+            XGB2 = XGBmodel(X_train_onTime, X_test_XGB, depend_train, depend_test, criteria, balanced_data)
             print("XGB best parameters for predicting onTimeDelivery when predicted known:", XGB2.best_param)
 
             # Determining the best threshold
@@ -200,7 +200,7 @@ for i in range(1, 2):
 
             # Predicting whether on time or not
             X_train_stand = standardize_data(X_train_onTime).astype(np.float32)
-            NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced)
+            NN2 = NNmodel(X_train_stand, X_test_stand_NN, depend_train, depend_test, criteria, balanced_data)
             print("NN best parameters for predicting onTimeDelivery when predicted known:", NN2.best)
 
             # Determining the best threshold
@@ -261,7 +261,7 @@ for i in range(1, 2):
 
         # Predicting dependent variable
         if XGBoost:
-            XGB = XGBmodel(X_train, X_test, depend_train, depend_test, criteria, balanced)
+            XGB = XGBmodel(X_train, X_test, depend_train, depend_test, criteria, balanced_data)
             print("XGB best parameters for {0}: ".format(criteria), XGB.best_param)
             print("XGB macro weighted F1 score for {0}: ".format(criteria), XGB.score)
 
@@ -281,7 +281,7 @@ for i in range(1, 2):
 
         if NeuralNetwork:
             X_train_stand = standardize_data(X_train).astype(np.float32)
-            NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced)
+            NN = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, criteria, balanced_data)
             print("NN best parameters for {0}: ".format(criteria), NN.best)
             print("NN macro weighted F1 score for {0}: ".format(criteria), NN.score)
 
