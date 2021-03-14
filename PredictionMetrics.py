@@ -177,6 +177,8 @@ def macro_weighted_f1_print_match(true, predict, classes):
 
     print("Macro recall:", recall)
     print("Macro precision:", precision)
+    print("Macro F1:", macro_f1)
+
     return macro_f1
 
 
@@ -233,7 +235,7 @@ def match_classification(model, balanced, threshold):
 
     if threshold:
         delivery_predictions = \
-            pd.read_csv("data/predictions/{0}_balanced_finalt_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_balanced_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
@@ -260,7 +262,7 @@ def match_classification(model, balanced, threshold):
 
     else:
         ontime_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_final_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(ontime_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
@@ -285,7 +287,7 @@ def match_classification(model, balanced, threshold):
     predictions_train, predictions, true_values_train, true_values = \
         train_test_split(predictions, true_values, test_size=0.2, random_state=1234)
 
-    print("***True values***")
+    print("***Predicted values***")
     print(predictions.value_counts())
     print("***True values***")
     print(true_values.value_counts())
