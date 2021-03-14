@@ -184,7 +184,7 @@ for i in range(1, 2):
             if threshold:
                 final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_ct_prediction_{1}.csv".format(balanced, criteria))
             else:
-                final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_prediction_{1}.csv".format(balanced, criteria))
+                final_pred_XGB.to_csv("data/predictions/XGB_{0}_final_c_prediction_{1}.csv".format(balanced, criteria))
 
         if NeuralNetwork:
             # Preparing test data
@@ -295,6 +295,7 @@ for i in range(1, 2):
                 # Saving new prediction
                 NN_pred = pd.DataFrame(NN_pred)
                 NN_pred.to_csv("data/predictions/NN_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
+
 
 # Classifying the orders based on their predictions
 if XGBoost:
