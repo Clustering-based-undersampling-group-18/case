@@ -3,13 +3,13 @@ This script contains functions to make the data balanced
 These functions are used in MainData.py
 """
 # Packages and modules
-import pandas as pd
-import numpy as np
 from sklearn.model_selection import KFold, train_test_split
 from sklearn.preprocessing import StandardScaler
 from sklearn.cluster import MiniBatchKMeans
-import pickle
+import pandas as pd
+import numpy as np
 import logging
+import pickle
 import time
 
 
