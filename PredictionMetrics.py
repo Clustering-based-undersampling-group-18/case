@@ -161,7 +161,7 @@ def threshold_search(true, prob, criteria):
 
 
 # This function performs the match classification based on the business decision tree + the criteria predictions
-def match_classification(model, balanced, threshold):
+def match_classification(model, balanced_data, threshold):
     frame = pd.read_csv("data/frame.csv",
                         dtype={'onTimeDelivery': str, 'datetTimeFirstDeliveryMoment': object, 'returnCode': object,
                                'transporterNameOther': object, 'cancellationReasonCode': object}
@@ -169,14 +169,14 @@ def match_classification(model, balanced, threshold):
     train, true_values = train_test_split(frame, test_size=0.3, random_state=1234, shuffle=True)
     predictions = pd.Series(["KNOWN HAPPY"] * len(true_values))
 
-    if balanced:
+    if balanced_data:
         balanced = "balanced"
     else:
         balanced = "imbalanced"
 
     if threshold:
         delivery_predictions = \
-            pd.read_csv("data/predictions/{0}_balanced_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
+            pd.read_csv("data/predictions/{0}_{1}_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
                         header=None, skiprows=1)[1]
         indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
