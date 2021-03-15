@@ -16,7 +16,6 @@ class XGBmodel:
     def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced_data):
 
         if balanced_data:
-            print("test")
             # Creating a list with all the file names that have to be imported
             names = []
             for i in range(1, 6):

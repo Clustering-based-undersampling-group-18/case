@@ -16,7 +16,6 @@ XGBoost = True
 balanced_data = True
 threshold = False
 
-
 # Importing train data
 if not balanced_data:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
@@ -37,8 +36,8 @@ X_test_stand = standardize_data(X_test).astype(np.float32)
 Y_test = pd.read_csv("data/train_test_frames/final_test_y.csv")
 Y_test = Y_test.drop(columns={'Unnamed: 0'})
 dep_vars = Y_test.columns
-# For loop over all dependent variables
 
+# For loop over all dependent variables
 for i in range(1, 2):
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]

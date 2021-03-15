@@ -13,9 +13,9 @@ import sys
 
 
 class NNmodel:
-    def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced):
+    def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced_data):
 
-        if balanced:
+        if balanced_data:
             # Creating a list with all the file names that have to be imported
             names = []
             for i in range(1, 6):
@@ -164,7 +164,7 @@ class NNmodel:
 
         # Obtaining the parameter set that maximizes the evaluation metric
         trials = Trials()
-        if balanced:
+        if balanced_data:
             self.best = fmin(obj_func_bal, hyperparams, algo=tpe.suggest, max_evals=5, trials=trials,
                              rstate=np.random.RandomState(1))
         else:
@@ -197,7 +197,7 @@ class NNmodel:
         self.predc = (self.predp > 0.5).astype("int32")
         framep = pd.DataFrame(self.predp)
         framec = pd.DataFrame(self.predc)
-        if balanced:
+        if balanced_data:
             framec.to_csv("data/predictions/NN_balanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/NN_balanced_p_prediction_{0}.csv".format(criteria))
         else:
