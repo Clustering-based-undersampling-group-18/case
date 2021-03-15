@@ -13,9 +13,10 @@ import numpy as np
 
 
 class XGBmodel:
-    def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced):
+    def __init__(self, x_train, x_test, y_train, y_test, criteria, balanced_data):
 
-        if balanced:
+        if balanced_data:
+            print("test")
             # Creating a list with all the file names that have to be imported
             names = []
             for i in range(1, 6):
@@ -105,7 +106,7 @@ class XGBmodel:
 
         # Obtaining the parameter set that maximizes the evaluation metric
         trials = Trials()
-        if balanced:
+        if balanced_data:
             self.best_param = fmin(obj_func_bal, hyperparams, max_evals=100, algo=tpe.suggest, trials=trials,
                                    rstate=np.random.RandomState(1))
         else:
@@ -125,7 +126,7 @@ class XGBmodel:
         self.predp = RF_best.predict_proba(x_test)
         framec = pd.DataFrame(self.predc)
         framep = pd.DataFrame(self.predp)
-        if balanced:
+        if balanced_data:
             framec.to_csv("data/predictions/XGB_balanced_c_prediction_{0}.csv".format(criteria))
             framep.to_csv("data/predictions/XGB_balanced_p_prediction_{0}.csv".format(criteria))
         else:
