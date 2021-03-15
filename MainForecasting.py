@@ -55,7 +55,7 @@ for i in range(1, 2):
     if criteria == 'onTimeDelivery':
         # Step 1
         # Importing train data
-        if balanced_data:
+        if balanced_data == 0:
             X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
             X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             X_train = X_train.iloc[:, 1:]
