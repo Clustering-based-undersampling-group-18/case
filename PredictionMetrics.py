@@ -176,52 +176,55 @@ def match_classification(model, balanced_data, threshold):
 
     if threshold:
         delivery_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_final_ct_prediction_onTimeDelivery.csv".format(model, balanced),
-                        header=None, skiprows=1)[1]
+            pd.read_csv("data/predictions/{0}_{1}_final_ct_prediction_onTimeDelivery.csv".format(model, balanced))
+        delivery_predictions = delivery_predictions.drop(columns='Unnamed: 0')
         indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
         indices_unknown_prediction = np.where(delivery_predictions == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
 
         cancel_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCancellation.csv".format(model, balanced),
-                        skiprows=1, header=None)[1]
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCancellation.csv".format(model, balanced))
+        cancel_predictions = cancel_predictions.drop(columns='Unnamed: 0')
         indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
         predictions.loc[indices_cancel_prediction] = "UNHAPPY"
 
         return_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noReturn.csv".format(model, balanced),
-                        skiprows=1, header=None)[1]
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noReturn.csv".format(model, balanced))
+        return_predictions = return_predictions.drop(columns='Unnamed: 0')
         indices_return_prediction = np.where(return_predictions == 0)[0]
         predictions.loc[indices_return_prediction] = "UNHAPPY"
 
         case_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCase.csv".format(model, balanced),
-                        skiprows=1, header=None)[1]
+            pd.read_csv("data/predictions/{0}_{1}_ct_prediction_noCase.csv".format(model, balanced))
+        case_predictions = case_predictions.drop(columns='Unnamed: 0')
         indices_case_prediction = np.where(case_predictions == 0)[0]
         predictions.loc[indices_case_prediction] = "UNHAPPY"
 
     else:
-        ontime_predictions = \
-            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced),
-                        header=None, skiprows=1)[1]
-        indices_late_prediction = np.where(ontime_predictions == 0)[0]
+        delivery_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_final_c_prediction_onTimeDelivery.csv".format(model, balanced))
+        delivery_predictions = delivery_predictions.drop(columns='Unnamed: 0')
+        indices_late_prediction = np.where(delivery_predictions == 0)[0]
         predictions.loc[indices_late_prediction] = "UNHAPPY"
-        indices_unknown_prediction = np.where(ontime_predictions == 2)[0]
+        indices_unknown_prediction = np.where(delivery_predictions == 2)[0]
         predictions.loc[indices_unknown_prediction] = "UNKNOWN"
 
-        cancel_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCancellation.csv".format(model, balanced),
-                                         skiprows=1, header=None)[1]
+        cancel_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCancellation.csv".format(model, balanced))
+        cancel_predictions = cancel_predictions.drop(columns='Unnamed: 0')
         indices_cancel_prediction = np.where(cancel_predictions == 0)[0]
         predictions.loc[indices_cancel_prediction] = "UNHAPPY"
 
-        return_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noReturn.csv".format(model, balanced),
-                                         skiprows=1, header=None)[1]
+        return_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_c_prediction_noReturn.csv".format(model, balanced))
+        return_predictions = return_predictions.drop(columns='Unnamed: 0')
         indices_return_prediction = np.where(return_predictions == 0)[0]
         predictions.loc[indices_return_prediction] = "UNHAPPY"
 
-        case_predictions = pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCase.csv".format(model, balanced),
-                                       skiprows=1, header=None)[1]
+        case_predictions = \
+            pd.read_csv("data/predictions/{0}_{1}_c_prediction_noCase.csv".format(model, balanced))
+        case_predictions = case_predictions.drop(columns='Unnamed: 0')
         indices_case_prediction = np.where(case_predictions == 0)[0]
         predictions.loc[indices_case_prediction] = "UNHAPPY"
 
