@@ -4,7 +4,7 @@ Using functions from NeuralNetwork.py, XGBoost.py and PredictionMetrics.py
 """
 # Packages and modules
 from PredictionMetrics import macro_weighted_f1_print, threshold_search, match_classification
-from ExtremeGradientBoosting import XGBmodel
+#from ExtremeGradientBoosting import XGBmodel
 from DataImbalance import standardize_data
 from NeuralNetwork import NNmodel
 import pandas as pd
@@ -13,9 +13,9 @@ import numpy as np
 # Algorithm settings
 NeuralNetwork = False
 XGBoost = True
-balanced_data = True
-threshold = False
-
+balanced_data = False
+threshold = True
+""" 
 # Importing train data
 if not balanced_data:
     X_train = pd.read_csv("data/train_test_frames/final_train_x.csv")
@@ -297,7 +297,7 @@ for i in range(1, 2):
                 NN_pred = pd.DataFrame(NN_pred)
                 NN_pred.to_csv("data/predictions/NN_{0}_ct_prediction_{1}.csv".format(balanced, criteria))
 
-
+"""
 # Classifying the orders based on their predictions
 if XGBoost:
     match_classification("XGB", balanced_data, threshold)
