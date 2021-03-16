@@ -124,6 +124,7 @@ def macro_weighted_f1_print(true, predict, classes):
 
     print("Macro recall:", recall)
     print("Macro precision:", precision)
+    print("Macro F1:", macro_f1)
     return macro_f1
 
 
