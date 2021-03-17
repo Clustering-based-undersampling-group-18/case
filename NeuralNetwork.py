@@ -54,7 +54,7 @@ class NNmodel:
                             i = i + 1
                     elif toImport.__contains__('y'):
                         temp = temp.iloc[:, 1:]
-                        if criteria == 'Unknown':
+                        if criteria == 'KnownUnknown':
                             temp = temp['onTimeDelivery']
                             temp = temp.replace({'0.0': 1})
                             temp = temp.replace({'1.0': 1})

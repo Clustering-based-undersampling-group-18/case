@@ -11,7 +11,7 @@ import pandas as pd
 import numpy as np
 
 # Algorithm settings
-NeuralNetwork = False
+NeuralNetwork = True
 XGBoost = True
 balanced_data = False
 threshold = True
@@ -39,7 +39,6 @@ dep_vars = Y_test.columns
 
 # For loop over all dependent variables
 for i in range(0, 4):
-    continue
     criteria = dep_vars[i]
     depend_test = Y_test[criteria]
     print("----------------------------------------------------------------------")
@@ -56,10 +55,10 @@ for i in range(0, 4):
         # Step 1
         # Importing train data
         if balanced_data:
-            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_Unknown.csv")
+            X_train = pd.read_csv("data/train_test_frames/balanced_train_x_KnownUnknown.csv")
             X_train = X_train.drop(columns={'Unnamed: 0', 'Unnamed: 0.1'})
             X_train = X_train.iloc[:, 1:]
-            depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_Unknown.csv")
+            depend_train = pd.read_csv("data/train_test_frames/balanced_train_y_KnownUnknown.csv")
             depend_train = depend_train.drop(columns={'Unnamed: 0'})
         else:
             depend_train = Y_train[criteria]
@@ -76,14 +75,14 @@ for i in range(0, 4):
 
         # Predicting known or unknown
         if XGBoost:
-            XGB1 = XGBmodel(X_train, X_test, depend_train, depend_test, 'Unknown', balanced_data)
+            XGB1 = XGBmodel(X_train, X_test, depend_train, depend_test, 'KnownUnknown', balanced_data)
             print("XGB best parameters for predicting known/unknown delivery time:", XGB1.best_param)
             print("XGB macro weighted F1 score for predicting known/unknown delivery time:", XGB1.score)
 
             # Determining the best threshold
             if threshold:
                 XGB_prob_known = XGB1.predp[:, 1]
-                best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB {0} Unknown".format(balanced))
+                best_threshold = threshold_search(depend_test, XGB_prob_known, "XGB {0} KnownUnknown".format(balanced))
                 XGB_pred_known = np.ones(len(XGB_prob_known))
                 XGB_pred_known[XGB_prob_known <= best_threshold] = 0
                 print("Results after threshold optimization:")
@@ -92,14 +91,14 @@ for i in range(0, 4):
 
                 # Saving new prediction
                 save = pd.DataFrame(XGB_pred_known)
-                save.to_csv("data/predictions/XGB_{0}_ct_prediction_Unknown.csv".format(balanced))
+                save.to_csv("data/predictions/XGB_{0}_ct_prediction_KnownUnknown.csv".format(balanced))
 
             else:
                 XGB_pred_known = XGB1.predc
 
         if NeuralNetwork:
             X_train_stand = standardize_data(X_train).astype(np.float32)
-            NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'Unknown', balanced_data)
+            NN1 = NNmodel(X_train_stand, X_test_stand, depend_train, depend_test, 'KnownUnknown', balanced_data)
             print("NN best parameters for predicting known/unknown delivery time:", NN1.best)
             print("NN macro weighted F1 score for predicting known/unknown delivery time:", NN1.score)
 
@@ -108,16 +107,16 @@ for i in range(0, 4):
                 NN_prob_known = NN1.predp
                 NN_prob_known = NN_prob_known.T
                 NN_prob_known = NN_prob_known[0]
-                best_threshold = threshold_search(depend_test, NN_prob_known, "NN {0} Unknown".format(balanced))
+                best_threshold = threshold_search(depend_test, NN_prob_known, "NN {0} KnownUnknown".format(balanced))
                 NN_pred_known = np.ones(len(NN_prob_known))
                 NN_pred_known[NN_prob_known <= best_threshold] = 0
                 print("***RESULTS WITH THRESHOLD***")
-                print("XGB macro weighted F1 score for {0} with optimized threshold: ".format("Unknown"),
+                print("XGB macro weighted F1 score for KnownUnknown with optimized threshold:",
                       macro_weighted_f1_print(depend_test, NN_pred_known, [0, 1]))
 
                 # Saving new prediction
                 save = pd.DataFrame(NN_pred_known)
-                save.to_csv("data/predictions/NN_{0}_ct_prediction_Unknown.csv".format(balanced))
+                save.to_csv("data/predictions/NN_{0}_ct_prediction_KnownUnknown.csv".format(balanced))
 
             else:
                 NN_pred_known = NN1.predc
@@ -301,7 +300,9 @@ for i in range(0, 4):
 
 # Classifying the orders based on their predictions
 if XGBoost:
+    print("***Match Classification XGB***")
     match_classification("XGB", balanced_data, threshold)
 
 if NeuralNetwork:
+    print("***Match Classification NN***")
     match_classification("NN", balanced_data, threshold)

@@ -176,8 +176,8 @@ def run():
         standardized_data_X = standardize_data(X_train)
 
         # Step 5: perform k-means, for each criteria
-        for criteria in ["noCancellation", "Unknown", "onTimeDelivery", "noReturn", "noCase"]:
-            if criteria == "Unknown":
+        for criteria in ["noCancellation", "KnownUnknown", "onTimeDelivery", "noReturn", "noCase"]:
+            if criteria == "KnownUnknown":
                 Y_train = Y_train.replace(to_replace="0", value=np.float(1))
                 Y_train = Y_train.replace(to_replace=0, value=np.float(1))
                 Y_train = Y_train.replace(to_replace="1", value=np.float(1))
@@ -206,9 +206,9 @@ def run():
         # Step 6: Generate the full balanced training set for each criteria
         if i == 0:
             stand_data_X_val = standardize_data(X_val)
-            for criteria in ["Unknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
+            for criteria in ["KnownUnknown", "onTimeDelivery", "noCancellation", "noReturn", "noCase"]:
 
-                if criteria == "Unknown":
+                if criteria == "KnownUnknown":
                     train_x = pd.read_csv("data/train_test_frames/train_x_fold_1_{0}.csv".format(criteria))
                     train_y = pd.read_csv("data/train_test_frames/train_y_fold_1_{0}.csv".format(criteria))
                     print(train_y["0"].value_counts(ascending=True))
