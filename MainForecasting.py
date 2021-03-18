@@ -14,7 +14,7 @@ import numpy as np
 NeuralNetwork = True
 XGBoost = True
 balanced_data = False
-threshold = True
+threshold = False
 
 # Importing train data
 if not balanced_data:

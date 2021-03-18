@@ -66,7 +66,7 @@ def macro_weighted_f1(true, predict, classes):
     return macro_f1
 
 
-# Function to compute the macro_weighted F1 score of a prediction with printing
+# Function to compute the macro_weighted F1 score of a prediction with printing of the
 def macro_weighted_f1_print(true, predict, classes):
     macro_f1 = 0
     precision = 0
